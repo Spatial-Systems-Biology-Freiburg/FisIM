@@ -4,6 +4,7 @@ import itertools as iter
 import multiprocessing as mp
 import time
 
+
 def factorize_reduced(M):
     res = []
     for i in range(2, M):

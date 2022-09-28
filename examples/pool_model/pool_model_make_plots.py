@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+
 from pool_model_plots import make_nice_plot, make_convergence_plot, make_plots, make_plots_mean, plot_solution_with_exp_design_choice
 from src.database import get_fischer_results_from_collection
 from pool_model import sorting_key, pool_model_sensitivity

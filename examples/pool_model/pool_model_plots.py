@@ -6,6 +6,10 @@ import scipy as sp
 import itertools as iter
 from scipy.integrate import odeint
 
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+
 # Import custom functions
 from src.solving import factorize_reduced
 from src.optimization import get_best_fischer_results

@@ -5,6 +5,10 @@ import itertools as iter
 import multiprocessing as mp
 import time
 
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+
 # Import custom functions for optimization
 from src.optimization import get_best_fischer_results, get_new_combinations_from_best
 from src.solving import factorize_reduced, convert_S_matrix_to_determinant, convert_S_matrix_to_sumeigenval, convert_S_matrix_to_mineigenval, calculate_Fischer_observable
