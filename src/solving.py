@@ -4,6 +4,7 @@ import itertools as iter
 import multiprocessing as mp
 import time
 
+from src.fischer_model import FischerModel
 
 def factorize_reduced(M):
     res = []
@@ -25,6 +26,7 @@ def get_S_matrix(ODE_func, y0_t0, times, Q_arr, P, Const, jacobian=None):
     error_n = np.zeros((times.shape[-1],) + tuple(len(x) for x in Q_arr))
 
     # Iterate over all combinations of Q-Values
+    solutions = []
     for index in iter.product(*[range(len(q)) for q in Q_arr]):
         # Store the results of the respective ODE solution
         Q = [Q_arr[i][j] for i, j in enumerate(index)]
@@ -40,13 +42,17 @@ def get_S_matrix(ODE_func, y0_t0, times, Q_arr, P, Const, jacobian=None):
         # Assume that the error of the measurement is 25% from the measured value r[0] n 
         # (use for covariance matrix calculation)
         error_n[:, index] = r[0].reshape(times.shape[-1], 1) * 0.25
+        solutions.append((t, Q, r))
     # Reshape to 2D Form (len(P),:)
     S = S.reshape((len(P),np.prod(S.shape[1:])))
     error_n = error_n.reshape(np.prod(error_n.shape))
     cov_matrix = np.eye(len(error_n), len(error_n)) * error_n**2
     C = np.linalg.inv(cov_matrix)
-    return S, C
+    return S, C, solutions
 
+
+def unpack_fischer_model(fsm: FischerModel):
+    return fsm.rhs, fsm.y0_t0, fsm.times, fsm.q_values, fsm.parameters, fsm.constants, fsm.jacobian
 
 
 def convert_S_matrix_to_determinant(times, Q_arr, P, Const, S, C):
@@ -77,8 +83,8 @@ def convert_S_matrix_to_mineigenval(times, Q_arr, P, Const, S, C):
 
 def calculate_Fischer_observable(combinations, ODE_func, Y0, jacobian, observable, covar=False):
     times, Q_arr, P, Const = combinations
-    S, C = get_S_matrix(ODE_func, Y0, times, Q_arr, P, Const, jacobian)
+    S, C, r = get_S_matrix(ODE_func, Y0, times, Q_arr, P, Const, jacobian)
     if covar == False:
         C = np.eye(S.shape[1])
     obs = observable(times, Q_arr, P, Const, S, C)
-    return obs, times, P, Q_arr, Const, Y0
+    return obs, times, P, Q_arr, Const, Y0, r
