@@ -2,27 +2,7 @@ from pymongo import MongoClient
 import numpy as np
 from datetime import datetime
 
-from src.fischer_model import FischerResult
-
-
-# Used to store results in mongodb
-def apply_marks(ls: list):
-    if type(ls) == np.ndarray:
-        return ["np.ndarray", ls.tolist()]
-    elif type(ls) == list:
-        return [apply_marks(l) for l in ls]
-    else:
-        return ls
-
-
-# Used to convert back from mongodb stored results
-def revert_marks(ls: list):
-    if type(ls) == list and len(ls) == 2 and ls[0] == "np.ndarray" and type(ls[1]) == list:
-        return np.array(ls[1])
-    elif type(ls) == list:
-        return [revert_marks(l) for l in ls]
-    else:
-        return ls
+from src.data_structures import FischerResult, apply_marks, revert_marks
 
 
 def convert_fischer_results(fischer_results):

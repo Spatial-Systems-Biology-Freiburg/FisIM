@@ -9,8 +9,8 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # Import custom functions for optimization
-from src.solving import convert_S_matrix_to_determinant, unpack_fischer_model, get_S_matrix
-from src.fischer_model import FischerModel
+from src.solving import fischer_determinant, unpack_fischer_model, get_S_matrix
+from src.data_structures import FischerModel
 
 
 # System of equation for pool-model and sensitivities
@@ -51,19 +51,19 @@ def optimizer_function(X, q_values, P, Const, y0, t0, t_shape, full=False):
     times = np.sort(X.reshape(t_shape), axis=-1)
 
     fsm = FischerModel(
-        observable=convert_S_matrix_to_determinant,
+        observable=fischer_determinant,
         times=times,
         parameters=P,
         q_values=q_values,
         constants=Const,
         y0_t0=(y0, t0),
-        rhs=pool_model_sensitivity,
+        ode_func=pool_model_sensitivity,
         jacobian=jacobi
     )
 
     r = unpack_fischer_model(fsm)
-    S, C, r = get_S_matrix(*r)
-    d = convert_S_matrix_to_determinant(fsm.times, fsm.q_values, fsm.parameters, fsm.constants, S, C)
+    S, C, r = get_S_matrix(fsm)
+    d = fischer_determinant(fsm, S, C)
 
     if full:
         return -d, S, C, fsm, r

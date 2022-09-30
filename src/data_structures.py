@@ -1,5 +1,27 @@
 import numpy as np
 from dataclasses import dataclass
+import numpy as np
+
+
+# Used to store results in mongodb
+def apply_marks(ls: list):
+    if type(ls) == np.ndarray:
+        return ["np.ndarray", ls.tolist()]
+    elif type(ls) == list:
+        return [apply_marks(l) for l in ls]
+    else:
+        return ls
+
+
+# Used to convert back from mongodb stored results
+def revert_marks(ls: list):
+    if type(ls) == list and len(ls) == 2 and ls[0] == "np.ndarray" and type(ls[1]) == list:
+        return np.array(ls[1])
+    elif type(ls) == list:
+        return [revert_marks(l) for l in ls]
+    else:
+        return ls
+
 
 @dataclass
 class FischerResult:
@@ -10,7 +32,7 @@ class FischerResult:
     parameters: list
     q_values: list
     constants: list
-    y0_t0: (np.array, float)
+    y0_t0: tuple
 
     def to_savedict(self):
         '''Used to store results in database'''
@@ -29,5 +51,5 @@ class FischerResult:
 class FischerModel(FischerResult):
     '''Class derived from FischerResult used to store a full singular model description.
     Compared to the FischerResult class, we additionally provide information to solve the ODE.'''
-    rhs: callable
+    ode_func: callable
     jacobian: callable
