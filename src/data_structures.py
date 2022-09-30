@@ -34,6 +34,17 @@ class FischerResult:
     constants: list
     y0_t0: tuple
 
+    def __post_init__(self):
+        self.q_values_shape = tuple(len(q) for q in self.q_values)
+        # Store the correct shape for the times variable
+        if self.times.ndim == 1:
+            self.times_1d = True
+            self.times_shape = self.q_values_shape + (self.times.shape[0],)
+        else:
+            self.times_1d = False
+            self.times_shape = self.times.shape
+
+
     def to_savedict(self):
         '''Used to store results in database'''
         d = {
@@ -45,6 +56,15 @@ class FischerResult:
             "y0_t0": apply_marks(self.y0_t0)
         }
         return d
+    
+    def set_times(self, t):
+        if t.shape == self.times_shape:
+            print("Test")
+            self.times = t
+        elif t.ndim == 1:
+            self.times = np.full(self.times_shape, t)
+        else:
+            raise ValueError("Array does not have the correct shape")
 
 
 @dataclass

@@ -51,10 +51,6 @@ def get_S_matrix(fsm: FischerModel):
     return S, C, solutions
 
 
-def unpack_fischer_model(fsm: FischerModel):
-    return fsm.ode_func, fsm.y0_t0, fsm.times, fsm.q_values, fsm.parameters, fsm.constants, fsm.jacobian
-
-
 def fischer_determinant(fsm: FischerModel, S, C):
     # Calculate Fisher Matrix
     F = (S.dot(C)).dot(S.T)
@@ -81,9 +77,9 @@ def fischer_mineigenval(fsm: FischerModel, S, C):
     return mineigval
 
 
-def calculate_Fischer_observable(fsm: FischerModel, observable, covar=False):
+def calculate_fischer_observable(fsm: FischerModel, observable, covar=False):
     S, C, r = get_S_matrix(fsm)
     if covar == False:
         C = np.eye(S.shape[1])
     obs = observable(fsm, S, C)
-    return obs, fsm, r
+    return obs, fsm, S, C, r

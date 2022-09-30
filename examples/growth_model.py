@@ -9,8 +9,9 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # Import custom functions for optimization
-from src.solving import fischer_determinant, unpack_fischer_model, get_S_matrix
+from src.solving import fischer_determinant
 from src.data_structures import FischerModel
+from src.optimization import find_optimal
 
 
 # System of equation for pool-model and sensitivities
@@ -42,32 +43,6 @@ def jacobi(y, t, Q, P, Const):
         [(a*Temp + c) * (  -  n0/n_max * t * Temp * np.exp(-b*Temp*t)) + (a*Temp + c) * (1 - 2 / n_max) * sb, 0,    dfdn, 0   ],
         [(     1    ) * (1 - 2*n/n_max + n0/n_max * np.exp(-b*Temp*t)) + (a*Temp + c) * (1 - 2 / n_max) * sc, 0,    0,    dfdn]
     ])
-
-
-####################################
-### HELPER FUNCTION OPTIMIZATION ###
-####################################
-def optimizer_function(X, q_values, P, Const, y0, t0, t_shape, full=False):
-    times = np.sort(X.reshape(t_shape), axis=-1)
-
-    fsm = FischerModel(
-        observable=fischer_determinant,
-        times=times,
-        parameters=P,
-        q_values=q_values,
-        constants=Const,
-        y0_t0=(y0, t0),
-        ode_func=pool_model_sensitivity,
-        jacobian=jacobi
-    )
-
-    r = unpack_fischer_model(fsm)
-    S, C, r = get_S_matrix(fsm)
-    d = fischer_determinant(fsm, S, C)
-
-    if full:
-        return -d, S, C, fsm, r
-    return - d
 
 
 if __name__ == "__main__":
@@ -104,31 +79,32 @@ if __name__ == "__main__":
     y0_t0 = (y0, t0)
 
     # Construct parameter hyperspace
-    n_times = 10
-    n_temps = 3
+    n_times = 3
+    n_temps = 2
     
-    times = np.array([np.linspace(temp_low, temp_high, n_times)] * n_temps)
+    # Values for temperatures (Q-Values)
     q_values = [np.linspace(temp_low, temp_high, n_temps)]
+    # Values for times (can be same for every temperature or different)
+    # the distinction is made by dimension of array
+    times = np.linspace(times_low, times_high, n_times)
+    # times = np.array([np.linspace(times_low, times_high, n_times+2)[1:-1]] * n_temps)
 
+    fsm = FischerModel(
+        observable=fischer_determinant,
+        times=times,
+        parameters=P,
+        q_values=q_values,
+        constants=Const,
+        y0_t0=(y0, t0),
+        ode_func=pool_model_sensitivity,
+        jacobian=jacobi
+    )
 
     ###############################
     ### OPTIMIZATION FUNCTION ? ###
     ###############################
-    x0 = times.flatten()
-
     bounds = [(times_low, times_high) for _ in range(len(times.flatten()))]
-    args = (q_values, P, Const, y0, t0, times.shape)
-
-    res = sp.optimize.minimize(
-        optimizer_function,
-        x0,
-        args=args,
-        bounds=bounds
-    )
-
-    t = res.x[:np.product(times.shape)].reshape(times.shape)
-    (d_neg, S, C, fsm, solutions) = optimizer_function(res.x, *args, full=True)
-
+    d, S, C, fsm, solutions = find_optimal(times, bounds, fsm, "scipy_minimize")
 
     ###############################
     ##### PLOTTING FUNCTION ? #####
