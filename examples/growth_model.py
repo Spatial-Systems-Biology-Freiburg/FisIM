@@ -140,4 +140,4 @@ if __name__ == "__main__":
         axs[i].plot(t_values, res, color="blue", label="Exact solution")
         axs[i].plot(s[0], s[2][0], marker="o", color="k", linestyle="", label="Q_values: " + str(s[1]))
         axs[i].legend()
-    fig.savefig("Result.svg")
+    fig.savefig("out/Result.svg")
