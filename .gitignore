@@ -1,3 +1,4 @@
 *.npy
 *.png
 __pycache__*
+out/*
