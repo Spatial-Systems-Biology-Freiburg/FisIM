@@ -5,13 +5,6 @@ from datetime import datetime
 from src.data_structures import FischerResult, apply_marks, revert_marks
 
 
-def convert_fischer_results(fischer_results):
-    '''Converts results stored in database to fischer_results.
-    The conversion is NOT 1:1 since numpy arrays will not be arrays afterwards due to
-    mongodb not being able to directly store numpy arrays.'''
-    return [FischerResult(*f[0]) for f in fischer_results]
-
-
 def __get_mongodb_client():
     client = MongoClient('pleyer-ws.fdm.privat', 27017)
     return client

@@ -10,10 +10,9 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 # Import custom functions for optimization
-from src.optimization import get_best_fischer_results, get_new_combinations_from_best
-from src.solving import factorize_reduced, convert_S_matrix_to_determinant, convert_S_matrix_to_sumeigenval, convert_S_matrix_to_mineigenval, calculate_Fischer_observable
-from pool_model_plots import make_nice_plot, make_convergence_plot, make_plots, make_plots_mean
-from src.database import convert_fischer_results, generate_new_collection, insert_fischer_dataclasses, drop_all_collections
+from src.solving import fischer_determinant, calculate_fischer_observable
+from src.database import generate_new_collection, insert_fischer_dataclasses, drop_all_collections
+from src.data_structures import FischerModel
 
 
 # System of equation for pool-model and sensitivities
@@ -48,14 +47,53 @@ def sorting_key(x):
     '''Contents of x are typically results of calculate_Fischer_determinant (see above)
     Thus x = (obs, times, P, Q_arr, Const, Y0)'''
     #norm = max(x[1].size, 1.0)**0.5
-    norm = len(x[2]) * x[1].size
+    norm = len(x[1].parameters) * x[1].times.size
     # norm = 1.0
     seperate_times = 1.0
-    for t in x[1]:
-        if len(np.unique(t)) != len(t) or len(np.unique(x[3][0])) != len(x[3][0]):
+    for t in x[1].times:
+        if len(np.unique(t)) != len(t) or len(np.unique(x[1].q_values[0])) != len(x[1].q_values[0]):
             seperate_times = 0.0
     return x[0] * seperate_times /norm
 
+
+def factorize_reduced(M):
+    res = []
+    for i in range(2, M):
+        if (M % i == 0):
+            res.append((i, round(M/i)))
+    return res
+
+
+def get_best_fischer_results(n_time_temp, fischer_results, sorting_key, N_best):
+    (n_times, n_temp) = n_time_temp
+    # TODO use partial sort or some other efficient alrogithm to obtain O(n) scaling behvaiour
+    # for best result retrieval
+    return sorted(filter(lambda x: x[1].times.shape[-1]==n_times and len(x[1].q_values[0])==n_temp, fischer_results), key=sorting_key, reverse=True)[:N_best]
+
+
+def get_new_combinations_from_best(best, N_spawn, temp_low, temp_high, dtemp, times_low, times_high, dtimes):
+    combinations = []
+    for (det, fsm, S, C, r) in best:
+        # Also depend old result in case its better
+        combinations.append(fsm)
+        # Now spawn new results via next neighbors of current results
+        for _ in range(0, N_spawn):
+            temps_new = np.array(
+                [np.random.choice([max(temp_low, T-dtemp), T, min(temp_high, T+dtemp)]) for T in fsm.q_values[0]]
+            )
+            times_new = np.array(
+                [
+                    np.sort(np.array([np.random.choice(
+                        [max(times_low, t-dtimes), t, min(times_high, t+dtimes)]
+                    ) for t in fsm.times[i]]))
+                    for i in range(len(fsm.q_values[0]))
+                ]
+            )
+            fsm2 = fsm
+            fsm2.times = times_new
+            fsm2.q_values = [temps_new]
+            combinations.append(fsm2)
+    return combinations
 
 
 if __name__ == "__main__":
@@ -99,15 +137,15 @@ if __name__ == "__main__":
     y0_t0 = (y0, times_low)
 
     # How often should we choose a sample with same number of temperatures and times
-    N_mult = 1000
+    N_mult = 3
     # How many optimization runs should we do
-    N_opt = 100
+    N_opt = 2
     # How many best results should be propagated forward?
-    N_best = 20
+    N_best = 2
     # How many new combinations should an old result spawn?
-    N_spawn = 10
+    N_spawn = 3
     # How many processes will be run in parallel
-    N_parallel = 46
+    N_parallel = 48
 
     # Begin sampling of time and temperature values
     combinations = []
@@ -122,7 +160,17 @@ if __name__ == "__main__":
             temperatures = np.random.choice(temp_total, n_temp, replace=False)
             #temperatures = np.linspace(temp_low, temp_low + dtemp * (n_temp - 1) , n_temp)
             times = np.array([np.sort(np.random.choice(times_total, n_times, replace=False)) for _ in range(len(temperatures))])
-            combinations.append((times, [temperatures], P, Const))
+            fsm = FischerModel(
+                observable=fischer_determinant,
+                times=times,
+                parameters=P,
+                q_values=[temperatures],
+                constants=Const,
+                y0_t0=(y0, times_low),
+                ode_func=pool_model_sensitivity,
+                jacobian=jacobi
+            )
+            combinations.append(fsm)
 
     # Create pool we will later use
     p = mp.Pool(N_parallel)
@@ -135,14 +183,7 @@ if __name__ == "__main__":
         # Calculate new results
         # fischer_results will have entries of the form
         # (obs, times, P, Q_arr, Const, Y0)
-        fischer_results = p.starmap(calculate_Fischer_observable, zip(
-            combinations,
-            iter.repeat(pool_model_sensitivity),
-            iter.repeat(y0_t0),
-            iter.repeat(jacobi),
-            iter.repeat(convert_S_matrix_to_determinant),
-            iter.repeat(False) # True if use covariance error natrix, False if not
-        ))
+        fischer_results = p.map(calculate_fischer_observable, combinations)
 
         # Do not optimize further if we are in the last run
         if opt_run != N_opt-1:
@@ -177,6 +218,5 @@ if __name__ == "__main__":
     print(print_line.format(time.time()-start_time, opt_run+1), "done")
 
     # Database part
-    fischer_dataclasses = convert_fischer_results(fisses)
     coll = generate_new_collection("pool_model_random_grid_determinant_div_m")
-    insert_fischer_dataclasses(fischer_dataclasses, coll)
+    insert_fischer_dataclasses([f[0][1] for f in fisses], coll)

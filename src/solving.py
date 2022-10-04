@@ -6,13 +6,6 @@ import time
 
 from src.data_structures import FischerModel
 
-def factorize_reduced(M):
-    res = []
-    for i in range(2, M):
-        if (M % i == 0):
-            res.append((i, round(M/i)))
-    return res
-
 
 def get_S_matrix(fsm: FischerModel):
     """now we calculate the derivative with respect to the parameters
