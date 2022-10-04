@@ -90,21 +90,26 @@ if __name__ == "__main__":
     # times = np.array([np.linspace(times_low, times_high, n_times+2)[1:-1]] * n_temps)
 
     fsm = FischerModel(
-        observable=fischer_determinant,
+        # Required arguments
         times=times,
         parameters=P,
         q_values=q_values,
         constants=Const,
         y0_t0=(y0, t0),
         ode_func=pool_model_sensitivity,
-        jacobian=jacobi
+        observable_func=fischer_determinant,
+        # Optional arguments
+        jacobian=jacobi,
+        relative_sensitivities=False
     )
 
     ###############################
     ### OPTIMIZATION FUNCTION ? ###
     ###############################
     bounds = [(times_low, times_high) for _ in range(len(times.flatten()))]
-    d, S, C, fsm, solutions = find_optimal(times, bounds, fsm, "scipy_minimize")
+    fsr = find_optimal(times, bounds, fsm, "scipy_minimize")
+    d = fsr.observable
+    solutions = fsr.ode_solutions
 
     ###############################
     ##### PLOTTING FUNCTION ? #####

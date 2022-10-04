@@ -7,17 +7,17 @@ from src.solving import calculate_fischer_observable, fischer_determinant
 
 
 def __scipy_minimize_optimizer_function(X, fsm: FischerModel, full=False):
-    if fsm.times_1d == False:
+    if fsm._times_1d == False:
         times = np.sort(X.reshape(fsm.times.shape), axis=-1)
     else:
         times = np.sort(X)
-
+    
     fsm.set_times(times)
-    d, fsm, S, C, r = calculate_fischer_observable(fsm)
+    fsr = calculate_fischer_observable(fsm, False, fsm.relative_sensitivities)
 
     if full:
-        return d, S, C, fsm, r
-    return - d
+        return fsr
+    return - fsr.observable
 
 
 def __scipy_minimize(times0, bounds, fsm: FischerModel):
@@ -32,8 +32,8 @@ def __scipy_minimize(times0, bounds, fsm: FischerModel):
 
     t = np.sort(res.x[:np.product(times0.shape)].reshape(times0.shape), axis=-1)
     fsm.times = t
-    (d_neg, S, C, fsm, solutions) = __scipy_minimize_optimizer_function(res.x, fsm, full=True)
-    return (-d_neg, S, C, fsm, solutions)
+    fsr = __scipy_minimize_optimizer_function(res.x, fsm, full=True)
+    return fsr
 
 
 def find_optimal(times0, bounds, fsm: FischerModel, method: str):

@@ -4,7 +4,7 @@ import itertools as iter
 import multiprocessing as mp
 import time
 
-from src.data_structures import FischerModel
+from src.data_structures import FischerModel, FischerResult
 
 
 def get_S_matrix(fsm: FischerModel, relative_sensitivities=False):
@@ -43,6 +43,7 @@ def get_S_matrix(fsm: FischerModel, relative_sensitivities=False):
         # (use for covariance matrix calculation)
         error_n[:, index] = r[0].reshape(fsm.times.shape[-1], 1) * 0.25
         solutions.append((t, Q, r))
+    
     # Reshape to 2D Form (len(P),:)
     S = S.reshape((len(fsm.parameters),np.prod(S.shape[1:])))
     error_n = error_n.reshape(np.prod(error_n.shape))
@@ -68,6 +69,7 @@ def fischer_sumeigenval(fsm: FischerModel, S, C):
     sumeigval = np.sum(np.linalg.eigvals(F))
     return sumeigval
 
+
 def fischer_mineigenval(fsm: FischerModel, S, C):
     # Calculate Fisher Matrix
     F = S.dot(C).dot(S.T)
@@ -81,5 +83,15 @@ def calculate_fischer_observable(fsm: FischerModel, covar=False, relative_sensit
     S, C, r = get_S_matrix(fsm, relative_sensitivities)
     if covar == False:
         C = np.eye(S.shape[1])
-    obs = fsm.observable(fsm, S, C)
-    return obs, fsm, S, C, r
+    obs = fsm.observable_func(fsm, S, C)
+
+    args = {key:value for key, value in fsm.__dict__.items() if not key.startswith('_')}
+
+    fsr = FischerResult(
+        **args,
+        observable=obs,
+        sensitivity_matrix=S,
+        covariance_matrix=C,
+        ode_solutions=r
+    )
+    return fsr
