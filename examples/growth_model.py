@@ -115,10 +115,17 @@ if __name__ == "__main__":
     ##### PLOTTING FUNCTION ? #####
     ###############################
     fig, axs = plt.subplots(len(solutions), figsize=(12, 4*len(solutions)))
-    for i, s in enumerate(solutions):
+    for i, (t, q, r) in enumerate(solutions):
+        # Plot solution to ode
         t_values = np.linspace(t0, times_high)
-        res = sp.integrate.odeint(pool_model_sensitivity, y0, t_values, args=(s[1], fsm.parameters, fsm.constants), Dfun=jacobi).T[0]
-        axs[i].plot(t_values, res, color="blue", label="Exact solution")
-        axs[i].plot(s[0], s[2][0], marker="o", color="k", linestyle="", label="Q_values: " + str(s[1]))
+        res = sp.integrate.odeint(pool_model_sensitivity, y0, t_values, args=(q, fsm.parameters, fsm.constants), Dfun=jacobi).T[0]
+        axs[i].plot(t_values, res, color="#21918c", label="Ode Solution")
+
+        # Determine where multiple time points overlap by rounding
+        t_round = t.round(2)        
+        unique, indices, counts = np.unique(t_round, return_index=True, return_counts=True)
+
+        # Plot same time points with different sizes to distinguish
+        axs[i].scatter(unique, r[0][indices], s=counts*80, alpha=0.5, color="#440154", label="Q_values: " + str(q))
         axs[i].legend()
     fig.savefig("out/Result.svg")
