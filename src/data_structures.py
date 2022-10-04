@@ -59,7 +59,6 @@ class FischerResult:
     
     def set_times(self, t):
         if t.shape == self.times_shape:
-            print("Test")
             self.times = t
         elif t.ndim == 1:
             self.times = np.full(self.times_shape, t)
