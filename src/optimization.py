@@ -41,7 +41,7 @@ def __scipy_minimize_optimizer_function(X, fsm: FischerModel, full=False):
         times = np.sort(X)
 
     fsm.set_times(times)
-    d, fsm, S, C, r = calculate_fischer_observable(fsm, fischer_determinant)
+    d, fsm, S, C, r = calculate_fischer_observable(fsm)
 
     if full:
         return d, S, C, fsm, r

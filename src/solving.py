@@ -77,9 +77,9 @@ def fischer_mineigenval(fsm: FischerModel, S, C):
     return mineigval
 
 
-def calculate_fischer_observable(fsm: FischerModel, observable, covar=False):
+def calculate_fischer_observable(fsm: FischerModel, covar=False):
     S, C, r = get_S_matrix(fsm)
     if covar == False:
         C = np.eye(S.shape[1])
-    obs = observable(fsm, S, C)
+    obs = fsm.observable(fsm, S, C)
     return obs, fsm, S, C, r
