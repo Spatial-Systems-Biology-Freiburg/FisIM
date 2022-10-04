@@ -48,7 +48,7 @@ class FischerResult:
     def to_savedict(self):
         '''Used to store results in database'''
         d = {
-            "observable": apply_marks(self.observable),
+            "observable": apply_marks(self.observable.__name__),
             "times": apply_marks(self.times),
             "parameters": apply_marks(self.parameters),
             "q_values": apply_marks(self.q_values),
