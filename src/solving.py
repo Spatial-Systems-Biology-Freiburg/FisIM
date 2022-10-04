@@ -7,7 +7,7 @@ import time
 from src.data_structures import FischerModel
 
 
-def get_S_matrix(fsm: FischerModel):
+def get_S_matrix(fsm: FischerModel, relative_sensitivities=False):
     """now we calculate the derivative with respect to the parameters
     The matrix S has the form
     i   -->  index of parameter
@@ -30,7 +30,14 @@ def get_S_matrix(fsm: FischerModel):
         r = odeint(fsm.ode_func, y0, np.insert(t, 0, t0), args=(Q, fsm.parameters, fsm.constants), Dfun=fsm.jacobian).T[:, 1:]
 
         # Calculate the S-Matrix with the supplied jacobian
-        S[(slice(None), slice(None)) + index] = r[1:]
+        # Depending on if we want to calculate the relative sensitivities
+        if relative_sensitivities==True:
+            a = (r[1:]/r[0])
+            for i in range(len(fsm.parameters)):
+                a[i] *= fsm.parameters[i]
+            S[(slice(None), slice(None)) + index] = a
+        else:
+            S[(slice(None), slice(None)) + index] = r[1:]
 
         # Assume that the error of the measurement is 25% from the measured value r[0] n 
         # (use for covariance matrix calculation)
@@ -70,8 +77,8 @@ def fischer_mineigenval(fsm: FischerModel, S, C):
     return mineigval
 
 
-def calculate_fischer_observable(fsm: FischerModel, covar=False):
-    S, C, r = get_S_matrix(fsm)
+def calculate_fischer_observable(fsm: FischerModel, covar=False, relative_sensitivities=False):
+    S, C, r = get_S_matrix(fsm, relative_sensitivities)
     if covar == False:
         C = np.eye(S.shape[1])
     obs = fsm.observable(fsm, S, C)
