@@ -67,27 +67,29 @@ if __name__ == "__main__":
     y0 = np.array([n0, 0, 0, 0])
 
     # Define bounds for sampling
-    temp_low = 2.0
-    temp_high = 16.0
-    n_temp = 20
+    temp_low = 4.0
+    temp_high = 21.0
 
     times_low = t0
-    times_high = 15.0
-    n_times = 20
+    times_high = 16.0
 
     # Initial conditions with initial time
     y0_t0 = (y0, t0)
 
     # Construct parameter hyperspace
-    n_times = 3
-    n_temps = 2
+    n_times = 20
+    n_temps = 3
     
     # Values for temperatures (Q-Values)
     q_values = [np.linspace(temp_low, temp_high, n_temps)]
     # Values for times (can be same for every temperature or different)
     # the distinction is made by dimension of array
-    times = np.linspace(times_low, times_high, n_times)
-    # times = np.array([np.linspace(times_low, times_high, n_times+2)[1:-1]] * n_temps)
+    
+    # This chooses the same time for every q_value
+    # times = np.linspace(times_low, times_high, n_times)
+    
+    # This chooses different times for every q_value
+    times = np.array([np.linspace(times_low, times_high, n_times+2)[1:-1]] * n_temps)
 
     fsm = FischerModel(
         # Required arguments
