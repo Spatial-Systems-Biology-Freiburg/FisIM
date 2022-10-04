@@ -23,7 +23,6 @@ def get_S_matrix(fsm: FischerModel):
     S[i, j1, j2, ..., t] = (dO/dp_i(v_j1, v_j2, v_j3, ..., t))"""
     (y0, t0) = fsm.y0_t0
     S = np.zeros((len(fsm.parameters),) + (fsm.times.shape[-1],) + tuple(len(x) for x in fsm.q_values))
-    S_relativ = np.zeros((len(P),) + (times.shape[-1],) + tuple(len(x) for x in Q_arr))
     error_n = np.zeros((fsm.times.shape[-1],) + tuple(len(x) for x in fsm.q_values))
 
     # Iterate over all combinations of Q-Values
@@ -39,11 +38,6 @@ def get_S_matrix(fsm: FischerModel):
 
         # Calculate the S-Matrix with the supplied jacobian
         S[(slice(None), slice(None)) + index] = r[1:]
-        # Calculate relative sensitivities
-        a =  (r[1:]/r[0])
-        for i in range (len(a)):
-            a[i] = a[i] * P[i]
-        S_relativ[(slice(None), slice(None)) + index] = a
 
         # Assume that the error of the measurement is 25% from the measured value r[0] n 
         # (use for covariance matrix calculation)
@@ -51,11 +45,10 @@ def get_S_matrix(fsm: FischerModel):
         solutions.append((t, Q, r))
     # Reshape to 2D Form (len(P),:)
     S = S.reshape((len(fsm.parameters),np.prod(S.shape[1:])))
-    S_relativ = S_relativ.reshape((len(P),np.prod(S_relativ.shape[1:])))
     error_n = error_n.reshape(np.prod(error_n.shape))
     cov_matrix = np.eye(len(error_n), len(error_n)) * error_n**2
     C = np.linalg.inv(cov_matrix)
-    return S_relativ, C, solutions
+    return S, C, solutions
 
 
 def fischer_determinant(fsm: FischerModel, S, C):
