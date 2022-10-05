@@ -112,7 +112,7 @@ if __name__ == "__main__":
     ###############################
     ### OPTIMIZATION FUNCTION ? ###
     ###############################
-    fsr = find_optimal(times, times_high, fsm, "scipy_minimize")
+    fsr = find_optimal(times, times_high, fsm, "scipy_differential_evolution")
     d = fsr.observable
     solutions = fsr.ode_solutions
 
