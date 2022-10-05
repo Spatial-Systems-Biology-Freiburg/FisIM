@@ -75,9 +75,27 @@ def __scipy_differential_evolution(times0, tmax, fsm: FischerModel, **args):
     return __scipy_optimizer_function(res.x, fsm, full=True)
 
 
+def __scipy_brute(times0, tmax, fsm, **args):
+    bounds, constraints = __scipy_calculate_bounds_constraints(times0, tmax, fsm)
+
+    opt_args = {
+        "func": __scipy_optimizer_function,
+        "ranges": bounds,
+        "args":(fsm,),
+        "finish":False,
+        "workers":-1,
+        "Ns":5,
+    }
+    opt_args.update(args)
+    res = sp.optimize.brute(**opt_args)
+
+    return __scipy_optimizer_function(res, fsm, full=True)
+
+
 def find_optimal(times0, tmax, fsm: FischerModel, optimization_strategy: str, **args):
     optimization_strategies = {
-        "scipy_differential_evolution": __scipy_differential_evolution
+        "scipy_differential_evolution": __scipy_differential_evolution,
+        "scipy_brute": __scipy_brute
     }
     if optimization_strategy not in optimization_strategies.keys():
         raise KeyError("Please specify one of the following optimization_strategies for optimization: " + str(optimization_strategies.keys()))
