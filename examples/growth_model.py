@@ -108,8 +108,7 @@ if __name__ == "__main__":
     ###############################
     ### OPTIMIZATION FUNCTION ? ###
     ###############################
-    bounds = [(times_low, times_high) for _ in range(len(times.flatten()))]
-    fsr = find_optimal(times, bounds, fsm, "scipy_minimize")
+    fsr = find_optimal(times, times_high, fsm, "scipy_minimize")
     d = fsr.observable
     solutions = fsr.ode_solutions
 
