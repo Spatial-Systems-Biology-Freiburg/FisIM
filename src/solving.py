@@ -15,7 +15,7 @@ def get_S_matrix(fsm: FischerModel, relative_sensitivities=False):
     t   -->  index of time
     S[i, j1, j2, ..., t] = (dO/dp_i(v_j1, v_j2, v_j3, ..., t))"""
     (y0, t0) = fsm.y0_t0
-    S = np.zeros((len(fsm.parameters),) + (fsm.times.shape[-1],) + tuple(len(x) for x in fsm.q_values))
+    S = np.zeros((len(fsm.parameters), fsm.times.shape[-1],) + tuple(len(x) for x in fsm.q_values))
     error_n = np.zeros((fsm.times.shape[-1],) + tuple(len(x) for x in fsm.q_values))
 
     # Iterate over all combinations of Q-Values
@@ -80,7 +80,7 @@ def fischer_mineigenval(fsm: FischerModel, S, C):
 
 
 def calculate_fischer_observable(fsm: FischerModel, covar=False, relative_sensitivities=False):
-    S, C, r = get_S_matrix(fsm, relative_sensitivities)
+    S, C, solutions = get_S_matrix(fsm, relative_sensitivities)
     if covar == False:
         C = np.eye(S.shape[1])
     obs = fsm.observable_func(fsm, S, C)
@@ -92,6 +92,6 @@ def calculate_fischer_observable(fsm: FischerModel, covar=False, relative_sensit
         observable=obs,
         sensitivity_matrix=S,
         covariance_matrix=C,
-        ode_solutions=r
+        ode_solutions=solutions
     )
     return fsr
