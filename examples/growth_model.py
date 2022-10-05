@@ -20,28 +20,28 @@ from src.optimization import find_optimal
 ###############################
 def pool_model_sensitivity(y, t, Q, P, Const):
     (a, b, c) = P
-    (Temp,) = Q
+    (Temp,H) = Q
     (n0, n_max) = Const
     (n, sa, sb, sc) = y
     return [
-        (a*Temp + c) * (n -        n0 * np.exp(-b*Temp*t))*(1-n/n_max),
-        (  Temp    ) * (n -        n0 * np.exp(-b*Temp*t))*(1-n/n_max) + (a*Temp + c) * (1 - 2*n/n_max + n0/n_max * np.exp(-b*Temp*t)) * sa,
-        (a*Temp + c) * (    n0*t*Temp * np.exp(-b*Temp*t))*(1-n/n_max) + (a*Temp + c) * (1 - 2*n/n_max + n0/n_max * np.exp(-b*Temp*t)) * sb,
-        (     1    ) * (n -        n0 * np.exp(-b*Temp*t))*(1-n/n_max) + (a*Temp + c) * (1 - 2*n/n_max + n0/n_max * np.exp(-b*Temp*t)) * sc
+        (a*Temp + c*H) * (n -        n0 * np.exp(-b*Temp*t))*(1-n/n_max),
+        (  Temp      ) * (n -        n0 * np.exp(-b*Temp*t))*(1-n/n_max) + (a*Temp + c*H) * (1 - 2*n/n_max + n0/n_max * np.exp(-b*Temp*t)) * sa,
+        (a*Temp + c*H) * (    n0*t*Temp * np.exp(-b*Temp*t))*(1-n/n_max) + (a*Temp + c*H) * (1 - 2*n/n_max + n0/n_max * np.exp(-b*Temp*t)) * sb,
+        (     H      ) * (n -        n0 * np.exp(-b*Temp*t))*(1-n/n_max) + (a*Temp + c*H) * (1 - 2*n/n_max + n0/n_max * np.exp(-b*Temp*t)) * sc
     ]
 
 
 def jacobi(y, t, Q, P, Const):
     (n, sa, sb, sc) = y
     (a, b, c) = P
-    (Temp,) = Q
+    (Temp,H) = Q
     (n0, n_max) = Const
-    dfdn = (a*Temp + c) * (1 - 2*n/n_max + n0/n_max * np.exp(-b*Temp*t))
+    dfdn = (a*Temp + c*H) * (1 - 2*n/n_max + n0/n_max * np.exp(-b*Temp*t))
     return np.array([
         [   dfdn,                                                                                             0,    0,    0   ],
-        [(  Temp    ) * (1 - 2*n/n_max + n0/n_max * np.exp(-b*Temp*t)) + (a*Temp + c) * (1 - 2 / n_max) * sa, dfdn, 0,    0   ],
-        [(a*Temp + c) * (  -  n0/n_max * t * Temp * np.exp(-b*Temp*t)) + (a*Temp + c) * (1 - 2 / n_max) * sb, 0,    dfdn, 0   ],
-        [(     1    ) * (1 - 2*n/n_max + n0/n_max * np.exp(-b*Temp*t)) + (a*Temp + c) * (1 - 2 / n_max) * sc, 0,    0,    dfdn]
+        [(  Temp      ) * (1 - 2*n/n_max + n0/n_max * np.exp(-b*Temp*t)) + (a*Temp + c*H) * (1 - 2 / n_max) * sa, dfdn, 0,    0   ],
+        [(a*Temp + c*H) * (  -  n0/n_max * t * Temp * np.exp(-b*Temp*t)) + (a*Temp + c*H) * (1 - 2 / n_max) * sb, 0,    dfdn, 0   ],
+        [(     H      ) * (1 - 2*n/n_max + n0/n_max * np.exp(-b*Temp*t)) + (a*Temp + c*H) * (1 - 2 / n_max) * sc, 0,    0,    dfdn]
     ])
 
 
@@ -73,15 +73,19 @@ if __name__ == "__main__":
     times_low = t0
     times_high = 16.0
 
+    humidity_low = 0.8
+    humidity_high = 1.2
+
     # Initial conditions with initial time
     y0_t0 = (y0, t0)
 
     # Construct parameter hyperspace
-    n_times = 20
-    n_temps = 3
+    n_times = 7
+    n_temps = 2
+    n_humidity = 1
     
     # Values for temperatures (Q-Values)
-    q_values = [np.linspace(temp_low, temp_high, n_temps)]
+    q_values = [np.linspace(temp_low, temp_high, n_temps), np.linspace(humidity_low, humidity_high, n_humidity)]
     # Values for times (can be same for every temperature or different)
     # the distinction is made by dimension of array
     
@@ -89,7 +93,7 @@ if __name__ == "__main__":
     # times = np.linspace(times_low, times_high, n_times)
     
     # This chooses different times for every q_value
-    times = np.array([np.linspace(times_low, times_high, n_times+2)[1:-1]] * n_temps)
+    times = np.full(tuple(len(q) for q in q_values) + (n_times,), np.linspace(times_low, times_high, n_times+2)[1:-1])
 
     fsm = FischerModel(
         # Required arguments
@@ -123,7 +127,7 @@ if __name__ == "__main__":
         axs[i].plot(t_values, res, color="#21918c", label="Ode Solution")
 
         # Determine where multiple time points overlap by rounding
-        t_round = t.round(2)        
+        t_round = t.round(1)
         unique, indices, counts = np.unique(t_round, return_index=True, return_counts=True)
 
         # Plot same time points with different sizes to distinguish
