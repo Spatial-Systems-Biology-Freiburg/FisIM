@@ -60,16 +60,17 @@ def __scipy_calculate_bounds_constraints(times0, tmax, fsm):
 def __scipy_differential_evolution(times0, tmax, fsm: FischerModel, **args):
     bounds, constraints = __scipy_calculate_bounds_constraints(times0, tmax, fsm)
 
-    res = sp.optimize.differential_evolution(
-        __scipy_optimizer_function,
-        bounds,
-        # constraints=constraints,
-        args=(fsm,),
-        polish=False,
-        workers=-1,
-        updating='deferred',
-        **args
-    )
+    opt_args = {
+        "func": __scipy_optimizer_function,
+        "bounds": bounds,
+        "constraints":constraints,
+        "args":(fsm,),
+        "polish":False,
+        "workers":-1,
+        "updating":'deferred'
+    }
+    opt_args.update(args)
+    res = sp.optimize.differential_evolution(**opt_args)
 
     return __scipy_optimizer_function(res.x, fsm, full=True)
 
