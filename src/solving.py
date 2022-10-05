@@ -41,12 +41,12 @@ def get_S_matrix(fsm: FischerModel, relative_sensitivities=False):
 
         # Assume that the error of the measurement is 25% from the measured value r[0] n 
         # (use for covariance matrix calculation)
-        error_n[:, index] = r[0].reshape(fsm.times.shape[-1], 1) * 0.25
+        error_n[(slice(None),) + index] = r[0] * 0.25
         solutions.append((t, Q, r))
     
     # Reshape to 2D Form (len(P),:)
     S = S.reshape((len(fsm.parameters),np.prod(S.shape[1:])))
-    error_n = error_n.reshape(np.prod(error_n.shape))
+    error_n = error_n.flatten()
     cov_matrix = np.eye(len(error_n), len(error_n)) * error_n**2
     C = np.linalg.inv(cov_matrix)
     return S, C, solutions
