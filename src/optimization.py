@@ -103,7 +103,8 @@ def __scipy_differential_evolution(times0, tmax, fsm: FischerModel, **args):
         "args":(fsm, custom_args["discrete"]),
         "polish":False,
         "workers":-1,
-        "updating":'deferred'
+        "updating":'deferred',
+        "x0": times0.flatten()
     }
     opt_args.update(args)
     res = sp.optimize.differential_evolution(**opt_args)
