@@ -132,10 +132,29 @@ def __scipy_brute(times0, tmax, fsm, **args):
     return __scipy_optimizer_function(res, fsm, full=True)
 
 
+def __scipy_basinhopping(times0, tmax, fsm, **args):
+    # Filter custom options and scipy options
+    args, custom_args = __handle_custom_options(**args)
+
+    # Create constraints and bounds
+    bounds, constraints = __scipy_calculate_bounds_constraints(times0, tmax, fsm, custom_args["min_distance"])
+
+    opt_args = {
+        "func": __scipy_optimizer_function,
+        "x0": times0.flatten(),
+        "minimizer_kwargs":{"args":(fsm, custom_args["discrete"]), "constraints": constraints, "bounds": bounds}
+    }
+    opt_args.update(args)
+    res = sp.optimize.basinhopping(**opt_args)
+
+    return __scipy_optimizer_function(res.x, fsm, full=True)
+
+
 def find_optimal(times0, tmax, fsm: FischerModel, optimization_strategy: str, **args):
     optimization_strategies = {
         "scipy_differential_evolution": __scipy_differential_evolution,
-        "scipy_brute": __scipy_brute
+        "scipy_brute": __scipy_brute,
+        "scipy_basinhopping": __scipy_basinhopping
     }
     if optimization_strategy not in optimization_strategies.keys():
         raise KeyError("Please specify one of the following optimization_strategies for optimization: " + str(optimization_strategies.keys()))
