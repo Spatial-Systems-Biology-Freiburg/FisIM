@@ -6,9 +6,10 @@ from src.data_structures import FischerModel
 from src.solving import calculate_fischer_observable, fischer_determinant
 
 
-def discrete_penalizer(x, dx):
-    n, p = np.divmod(x, dx)
-    _, q = np.divmod((n+1) * dx - x, dx)
+def discrete_penalizer(x, dx, x_offset=0.0):
+    y = x - x_offset
+    n, p = np.divmod(y, dx)
+    _, q = np.divmod((n+1) * dx - y, dx)
     r = np.array([p, q]).min(axis=0)
     return 1 - 2 * r / dx
 
@@ -26,7 +27,7 @@ def __scipy_optimizer_function(X, fsm: FischerModel, discrete=None, full=False):
     if full:
         return fsr
     if discrete!=None:
-        return -fsr.observable * np.product(discrete_penalizer(fsm.times.flatten(), discrete))
+        return -fsr.observable * np.product(discrete_penalizer(fsm.times.flatten(), discrete[0], discrete[1]))
     return - fsr.observable
 
 
@@ -80,9 +81,13 @@ def __handle_custom_options(**args):
         discrete=None
     else:
         discrete=args.pop("discrete")
+        try:
+            iter(discrete)
+        except:
+            discrete = (discrete, 0.0)
         if min_distance!=False:
             print("Warning: option 'discrete' overwrites option 'min_distance'")
-        min_distance=discrete
+        min_distance=discrete[0]
     
     custom_args["min_distance"] = min_distance
     custom_args["discrete"] = discrete
