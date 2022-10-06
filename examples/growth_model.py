@@ -80,12 +80,15 @@ if __name__ == "__main__":
     y0_t0 = (y0, t0)
 
     # Construct parameter hyperspace
-    n_times = 7
+    n_times = 4
     n_temps = 2
     n_humidity = 1
     
     # Values for temperatures (Q-Values)
-    q_values = [np.linspace(temp_low, temp_high, n_temps), np.linspace(humidity_low, humidity_high, n_humidity)]
+    q_values = [
+        np.linspace(temp_low, temp_high, n_temps),
+        np.linspace(humidity_low, humidity_high, n_humidity)
+    ]
     # Values for times (can be same for every temperature or different)
     # the distinction is made by dimension of array
     

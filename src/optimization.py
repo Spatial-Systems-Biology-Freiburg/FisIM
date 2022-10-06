@@ -125,7 +125,7 @@ def __scipy_brute(times0, tmax, fsm, **args):
         "args":(fsm, custom_args["discrete"]),
         "finish":False,
         "workers":-1,
-        "Ns":5,
+        "Ns":5
     }
     opt_args.update(args)
     res = sp.optimize.brute(**opt_args)
