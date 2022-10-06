@@ -6,7 +6,14 @@ from src.data_structures import FischerModel
 from src.solving import calculate_fischer_observable, fischer_determinant
 
 
-def __scipy_optimizer_function(X, fsm: FischerModel, full=False):
+def discrete_penalizer(x, dx):
+    n, p = np.divmod(x, dx)
+    _, q = np.divmod((n+1) * dx - x, dx)
+    r = np.array([p, q]).min(axis=0)
+    return 1 - 2 * r / dx
+
+
+def __scipy_optimizer_function(X, fsm: FischerModel, discrete=None, full=False):
     if fsm._times_1d == False:
         times = np.sort(X.reshape(fsm.times.shape), axis=-1)
     else:
@@ -18,10 +25,12 @@ def __scipy_optimizer_function(X, fsm: FischerModel, full=False):
 
     if full:
         return fsr
+    if discrete!=None:
+        return -fsr.observable * np.product(discrete_penalizer(fsm.times.flatten(), discrete))
     return - fsr.observable
 
 
-def __scipy_calculate_bounds_constraints(times0, tmax, fsm):
+def __scipy_calculate_bounds_constraints(times0, tmax, fsm, min_distance=None):
     x0 = times0.flatten()
 
     # Define linear constraints on times
@@ -39,8 +48,8 @@ def __scipy_calculate_bounds_constraints(times0, tmax, fsm):
     if fsm._times_1d == True:
         n_times = len(x0)
         B = A
-        ub = np.append(np.zeros(n_times-1), np.full((n_times,), tmax))
-        lb = np.append(- np.inf * np.ones(n_times-1), np.full((n_times,), fsm.y0_t0[1]))
+        ub = np.append(np.full(n_times-1, 0 if min_distance==None else -min_distance), np.full((n_times,), tmax))
+        lb = np.append(np.full(n_times-1, - np.inf), np.full((n_times,), fsm.y0_t0[1]))
     else:
         n_times = fsm.times.shape[-1]
         B = np.zeros(((n_times*2 -1) * n_q_values, n_q_values * n_times))
@@ -48,23 +57,50 @@ def __scipy_calculate_bounds_constraints(times0, tmax, fsm):
             tmp = np.concatenate([np.zeros((n_times*2-1, n_times)) for _ in range(i)] + [A] + [np.zeros((n_times*2-1, n_times)) for _ in range(n_q_values-1-i)], axis=1)
             B[i*(2*n_times-1):i*(2*n_times-1)+2*n_times-1] = tmp
     
-        ub = np.concatenate([np.append(np.zeros(n_times-1), np.full((n_times,), tmax))] * n_q_values)
-        lb = np.concatenate([np.append(- np.inf * np.ones(n_times-1), np.full((n_times,), fsm.y0_t0[1]))] * n_q_values)
-    
+        ub = np.concatenate([np.append(np.full(n_times-1, 0 if min_distance==None else -min_distance), np.full((n_times,), tmax))] * n_q_values)
+        lb = np.concatenate([np.append(np.full(n_times-1, - np.inf), np.full((n_times,), fsm.y0_t0[1]))] * n_q_values)
+
     constraints = sp.optimize.LinearConstraint(B, lb, ub)
     bounds = [(fsm.y0_t0[1], tmax) for _ in range(len(x0))]
 
     return bounds, constraints
 
 
+def __handle_custom_options(**args):
+    custom_args = {}
+
+    # Determine if times should have a minimum distance between each other
+    if "min_distance" not in args.keys():
+        min_distance=False
+    else:
+        min_distance=args.pop("min_distance")
+    
+    # Determine if results should be discretized
+    if "discrete" not in args.keys():
+        discrete=None
+    else:
+        discrete=args.pop("discrete")
+        if min_distance!=False:
+            print("Warning: option 'discrete' overwrites option 'min_distance'")
+        min_distance=discrete
+    
+    custom_args["min_distance"] = min_distance
+    custom_args["discrete"] = discrete
+    return args, custom_args
+
+
 def __scipy_differential_evolution(times0, tmax, fsm: FischerModel, **args):
-    bounds, constraints = __scipy_calculate_bounds_constraints(times0, tmax, fsm)
+    # Filter custom options and scipy options
+    args, custom_args = __handle_custom_options(**args)
+    
+    # Create constraints and bounds
+    bounds, constraints = __scipy_calculate_bounds_constraints(times0, tmax, fsm, custom_args["min_distance"])
 
     opt_args = {
         "func": __scipy_optimizer_function,
         "bounds": bounds,
         "constraints":constraints,
-        "args":(fsm,),
+        "args":(fsm, custom_args["discrete"]),
         "polish":False,
         "workers":-1,
         "updating":'deferred'
@@ -76,12 +112,16 @@ def __scipy_differential_evolution(times0, tmax, fsm: FischerModel, **args):
 
 
 def __scipy_brute(times0, tmax, fsm, **args):
-    bounds, constraints = __scipy_calculate_bounds_constraints(times0, tmax, fsm)
+    # Filter custom options and scipy options
+    args, custom_args = __handle_custom_options(**args)
+
+    # Create constraints and bounds
+    bounds, constraints = __scipy_calculate_bounds_constraints(times0, tmax, fsm, custom_args["min_distance"])
 
     opt_args = {
         "func": __scipy_optimizer_function,
         "ranges": bounds,
-        "args":(fsm,),
+        "args":(fsm, custom_args["discrete"]),
         "finish":False,
         "workers":-1,
         "Ns":5,
