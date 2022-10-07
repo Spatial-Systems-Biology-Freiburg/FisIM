@@ -9,6 +9,11 @@ authors = [
   { name="Jonas Pleyer", email="jonas.pleyer@fdm.uni-freiburg.de" },
   { name="Polina Gaindrik", email="p.gaindrik@tsenso.com" },
 ]
+dependencies = [
+  "scipy",
+  "numpy",
+  "pymongo",
+]
 description = "Optimal experimental design utilizing the Fischer information matrix"
 readme = "README.md"
 requires-python = ">=3.7"
