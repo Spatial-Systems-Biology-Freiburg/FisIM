@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "FisIM"
+name = "FisInMa"
 version = "0.0.1"
 authors = [
   { name="Jonas Pleyer", email="jonas.pleyer@fdm.uni-freiburg.de" },

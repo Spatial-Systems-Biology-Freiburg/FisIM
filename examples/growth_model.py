@@ -6,9 +6,9 @@ import matplotlib.pyplot as plt
 
 
 # Import custom functions for optimization
-from FisIM.solving import fischer_determinant
-from FisIM.data_structures import FischerModel
-from FisIM.optimization import find_optimal
+from FisInMa.solving import fischer_determinant
+from FisInMa.data_structures import FischerModel
+from FisInMa.optimization import find_optimal
 
 
 # System of equation for pool-model and sensitivities
