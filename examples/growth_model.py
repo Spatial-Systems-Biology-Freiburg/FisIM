@@ -103,7 +103,7 @@ if __name__ == "__main__":
         constants=Const,
         y0_t0=(y0, t0),
         ode_func=pool_model_sensitivity,
-        observable_func=fischer_determinant,
+        criterion_func=fischer_determinant,
         # Optional arguments
         jacobian=jacobi,
         relative_sensitivities=False

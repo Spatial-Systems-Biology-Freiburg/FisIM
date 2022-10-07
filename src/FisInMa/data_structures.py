@@ -30,7 +30,7 @@ class _FischerModelBase:
     constants: list
     y0_t0: tuple
     ode_func: callable
-    observable_func: callable
+    criterion_func: callable
 
 
 @dataclass
@@ -45,7 +45,7 @@ class _FischerModelOptions():
 class _FischerResultBase(_FischerModelBase):
     '''Class to store a single fischer result.
     Use a list of this class to store many results.'''
-    observable: np.ndarray
+    criterion: np.ndarray
     sensitivity_matrix: np.ndarray
     covariance_matrix: np.ndarray
     ode_solutions: list
@@ -87,8 +87,8 @@ class FischerResult(_FischerResultOptions, _FischerResultBase):
             "q_values": apply_marks(self.q_values),
             "constants": apply_marks(self.constants),
             "y0_t0": apply_marks(self.y0_t0),
-            "observable": apply_marks(self.observable),
-            "observable_func": apply_marks(self.observable_func.__name__),
+            "criterion": apply_marks(self.criterion),
+            "criterion_func": apply_marks(self.criterion_func.__name__),
             "sensitivity_matrix": apply_marks(self.sensitivity_matrix),
             "covariance_matrix": apply_marks(self.covariance_matrix),
             "ode_solutions": apply_marks(ode_solutions)

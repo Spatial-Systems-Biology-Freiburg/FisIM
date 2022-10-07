@@ -77,17 +77,17 @@ def fischer_mineigenval(fsm: FischerModel, S, C):
     return mineigval
 
 
-def calculate_fischer_observable(fsm: FischerModel, covar=False, relative_sensitivities=False):
+def calculate_fischer_criterion(fsm: FischerModel, covar=False, relative_sensitivities=False):
     S, C, solutions = get_S_matrix(fsm, relative_sensitivities)
     if covar == False:
         C = np.eye(S.shape[1])
-    obs = fsm.observable_func(fsm, S, C)
+    crit = fsm.criterion_func(fsm, S, C)
 
     args = {key:value for key, value in fsm.__dict__.items() if not key.startswith('_')}
 
     fsr = FischerResult(
         **args,
-        observable=obs,
+        criterion=crit,
         sensitivity_matrix=S,
         covariance_matrix=C,
         ode_solutions=solutions

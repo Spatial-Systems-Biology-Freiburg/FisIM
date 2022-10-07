@@ -3,7 +3,7 @@ import scipy as sp
 import itertools
 
 from FisInMa.data_structures import FischerModel
-from FisInMa.solving import calculate_fischer_observable, fischer_determinant
+from FisInMa.solving import calculate_fischer_criterion, fischer_determinant
 
 
 def discrete_penalizer(x, dx, x_offset=0.0):
@@ -22,13 +22,13 @@ def __scipy_optimizer_function(X, fsm: FischerModel, discrete=None, full=False):
     
     fsm.set_times(times)
 
-    fsr = calculate_fischer_observable(fsm, False, fsm.relative_sensitivities)
+    fsr = calculate_fischer_criterion(fsm, False, fsm.relative_sensitivities)
 
     if full:
         return fsr
     if discrete!=None:
-        return -fsr.observable * np.product(discrete_penalizer(fsm.times.flatten(), discrete[0], discrete[1]))
-    return - fsr.observable
+        return -fsr.criterion * np.product(discrete_penalizer(fsm.times.flatten(), discrete[0], discrete[1]))
+    return - fsr.criterion
 
 
 def __scipy_calculate_bounds_constraints(times0, tmax, fsm, min_distance=None):
