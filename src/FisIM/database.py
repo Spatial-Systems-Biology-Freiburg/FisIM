@@ -2,7 +2,7 @@ from pymongo import MongoClient
 import numpy as np
 from datetime import datetime
 
-from src.data_structures import FischerResult, apply_marks, revert_marks
+from FisIM.data_structures import FischerResult, apply_marks, revert_marks
 
 
 def __get_mongodb_client():

@@ -2,8 +2,8 @@ import numpy as np
 import scipy as sp
 import itertools
 
-from src.data_structures import FischerModel
-from src.solving import calculate_fischer_observable, fischer_determinant
+from FisIM.data_structures import FischerModel
+from FisIM.solving import calculate_fischer_observable, fischer_determinant
 
 
 def discrete_penalizer(x, dx, x_offset=0.0):

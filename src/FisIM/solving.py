@@ -4,7 +4,7 @@ import itertools as iter
 import multiprocessing as mp
 import time
 
-from src.data_structures import FischerModel, FischerResult
+from FisIM.data_structures import FischerModel, FischerResult
 
 
 def get_S_matrix(fsm: FischerModel, relative_sensitivities=False):
