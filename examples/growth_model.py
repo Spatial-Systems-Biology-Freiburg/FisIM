@@ -4,9 +4,6 @@ import numpy as np
 import scipy as sp
 import matplotlib.pyplot as plt
 
-import os
-import sys
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # Import custom functions for optimization
 from FisIM.solving import fischer_determinant

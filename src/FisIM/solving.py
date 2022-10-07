@@ -1,8 +1,6 @@
 import numpy as np
 from scipy.integrate import odeint
-import itertools as iter
-import multiprocessing as mp
-import time
+import itertools
 
 from FisIM.data_structures import FischerModel, FischerResult
 
@@ -20,7 +18,7 @@ def get_S_matrix(fsm: FischerModel, relative_sensitivities=False):
 
     # Iterate over all combinations of Q-Values
     solutions = []
-    for index in iter.product(*[range(len(q)) for q in fsm.q_values]):
+    for index in itertools.product(*[range(len(q)) for q in fsm.q_values]):
         # Store the results of the respective ODE solution
         Q = [fsm.q_values[i][j] for i, j in enumerate(index)]
         t = fsm.times[index]
