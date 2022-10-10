@@ -1,11 +1,12 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sp
+from pathlib import Path
 
 from FisInMa.data_structures import FischerResult
 
 
-def plot_all_odes(fsr: FischerResult):
+def plot_all_odes(fsr: FischerResult, outdir=Path("out")):
     times_low, times_high = fsr.time_interval
     solutions = fsr.ode_solutions
 
@@ -26,7 +27,7 @@ def plot_all_odes(fsr: FischerResult):
         ax.scatter(unique, r[0][indices], s=counts*80, alpha=0.5, color="#440154", label="Q_values: " + str(q))
         ax.legend()
 
-        fig.savefig("out/Result_{}_{:010.0f}.svg".format(fsr.ode_func.__name__, i))
+        fig.savefig(outdir / Path("Result_{}_{:010.0f}.svg".format(fsr.ode_func.__name__, i)))
 
         # Remove figure to free space
         plt.close(fig)
