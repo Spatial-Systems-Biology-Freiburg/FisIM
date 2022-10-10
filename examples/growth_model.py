@@ -88,32 +88,27 @@ if __name__ == "__main__":
     ]
     # Values for times (can be same for every temperature or different)
     # the distinction is made by dimension of array
-    
-    # This chooses the same time for every q_value
-    # times = np.linspace(times_low, times_high, n_times)
-    
-    # This chooses different times for every q_value
-    times = np.full(tuple(len(q) for q in q_values) + (n_times,), np.linspace(times_low, times_high, n_times+2)[1:-1])
 
     fsm = FischerModel(
         # Required arguments
-        times=times,
+        time_interval=(times_low, times_high),
+        n_times=n_times,
         parameters=P,
         q_values=q_values,
         constants=Const,
-        y0_t0=(y0, t0),
+        y0=y0,
         ode_func=pool_model_sensitivity,
         criterion_func=fischer_determinant,
         # Optional arguments
-        jacobian=jacobi,
-        relative_sensitivities=False
+        jacobian=jacobi
     )
 
     ###############################
     ### OPTIMIZATION FUNCTION ? ###
     ###############################
-    fsr = find_optimal(times, times_high, fsm, "scipy_differential_evolution", workers=-1, discrete=0.5)
-    d = fsr.observable
+    fsr = find_optimal(fsm, "scipy_differential_evolution", workers=12, maxiter=500, popsize=100)
+    print(fsr.times)
+    print(fsr.criterion)
     solutions = fsr.ode_solutions
 
     ###############################
