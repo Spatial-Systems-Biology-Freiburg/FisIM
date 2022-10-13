@@ -25,8 +25,8 @@ def dfdx(x, t, input, params, consts):
             mu_max * 1/(x2 + 1)**2 * (1 - x1/x_max)*x1  # df1/dx2
         ], 
         [
-            mu_max,                                      # df2/ dx1
-            0                                            # df2/dx2
+            0,                                          # df2/dx1
+            mu_max                                      # df2/dx2
         ]
     ]
 
@@ -39,13 +39,13 @@ def dfdp(x, t, input, params, consts):
     return [
         [
             mu_max * (x2/(x2 + 1)) * (x1/x_max)**2,                               # df1/dx_max
-            2 * b * (Temp - Temp_min)**2 * (x2/(x2 + 1)) * (1 - x1/x_max)*x1,     # df1/db
-            -2 * b**2 * (Temp - Temp_min) * (x2/(x2 + 1)) * (1 - x1/x_max) * x1   # df1/dTemp_min
+             2 * b * (Temp - Temp_min)**2 * (x2/(x2 + 1)) * (1 - x1/x_max)*x1,    # df1/db
+            -2 * b**2 * (Temp - Temp_min) * (x2/(x2 + 1)) * (1 - x1/x_max)*x1     # df1/dTemp_min
         ],
         [
             0,                                                                    # df2/dx_max
-            2 * b * (Temp - Temp_min)**2,                                         # df2/db
-            2 * b**2 * (Temp - Temp_min)                                          # df2/dTemp_min
+            2 * b * (Temp - Temp_min)**2 * x2,                                         # df2/db
+            2 * b**2 * (Temp - Temp_min) * x2                                          # df2/dTemp_min
         ] 
     ]
 
@@ -92,6 +92,7 @@ if __name__ == "__main__":
 
     # Define parameters
     p = (np.exp(21.1), 0.038, 2) # (x_max, b, T_min)
+    #p = (1, 2, 3)
     
     # Define constants
     c = ()
@@ -103,7 +104,7 @@ if __name__ == "__main__":
     times = (t_low, t_high, n_t, dt)
 
     # Example: Define fixed time points
-    times = np.linspace(t_low, t_high, n_t)
+    times = np.linspace(t_low, t_high, n_t) # [1, 2, 3]
 
     inputs = [
         # Sample over the range I0_low to I0_high with I0_n values and discretization dI0
