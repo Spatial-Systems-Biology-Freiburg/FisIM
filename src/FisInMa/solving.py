@@ -2,7 +2,7 @@ import numpy as np
 from scipy.integrate import odeint
 import itertools
 
-from FisInMa.data_structures import FischerModelParametrized, FischerResult
+from FisInMa.model import FischerModelParametrized, FischerResult
 
 
 def get_S_matrix(fsmp: FischerModelParametrized, relative_sensitivities=False):
