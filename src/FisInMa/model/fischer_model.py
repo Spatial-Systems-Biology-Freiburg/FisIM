@@ -21,22 +21,32 @@ class _FischerVariablesOptions:
 
 
 @dataclass
-class FischerVariables(_FischerVariablesOptions, _FischerVariablesBase):
-    pass
-
-
-@dataclass
-class _FischerModelBase(_FischerVariablesBase):
+class _FischerOdeFunctions:
     ode_fun: callable
     ode_dfdx: callable
     ode_dfdp: callable
 
 
 @dataclass
-class _FischerModelOptions(_FischerVariablesOptions):
+class _FischerObservableFunctionsOptional:
     obs_fun: callable = None
     obs_dfdx: callable = None
     obs_dfdp: callable = None
+
+
+@dataclass
+class FischerVariables(_FischerVariablesOptions, _FischerVariablesBase):
+    pass
+
+
+@dataclass
+class _FischerModelBase(_FischerOdeFunctions, _FischerVariablesBase):
+    pass
+
+
+@dataclass
+class _FischerModelOptions(_FischerVariablesOptions, _FischerObservableFunctionsOptional):
+    pass
 
 
 @dataclass
@@ -45,18 +55,18 @@ class FischerModel(_FischerModelOptions, _FischerModelBase):
 
 
 @dataclass
-class _FischerModelParametrizedBase:
+class _FischerModelParametrizedBase(_FischerOdeFunctions):
     _fsm_var_def: FischerVariables
     _fsm_var_vals: FischerVariables
 
 
 @dataclass
-class _FischerModelParametrizedOptions:
+class _FischerModelParametrizedOptions(_FischerModelOptions):
     pass
 
 
 @dataclass
-class FischerModelParametrized(_FischerModelParametrizedBase, _FischerModelParametrizedOptions):
+class FischerModelParametrized(_FischerModelParametrizedOptions, _FischerModelParametrizedBase):
     def init_from(fsm: FischerModel):
         # Create distinct classes to store
         # 1) Initial definition of model (ie. sample over certain variable; specify tuple of (min, max, n, dx, guess_method) or explicitly via np.array([...]))
@@ -115,7 +125,16 @@ class FischerModelParametrized(_FischerModelParametrizedBase, _FischerModelParam
         _fsm_var_vals.inputs = _inputs_vals
 
         # Construct parametrized model class and return it
-        fsmp = FischerModelParametrized(_fsm_var_def, _fsm_var_vals)
+        fsmp = FischerModelParametrized(
+            _fsm_var_def=_fsm_var_def,
+            _fsm_var_vals=_fsm_var_vals,
+            ode_fun=fsm.ode_fun,
+            ode_dfdx=fsm.ode_dfdx,
+            ode_dfdp=fsm.ode_dfdp,
+            obs_fun=fsm.obs_fun,
+            obs_dfdx=fsm.obs_dfdx,
+            obs_dfdp=fsm.obs_dfdp,
+        )
         return fsmp
 
     # Define properties of class such that it can be used as a parametrized FischerModel
@@ -200,3 +219,51 @@ class FischerModelParametrized(_FischerModelParametrizedBase, _FischerModelParam
                 self._fsm_var_vals.inputs[i] = q
                 if self._fsm_var_def.inputs[i] is None:
                     raise AttributeError("Variable inputs at index {} is not mutable!".format(i))
+
+
+@dataclass
+class _FischerResultSingleBase(_FischerVariablesBase):
+    ode_solution: list
+
+
+@dataclass
+class _FischerResultSingleOptions(_FischerVariablesOptions):
+    pass
+
+
+@dataclass
+class FischerResultSingle(_FischerResultSingleOptions, _FischerResultSingleBase):
+    pass
+
+
+@dataclass
+class _FischerResultsBase(_FischerOdeFunctions):
+    criterion: float
+    S: np.ndarray
+    C: np.ndarray
+    individual_results: list
+    _fsm_var_def: FischerVariables
+    
+
+@dataclass
+class _FischerResultsOptions(_FischerObservableFunctionsOptional):
+    pass
+
+
+class FischerResults(_FischerResultsOptions, _FischerResultsBase):
+    def to_savedict(self):
+        '''Used to store results in database'''
+        d = {
+            "time_interval": apply_marks(self.time_interval),
+            "times": apply_marks(self.times),
+            "parameters": apply_marks(self.parameters),
+            "q_values": apply_marks(self.q_values),
+            "constants": apply_marks(self.constants),
+            "y0": apply_marks(self.y0),
+            "criterion": apply_marks(self.criterion),
+            "criterion_func": apply_marks(self.criterion_func.__name__),
+            "sensitivity_matrix": apply_marks(self.sensitivity_matrix),
+            "covariance_matrix": apply_marks(self.covariance_matrix),
+            "ode_solutions": apply_marks(ode_solutions)
+        }
+        return d
