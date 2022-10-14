@@ -82,33 +82,6 @@ class FischerModelParametrized(_FischerModelParametrizedOptions, _FischerModelPa
         )
         _fsm_var_vals = deepcopy(_fsm_var_def)
 
-        # Check if we want to sample over initial values
-        if type(fsm.ode_y0) == tuple and len(fsm.ode_y0) >= 3:
-            y0 = VariableDefinition(*fsm.ode_y0)
-            _fsm_var_def.ode_y0 = y0
-            _fsm_var_vals.ode_y0 = y0.initial_guess
-        else:
-            _fsm_var_def.ode_y0 = None
-            _fsm_var_vals.ode_y0 = fsm.ode_y0
-
-        # Check if we want to sample over initial time
-        if type(fsm.ode_t0) == tuple and len(fsm.ode_t0) >= 3:
-            t0 = VariableDefinition(*fsm.ode_t0)
-            _fsm_var_def.ode_t0 = t0
-            _fsm_var_vals.ode_t0 = t0.initial_guess
-        else:
-            _fsm_var_def.ode_t0 = None
-            _fsm_var_vals.ode_t0 = fsm.ode_t0
-
-        # Check if time values are sampled
-        if type(fsm.times) == tuple and len(fsm.times) >= 3:
-            t = VariableDefinition(*fsm.times)
-            _fsm_var_def.times = t
-            _fsm_var_vals.times = t.initial_guess
-        else:
-            _fsm_var_def.times = None
-            _fsm_var_vals.times = fsm.times
-
         # Check which external inputs are being sampled
         _inputs_def = []
         _inputs_vals = []
@@ -123,6 +96,40 @@ class FischerModelParametrized(_FischerModelParametrizedOptions, _FischerModelPa
         
         _fsm_var_def.inputs = _inputs_def
         _fsm_var_vals.inputs = _inputs_vals
+        inputs_shape = tuple(len(q) for q in _inputs_vals)
+
+        # Check if we want to sample over initial values
+        if type(fsm.ode_y0) == tuple and len(fsm.ode_y0) >= 3:
+            y0 = VariableDefinition(*fsm.ode_y0)
+            _fsm_var_def.ode_y0 = y0
+            _fsm_var_vals.ode_y0 = y0.initial_guess
+        else:
+            _fsm_var_def.ode_y0 = None
+            _fsm_var_vals.ode_y0 = fsm.ode_y0
+
+        # Check if time values are sampled
+        if type(fsm.times) == tuple and len(fsm.times) >= 3:
+            t = VariableDefinition(*fsm.times)
+            _fsm_var_def.times = t
+            _fsm_var_vals.times = t.initial_guess
+        else:
+            _fsm_var_def.times = None
+            _fsm_var_vals.times = fsm.times
+        # If identical times were chosen, simply store 1D array
+        if fsm.identical_times==True:
+            _fsm_var_vals.times = _fsm_var_vals.times
+        # otherwise expand initial guess to full array
+        else:
+            _fsm_var_vals.times = np.full(inputs_shape + _fsm_var_vals.times.shape, _fsm_var_vals.times)
+
+        # Check if we want to sample over initial time
+        if type(fsm.ode_t0) == tuple and len(fsm.ode_t0) >= 3:
+            t0 = VariableDefinition(*fsm.ode_t0)
+            _fsm_var_def.ode_t0 = t0
+            _fsm_var_vals.ode_t0 = t0.initial_guess
+        else:
+            _fsm_var_def.ode_t0 = None
+            _fsm_var_vals.ode_t0 = fsm.ode_t0
 
         # Construct parametrized model class and return it
         fsmp = FischerModelParametrized(
