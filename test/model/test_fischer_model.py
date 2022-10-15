@@ -223,11 +223,11 @@ class Test_FischerModelParametrized_Set_Get(Setup_Class):
                 np.testing.assert_almost_equal(i, j)
     
     def test_get_parameters(self):
-        fsmp = self.fsmp
+        fsmp = copy.deepcopy(self.fsmp)
         np.testing.assert_almost_equal(fsmp.parameters, self.parameters)
     
     def test_get_constants(self):
-        fsmp = self.fsmp
+        fsmp = copy.deepcopy(self.fsmp)
         np.testing.assert_almost_equal(fsmp.constants, self.constants)
 
     @unittest.expectedFailure
