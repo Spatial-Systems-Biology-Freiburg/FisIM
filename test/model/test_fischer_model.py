@@ -7,37 +7,51 @@ import copy
 from FisInMa import FischerModel, FischerModelParametrized
 
 
-def f(x, t, inputs, params, consts):
+def f(t, x, inputs, params, consts):
     A, B = x
     T, Q = inputs
     p, q = params
     c, d, e = consts
-    return np.array([
-        p*A**2 + p*B + c*(T**2/(e**2+T**2)),
+    return [
+        - p*A**2 + p*B + c*(T**2/(e**2+T**2)),
         e*q*A + B + Q + d
-    ])
+    ]
 
 
-def dfdx(x, t, inputs, params, consts):
+def dfdx(t, x, inputs, params, consts):
     A, B = x
     T, Q = inputs
     p, q = params
     c, d, e = consts
-    return np.array([
-        p*A**2 + p*B + c*(T**2/(e**2+T**2)),
-        e*q*A + B + Q + d
-    ])
+    return [
+        [-2*p*A, p],
+        [e*q, 1]
+    ]
 
 
-def dfdp(x, t, inputs, params, consts):
+def dfdp(t, x, inputs, params, consts):
     A, B = x
     T, Q = inputs
     p, q = params
     c, d, e = consts
-    return np.array([
-        p*A**2 + p*B + c*(T**2/(e**2+T**2)),
-        e*q*A + B + Q + d
-    ])
+    return [
+        [-A**2 + B, 0],
+        [0, e*A]
+    ]
+
+
+def g(t, x, inputs, params, consts):
+    A, B = x
+    return A
+
+
+def dgdx(t, x, inputs, params, consts):
+    A, B = x
+    return [1, 0]
+
+
+def dgdp(t, x, inputs, params, consts):
+    return [0 ,0]
 
 
 class Setup_Class(unittest.TestCase):
@@ -61,7 +75,10 @@ class Setup_Class(unittest.TestCase):
             times=self.times,
             inputs=self.inputs,
             parameters=self.parameters,
-            constants=self.constants
+            constants=self.constants,
+            obs_fun=g,
+            obs_dfdx=dgdx,
+            obs_dfdp=dgdp,
         )
         self.fsmp = FischerModelParametrized.init_from(self.fsm)
 
