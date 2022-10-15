@@ -115,11 +115,8 @@ class FischerModelParametrized(_FischerModelParametrizedOptions, _FischerModelPa
         else:
             _fsm_var_def.times = None
             _fsm_var_vals.times = fsm.times
-        # If identical times were chosen, simply store 1D array
-        if fsm.identical_times==True:
-            _fsm_var_vals.times = _fsm_var_vals.times
-        # otherwise expand initial guess to full array
-        else:
+        # If non-identical times were chosen, expand initial guess to full array
+        if fsm.identical_times==False:
             _fsm_var_vals.times = np.full(inputs_shape + _fsm_var_vals.times.shape, _fsm_var_vals.times)
 
         # Check if we want to sample over initial time
