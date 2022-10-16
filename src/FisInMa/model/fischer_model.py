@@ -200,7 +200,6 @@ class FischerModelParametrized(_FischerModelParametrizedOptions, _FischerModelPa
     @ode_y0.setter
     def ode_y0(self, y0) -> None:
         self._fsm_var_vals.ode_y0 = y0
-        raise AttributeError("test")
         if self._fsm_var_def.ode_y0 is None:
             raise AttributeError("Variable ode_y0 is not mutable!")
     
