@@ -57,7 +57,7 @@ def dgdp(t, x, inputs, params, consts):
 class Setup_Class(unittest.TestCase):
     @classmethod
     def setUpClass(self):
-        self.y0=np.array([0, 0])
+        self.y0=np.array([0.05, 0.001])
         self.t0=0.0
         self.times=np.linspace(0.0, 10.0)
         self.inputs=[
