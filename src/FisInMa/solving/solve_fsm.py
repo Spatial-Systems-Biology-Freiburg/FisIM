@@ -1,8 +1,21 @@
 import numpy as np
-from scipy.integrate import odeint
+from scipy.integrate import odeint, solve_ivp
 import itertools
 
 from FisInMa.model import FischerModelParametrized, FischerResults, FischerResultSingle
+
+
+def ode_rhs(t, x, ode_fun, ode_dfdx, ode_dfdp, inputs, parameters, constants, n_x, n_p):
+    x_fun, s, rest = lists = np.split(x, [n_x, n_x + n_x*n_p])
+    s = s.reshape((n_x, n_p))
+    dx_f = ode_fun(t, x_fun, inputs, parameters, constants)
+    dfdx = ode_dfdx(t, x_fun, inputs, parameters, constants)
+    dfdp = ode_dfdp(t, x_fun, inputs, parameters, constants)
+    # Calculate the rhs of the sensitivities
+    # TODO validate these equations!
+    ds = np.dot(dfdx, s) + dfdp
+    x_tot = np.concatenate((dx_f, *ds))
+    return x_tot
 
 
 def get_S_matrix(fsmp: FischerModelParametrized, relative_sensitivities=False):
@@ -12,8 +25,15 @@ def get_S_matrix(fsmp: FischerModelParametrized, relative_sensitivities=False):
     jk  -->  index of kth variable
     t   -->  index of time
     S[i, j1, j2, ..., t] = (dO/dp_i(v_j1, v_j2, v_j3, ..., t))"""
-    S = np.zeros((len(fsmp.parameters), fsmp.times.shape[-1],) + tuple(len(x) for x in fsmp.inputs))
+    # Helper variables
+    n_x = len(fsmp.ode_y0)
+    n_p = len(fsmp.parameters)
+
+    S = np.zeros((n_x * n_p, fsmp.times.shape[-1],) + tuple(len(x) for x in fsmp.inputs))
     error_n = np.zeros((fsmp.times.shape[-1],) + tuple(len(x) for x in fsmp.inputs))
+
+    # Define initial values for ode
+    y0 = np.concatenate((fsmp.ode_y0, np.zeros(n_x * n_p)))
 
     # Iterate over all combinations of Q-Values
     solutions = []
@@ -27,24 +47,25 @@ def get_S_matrix(fsmp: FischerModelParametrized, relative_sensitivities=False):
         t_init = np.insert(t, 0, fsmp.ode_t0)
 
         # Actually solve the ODE for the selected parameter values
-        #r = solve_ivp(ODE_func, [t0, t.max()], y0, method='Radau', t_eval=t,  args=(Q, P, Const), jac=jacobian).y.T[1:,:]
-        # TODO use solve_ivp in future
-        # TODO this is NOT the correct function with which to solve
-        # we need to mash in ode_dfdx and ode_dfdp to obtain the complete system
-        # set the initial values for all non-core ode components to 0
-        res = odeint(fsmp.ode_fun, fsmp.ode_y0, t_init, args=(Q, fsmp.parameters, fsmp.constants))#, Dfun=fsmp.ode_dfdx)
-        # TODO this in turn is also not the correct result!
-        r = res.T[:, 1:]
+        # res = odeint(fsmp.ode_fun, fsmp.ode_y0, t_init, args=(Q, fsmp.parameters, fsmp.constants), Dfun=fsmp.ode_dfdx)
+        # res = solve_ivp(fun=fsmp.ode_fun, t_span=(fsmp.ode_t0, np.max(t)), y0=fsmp.ode_y0, t_eval=t, args=(Q, fsmp.parameters, fsmp.constants), method="Radau")#, jac=fsmp.ode_dfdx)
+        res = solve_ivp(fun=ode_rhs, t_span=(fsmp.ode_t0, np.max(t)), y0=y0, t_eval=t, args=(fsmp.ode_fun, fsmp.ode_dfdx, fsmp.ode_dfdp, Q, fsmp.parameters, fsmp.constants, n_x, n_p), method="Radau")#, jac=fsmp.ode_dfdx)
+        r = res.y[n_x:]
 
         # Calculate the S-Matrix with the supplied jacobian
         # Depending on if we want to calculate the relative sensitivities
         if relative_sensitivities==True:
-            a = (r[1:]/r[0])
-            for i in range(len(fsmp.parameters)):
+            # TODO fix this code!
+            # Wrong shapes everywhere!
+            a = r[n_x:].reshape((n_x, n_p, -1))
+            b = np.repeat(r[:n_x], n_p)
+            a /= b
+            for i in range(n_x * n_p):
                 a[i] *= fsmp.parameters[i]
+                print("Test")
             S[(slice(None), slice(None)) + index] = a
         else:
-            S[(slice(None), slice(None)) + index] = r[1:]
+            S[(slice(None), slice(None)) + index] = r
 
         # Assume that the error of the measurement is 25% from the measured value r[0] n 
         # (use for covariance matrix calculation)
@@ -66,7 +87,7 @@ def get_S_matrix(fsmp: FischerModelParametrized, relative_sensitivities=False):
         solutions.append(fsrs)
     
     # Reshape to 2D Form (len(P),:)
-    S = S.reshape((len(fsmp.parameters),np.prod(S.shape[1:])))
+    S = S.reshape((n_p,-1))
     error_n = error_n.flatten()
     # cov_matrix = np.eye(len(error_n), len(error_n)) * error_n**2
     # C = np.linalg.inv(cov_matrix)
