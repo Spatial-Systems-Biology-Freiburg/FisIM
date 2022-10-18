@@ -19,53 +19,66 @@ def ode_rhs(t, x, ode_fun, ode_dfdx, ode_dfdp, inputs, parameters, constants, n_
 
 
 def get_S_matrix(fsmp: FischerModelParametrized, relative_sensitivities=False):
-    """now we calculate the derivative with respect to the parameters
-    The matrix S has the form
-    i   -->  index of parameter
-    jk  -->  index of kth variable
-    t   -->  index of time
-    S[i, j1, j2, ..., t] = (dO/dp_i(v_j1, v_j2, v_j3, ..., t))"""
+    """"""
     # Helper variables
-    n_x = len(fsmp.ode_y0)
+    # How many parameters are in the system?
     n_p = len(fsmp.parameters)
+    # How many initial times do we have?
+    n_t0 = len(fsmp.ode_t0)
+    # How large is the vector of one initial value? (ie. dimensionality of the ODE)
+    n_y0 = len(fsmp.ode_y0[0])
+    # How many different initial values do we have?
+    N_y0 = len(fsmp.ode_y0)
+    # The lengths of the individual input variables stored as tuple
+    inputs_shape = tuple(len(q) for q in fsmp.inputs)
 
-    S = np.zeros((n_x * n_p, fsmp.times.shape[-1],) + tuple(len(x) for x in fsmp.inputs))
+    # The shape of the initial S matrix is given by
+    # (n_p, n_t0, n_y0, n_q0, ..., n_ql, n_times)
+    # S = np.zeros((n_x * n_p, fsmp.times.shape[-1],) + tuple(len(x) for x in fsmp.inputs))
+    S = np.zeros((n_p, n_t0, N_y0, n_y0) + inputs_shape + (fsmp.times.shape[-1],))
     error_n = np.zeros((fsmp.times.shape[-1],) + tuple(len(x) for x in fsmp.inputs))
-
-    # Define initial values for ode
-    y0 = np.concatenate((fsmp.ode_y0, np.zeros(n_x * n_p)))
 
     # Iterate over all combinations of Q-Values
     solutions = []
-    for index in itertools.product(*[range(len(q)) for q in fsmp.inputs]):
-        # Store the results of the respective ODE solution
+    for (i_y0, y0), (i_t0, t0), index in itertools.product(
+        enumerate(fsmp.ode_y0),
+        enumerate(fsmp.ode_t0),
+        itertools.product(*[range(len(q)) for q in fsmp.inputs])
+    ):
+        # pick one pair of input values
         Q = [fsmp.inputs[i][j] for i, j in enumerate(index)]
+        # Check if identical times are being used
         if fsmp.identical_times==True:
             t = fsmp.times
         else:
             t = fsmp.times[index]
-        t_init = np.insert(t, 0, fsmp.ode_t0)
+        # t_init = np.insert(t, 0, fsmp.ode_t0)
+
+        # Define initial values for ode
+        y0_full = np.concatenate((y0, np.zeros(n_y0 * n_p)))
 
         # Actually solve the ODE for the selected parameter values
-        # res = odeint(fsmp.ode_fun, fsmp.ode_y0, t_init, args=(Q, fsmp.parameters, fsmp.constants), Dfun=fsmp.ode_dfdx)
-        # res = solve_ivp(fun=fsmp.ode_fun, t_span=(fsmp.ode_t0, np.max(t)), y0=fsmp.ode_y0, t_eval=t, args=(Q, fsmp.parameters, fsmp.constants), method="Radau")#, jac=fsmp.ode_dfdx)
-        res = solve_ivp(fun=ode_rhs, t_span=(fsmp.ode_t0, np.max(t)), y0=y0, t_eval=t, args=(fsmp.ode_fun, fsmp.ode_dfdx, fsmp.ode_dfdp, Q, fsmp.parameters, fsmp.constants, n_x, n_p), method="Radau")#, jac=fsmp.ode_dfdx)
-        r = res.y[n_x:]
+        res = solve_ivp(fun=ode_rhs, t_span=(t0, np.max(t)), y0=y0_full, t_eval=t, args=(fsmp.ode_fun, fsmp.ode_dfdx, fsmp.ode_dfdp, Q, fsmp.parameters, fsmp.constants, n_y0, n_p), method="Radau")#, jac=fsmp.ode_dfdx)
+        
+        # Obtain sensitivities dg/dp from the last components of the ode
+        r = res.y[n_y0:]
+        s = np.swapaxes(r.reshape((n_y0, n_p, -1)), 0, 1)
 
-        # Calculate the S-Matrix with the supplied jacobian
+        # Calculate the S-Matrix from the sensitivities
         # Depending on if we want to calculate the relative sensitivities
         if relative_sensitivities==True:
-            # TODO fix this code!
-            # Wrong shapes everywhere!
-            a = r[n_x:].reshape((n_x, n_p, -1))
-            b = np.repeat(r[:n_x], n_p)
-            a /= b
-            for i in range(n_x * n_p):
-                a[i] *= fsmp.parameters[i]
-                print("Test")
-            S[(slice(None), slice(None)) + index] = a
+            # Multiply by parameter
+            for i, p in enumerate(fsmp.parameters):
+                s[i] *= p
+
+            # Divide by observable
+            for i, o in enumerate(res.y[:n_y0]):
+                s[(slice(None), i)] /= o
+            
+            # Fill S-Matrix
+            S[(slice(None), i_t0, i_y0, slice(None)) + index] = s
         else:
-            S[(slice(None), slice(None)) + index] = r
+            S[(slice(None), i_t0, i_y0, slice(None)) + index] = s
 
         # Assume that the error of the measurement is 25% from the measured value r[0] n 
         # (use for covariance matrix calculation)
@@ -88,6 +101,7 @@ def get_S_matrix(fsmp: FischerModelParametrized, relative_sensitivities=False):
     
     # Reshape to 2D Form (len(P),:)
     S = S.reshape((n_p,-1))
+    # TODO fix this covariance matrix stuff!
     error_n = error_n.flatten()
     # cov_matrix = np.eye(len(error_n), len(error_n)) * error_n**2
     # C = np.linalg.inv(cov_matrix)
