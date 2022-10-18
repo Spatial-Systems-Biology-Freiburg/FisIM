@@ -2,23 +2,65 @@ import unittest
 import numpy as np
 import copy
 import scipy as sp
+import time
 
 from FisInMa.model import FischerModelParametrized
 from FisInMa.solving import *
 
-from model import Setup_Class
+from setUp import Setup_Class
 
 class Test_SolvingMethods(Setup_Class):
     def test_get_S_matrix(self):
-        fsmp = copy.deepcopy(self.fsmp)
-        # TODO test relative sensititivies:
-        S, C, solutions = get_S_matrix(fsmp)# relative_sensitivities=True)
-        print(S.shape)
-        print(C.shape)
-        F = S.dot(S.T)
-        print(F)
-        print(np.linalg.det(F))
+        # We do not want to do stress testing but need to verify for a certain amount of combinatorics
+        # This tries to find a middle ground in testing
+        for N_y0, n_t0, n_times, n_inputs_0, n_inputs_1 in [
+            [2,3,5,2,1],
+            [1,2,3,5,2],
+            [2,1,2,3,5],
+            [5,2,1,2,3],
+            [3,5,2,1,2]
+        ]:
+            self.setUpClass(N_y0, n_t0, n_times, (n_inputs_0, n_inputs_1))
+            fsmp = copy.deepcopy(self.fsmp)
+            # TODO test relative sensititivies:
+            S, C, solutions = get_S_matrix(fsmp)
+        # Run the default function again to restore default for coming simulations
+        self.setUpClass()
     
+    def test_get_S_matrix_relative_sensitivities(self):
+        # We do not want to do stress testing but need to verify for a certain amount of combinatorics
+        # This tries to find a middle ground in testing
+        for N_y0, n_t0, n_times, n_inputs_0, n_inputs_1 in [
+            [2,3,5,2,1],
+            [1,2,3,5,2],
+            [2,1,2,3,5],
+            [5,2,1,2,3],
+            [3,5,2,1,2]
+        ]:
+            self.setUpClass(N_y0, n_t0, n_times, (n_inputs_0, n_inputs_1))
+            fsmp = copy.deepcopy(self.fsmp)
+            # TODO test relative sensititivies:
+            S, C, solutions = get_S_matrix(fsmp, relative_sensitivities=True)
+        # Run the default function again to restore default for coming simulations
+        self.setUpClass()
+
+    def test_get_S_matrix_identical_times(self):
+        # We do not want to do stress testing but need to verify for a certain amount of combinatorics
+        # This tries to find a middle ground in testing
+        for N_y0, n_t0, n_times, n_inputs_0, n_inputs_1 in [
+            [2,3,5,2,1],
+            [1,2,3,5,2],
+            [2,1,2,3,5],
+            [5,2,1,2,3],
+            [3,5,2,1,2]
+        ]:
+            self.setUpClass(N_y0, n_t0, n_times, (n_inputs_0, n_inputs_1), identical_times=True)
+            fsmp = copy.deepcopy(self.fsmp)
+            # TODO test relative sensititivies:
+            S, C, solutions = get_S_matrix(fsmp)
+        # Run the default function again to restore default for coming simulations
+        self.setUpClass()
+
     def test_ode_rhs(self):
         fsmp = copy.deepcopy(self.fsmp)
 
