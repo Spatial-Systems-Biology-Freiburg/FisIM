@@ -99,24 +99,21 @@ class FischerModelParametrized(_FischerModelParametrizedOptions, _FischerModelPa
         inputs_shape = tuple(len(q) for q in _inputs_vals)
 
         # Check if we want to sample over initial values
-        y0_def = []
-        y0_vals = []
         if type(fsm.ode_y0)==float:
             y0_def = [np.array([fsm.ode_y0])]
             y0_vals = [np.array([fsm.ode_y0])]
         elif type(fsm.ode_y0)==np.ndarray and fsm.ode_y0.ndim == 1:
             y0_def = [fsm.ode_y0]
             y0_vals = [fsm.ode_y0]
-            print("Warning!: Initializing FisherModel with 1d array for y0 is beeing interpreted as one single initial value (no sampling) of size " + str(len(fsm.ode_y0)) + ". To sample over a fixed number of values specify as list of 1d arrays with only a single entry.")
+        # TODO currently not working
+        elif type(fsm.ode_y0)==tuple and len(fsm.ode_y0)>=3:
+            y0 = VariableDefinition(*fsm.ode_y0)
+            y0_def = y0
+            y0_vals = [y0.initial_guess]
+            raise TypeError("Warning! Specifying initial values as tuple enables sampling over initial values. This is currently not implemented!")
         else:
-            for y in fsm.ode_y0:
-                if type(y) == tuple and len(y) >= 3:
-                    y0 = VariableDefinition(*y)
-                    y0_def = y0
-                    y0_vals.append(y0.initial_guess)
-                else:
-                    y0_def = None
-                    y0_vals.append(np.array(y, dtype=float))
+            y0_def = None
+            y0_vals = fsm.ode_y0
 
         _fsm_var_def.ode_y0 = y0_def
         _fsm_var_vals.ode_y0 = y0_vals
