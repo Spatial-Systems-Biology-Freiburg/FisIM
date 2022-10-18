@@ -10,10 +10,10 @@ from FisInMa import FischerModel, FischerModelParametrized
 def f(t, x, inputs, params, consts):
     A, B = x
     T, Q = inputs
-    p, q = params
-    c, d, e = consts
+    p, q, w = params
+    c, d, e = consts[:3]
     return [
-        - p*A**2 + p*B + c*(T**2/(e**2+T**2)),
+        - p*A**2 + p*B + c*(T**2/(e**2+T**2)) +w,
         e*q*A + B + Q + d
     ]
 
@@ -21,8 +21,8 @@ def f(t, x, inputs, params, consts):
 def dfdx(t, x, inputs, params, consts):
     A, B = x
     T, Q = inputs
-    p, q = params
-    c, d, e = consts
+    p, q, w = params
+    c, d, e = consts[:3]
     return [
         [-2*p*A, p],
         [e*q, 1]
@@ -32,11 +32,11 @@ def dfdx(t, x, inputs, params, consts):
 def dfdp(t, x, inputs, params, consts):
     A, B = x
     T, Q = inputs
-    p, q = params
-    c, d, e = consts
+    p, q, w = params
+    c, d, e = consts[:3]
     return [
-        [-A**2 + B, 0],
-        [0, e*A]
+        [-A**2 + B, 0, 1],
+        [0, e*A, 0]
     ]
 
 
@@ -51,21 +51,32 @@ def dgdx(t, x, inputs, params, consts):
 
 
 def dgdp(t, x, inputs, params, consts):
-    return [0 ,0]
+    return [0 ,0, 0]
 
 
 class Setup_Class(unittest.TestCase):
     @classmethod
     def setUpClass(self):
-        self.y0=np.array([0.05, 0.001])
-        self.t0=0.0
-        self.times=np.linspace(0.0, 10.0)
-        self.inputs=[
-            np.array([2,3]),
-            np.array([5,6,7])
+        # Use prime numbers for sampled parameters to 
+        # show errors in code where reshaping is done
+        # n_y0 = 2
+        self.y0=[
+            np.array([0.05, 0.001]),
+            np.array([0.051, 0.0011])
         ]
-        self.parameters=(2.95, 8.4768)
-        self.constants=(1.0, 2.0, 1.5)
+        # n_t0 = 13
+        self.t0=[0.0, 0.001, 0.0015, 0.002, 0.003, 0.004, 0.005, 0.006, 0.007, 0.008, 0.009, 0.01, 0.011]
+        # n_times = 5
+        self.times=np.linspace(0.0, 10.0, 5)
+        # n_inputs = (7, 11)
+        self.inputs=[
+            np.array([2,3,4,5,6,7,8]),
+            np.array([5,6,7,8,9,10,11,12,13,14,15])
+        ]
+        # n_p = 3
+        self.parameters=(2.95, 8.4768, 0.001)
+        # n_constants = 17
+        self.constants=(1.0, 2.0, 1.5, 1.001, 1.002, 1.003, 1.004, 1.005, 1.006, 1.007, 1.008, 1.009, 1.01, 1.011, 1.012, 1.013, 1.014)
         self.fsm = FischerModel(
             ode_fun=f,
             ode_dfdx=dfdx,
