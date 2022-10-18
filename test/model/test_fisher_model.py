@@ -7,13 +7,13 @@ import copy
 from setUp import *
 
 
-class Test_FischerModelParametrized_Init(Setup_Class):
+class Test_FisherModelParametrized_Init(Setup_Class):
     # Individual sampling tests
     def test_sample_ode_y0_explicit(self):
         fsm = copy.deepcopy(self.fsm)
         y0 = [[0.02, 0.0005], [0.015, 0.001]]
         fsm.ode_y0 = y0
-        fsmp = FischerModelParametrized.init_from(fsm)
+        fsmp = FisherModelParametrized.init_from(fsm)
         for p, q in zip(y0, fsmp.ode_y0):
             np.testing.assert_almost_equal(p, q)
 
@@ -22,7 +22,7 @@ class Test_FischerModelParametrized_Init(Setup_Class):
         t0 = (1.1, 7.2, 4)
         fsm.ode_t0 = t0
         fsm.identical_times = True
-        fsmp = FischerModelParametrized.init_from(fsm)
+        fsmp = FisherModelParametrized.init_from(fsm)
         np.testing.assert_almost_equal(fsmp.ode_t0, np.linspace(*t0))
 
     def test_sample_times_identical(self):
@@ -30,7 +30,7 @@ class Test_FischerModelParametrized_Init(Setup_Class):
         t = (3.21, 11.44, 2)
         fsm.times = t
         fsm.identical_times = True
-        fsmp = FischerModelParametrized.init_from(fsm)
+        fsmp = FisherModelParametrized.init_from(fsm)
         times = fsmp.times
         np.testing.assert_almost_equal(times, np.linspace(*t))
     
@@ -38,7 +38,7 @@ class Test_FischerModelParametrized_Init(Setup_Class):
         fsm = copy.deepcopy(self.fsm)
         t = (3.35, 78.2, 6)
         fsm.times = t
-        fsmp = FischerModelParametrized.init_from(fsm)
+        fsmp = FisherModelParametrized.init_from(fsm)
         times = fsmp.times
         np.testing.assert_almost_equal(times, np.full(tuple(len(q) for q in fsmp.inputs) + (t[2],), np.linspace(*t)))
     
@@ -47,7 +47,7 @@ class Test_FischerModelParametrized_Init(Setup_Class):
         inp0 = (-2.0, 51.2, 3)
         inp1 = np.array([1,2,3,4.5,5.2,3.4])
         fsm.inputs = [inp0, inp1]
-        fsmp = FischerModelParametrized.init_from(fsm)
+        fsmp = FisherModelParametrized.init_from(fsm)
         inputs = fsmp.inputs
         for i, j in zip(inputs, [np.linspace(*inp0), inp1]):
             np.testing.assert_almost_equal(i, j)
@@ -59,7 +59,7 @@ class Test_FischerModelParametrized_Init(Setup_Class):
         t0 = (0.0, 1.0, 7)
         fsm.ode_y0 = y0
         fsm.ode_t0 = t0
-        fsmp = FischerModelParametrized.init_from(fsm)
+        fsmp = FisherModelParametrized.init_from(fsm)
         for p, q in zip(fsmp.ode_y0, y0):
             np.testing.assert_almost_equal(p, q)
         np.testing.assert_almost_equal(fsmp.ode_t0, np.linspace(*t0))
@@ -70,7 +70,7 @@ class Test_FischerModelParametrized_Init(Setup_Class):
         t = (3.21, 11.44, 2)
         fsm.ode_y0 = y0
         fsm.times = t
-        fsmp = FischerModelParametrized.init_from(fsm)
+        fsmp = FisherModelParametrized.init_from(fsm)
         for p, q in zip(fsmp.ode_y0, y0):
             np.testing.assert_almost_equal(p, q)
         np.testing.assert_almost_equal(fsmp.times, np.full(tuple(len(q) for q in fsmp.inputs) + (t[2],), np.linspace(*t)))
@@ -81,7 +81,7 @@ class Test_FischerModelParametrized_Init(Setup_Class):
         t = (3.21, 11.44, 2)
         fsm.ode_t0 = t0
         fsm.times = t
-        fsmp = FischerModelParametrized.init_from(fsm)
+        fsmp = FisherModelParametrized.init_from(fsm)
         np.testing.assert_almost_equal(fsmp.ode_t0, np.linspace(*t0))
         np.testing.assert_almost_equal(fsmp.times, np.full(tuple(len(q) for q in fsmp.inputs) + (t[2],), np.linspace(*t)))
 
@@ -113,12 +113,12 @@ class Test_FischerModelParametrized_Init(Setup_Class):
     #     pass
 
 
-class Test_FischerModelParametrized_Set_Get(Setup_Class):
+class Test_FisherModelParametrized_Set_Get(Setup_Class):
     def test_set_get_t0(self):
         fsm = copy.deepcopy(self.fsm)
         t0 = (2.22, 56.3, 8)
         fsm.ode_t0 = t0
-        fsmp = FischerModelParametrized.init_from(fsm)
+        fsmp = FisherModelParametrized.init_from(fsm)
         t0 = 1.0
         fsmp.t0 = t0
         self.assertEqual(fsmp.t0, t0)
@@ -127,7 +127,7 @@ class Test_FischerModelParametrized_Set_Get(Setup_Class):
         fsm = copy.deepcopy(self.fsm)
         y0 = np.array([4.22, 9.44])
         fsm.ode_y0 = y0
-        fsmp = FischerModelParametrized.init_from(fsm)
+        fsmp = FisherModelParametrized.init_from(fsm)
         y0 = np.array([33.2, 12.3])
         fsmp.y0 = y0
         np.testing.assert_almost_equal(y0, fsmp.y0)
@@ -137,7 +137,7 @@ class Test_FischerModelParametrized_Set_Get(Setup_Class):
         times = (4.22, 9.44, 8)
         fsm.times = times
         fsm.identical_times = True
-        fsmp = FischerModelParametrized.init_from(fsm)
+        fsmp = FisherModelParametrized.init_from(fsm)
         times = np.array([2.0, 3.0, 66.0])
         fsmp.times = times
         np.testing.assert_almost_equal(times, fsmp.times)
@@ -146,7 +146,7 @@ class Test_FischerModelParametrized_Set_Get(Setup_Class):
         fsm = copy.deepcopy(self.fsm)
         t = (4.22, 9.44, 8)
         fsm.times = t
-        fsmp = FischerModelParametrized.init_from(fsm)
+        fsmp = FisherModelParametrized.init_from(fsm)
         times = np.full(fsmp.times.shape, np.linspace(3.119, 6.489, t[2]))
         fsmp.times = times
         np.testing.assert_almost_equal(times, fsmp.times)
@@ -156,7 +156,7 @@ class Test_FischerModelParametrized_Set_Get(Setup_Class):
         inp0 = (-2.0, 51.2, 3)
         inp1 = np.array([1,2,3,4.5,5.2,3.4])
         fsm.inputs = [inp0, inp1]
-        fsmp = FischerModelParametrized.init_from(fsm)
+        fsmp = FisherModelParametrized.init_from(fsm)
         inputs = [
             np.linspace(12.0, 15.0),
             None

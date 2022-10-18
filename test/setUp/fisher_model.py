@@ -2,7 +2,7 @@ import unittest
 import numpy as np
 import copy
 
-from FisInMa import FischerModel, FischerModelParametrized
+from FisInMa import FisherModel, FisherModelParametrized
 
 
 def f(t, x, inputs, params, consts):
@@ -68,7 +68,7 @@ class Setup_Class(unittest.TestCase):
         self.parameters=(2.95, 8.4768, 0.001)
         # n_constants = 3
         self.constants=(1.0, 2.0, 1.5)
-        self.fsm = FischerModel(
+        self.fsm = FisherModel(
             ode_fun=f,
             ode_dfdx=dfdx,
             ode_dfdp=dfdp,
@@ -83,4 +83,4 @@ class Setup_Class(unittest.TestCase):
             obs_dfdp=dgdp,
             identical_times=identical_times,
         )
-        self.fsmp = FischerModelParametrized.init_from(self.fsm)
+        self.fsmp = FisherModelParametrized.init_from(self.fsm)

@@ -14,11 +14,11 @@ if __name__ == "__main__":
     # Add Tests
     vardef.addTest(unittest.makeSuite(TestVariableDefinition))
     
-    # Create the test suite for FischerModelParametrized
+    # Create the test suite for FisherModelParametrized
     fsmp = unittest.TestSuite()
     # Add Tests
-    fsmp.addTest(unittest.makeSuite(Test_FischerModelParametrized_Init))
-    fsmp.addTest(unittest.makeSuite(Test_FischerModelParametrized_Set_Get))
+    fsmp.addTest(unittest.makeSuite(Test_FisherModelParametrized_Init))
+    fsmp.addTest(unittest.makeSuite(Test_FisherModelParametrized_Set_Get))
     
     # Create the test suite for Solver methods
     solve_fsmp = unittest.TestSuite()

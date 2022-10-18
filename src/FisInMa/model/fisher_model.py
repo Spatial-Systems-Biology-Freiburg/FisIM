@@ -6,7 +6,7 @@ from .preprocessing import VariableDefinition
 
 
 @dataclass
-class _FischerVariablesBase:
+class _FisherVariablesBase:
     ode_y0: np.ndarray
     ode_t0: float
     times: np.ndarray
@@ -16,62 +16,62 @@ class _FischerVariablesBase:
 
 
 @dataclass
-class _FischerVariablesOptions:
+class _FisherVariablesOptions:
     identical_times: bool = False
 
 
 @dataclass
-class _FischerOdeFunctions:
+class _FisherOdeFunctions:
     ode_fun: callable
     ode_dfdx: callable
     ode_dfdp: callable
 
 
 @dataclass
-class _FischerObservableFunctionsOptional:
+class _FisherObservableFunctionsOptional:
     obs_fun: callable = None
     obs_dfdx: callable = None
     obs_dfdp: callable = None
 
 
 @dataclass
-class FischerVariables(_FischerVariablesOptions, _FischerVariablesBase):
+class FisherVariables(_FisherVariablesOptions, _FisherVariablesBase):
     pass
 
 
 @dataclass
-class _FischerModelBase(_FischerOdeFunctions, _FischerVariablesBase):
+class _FisherModelBase(_FisherOdeFunctions, _FisherVariablesBase):
     pass
 
 
 @dataclass
-class _FischerModelOptions(_FischerVariablesOptions, _FischerObservableFunctionsOptional):
+class _FisherModelOptions(_FisherVariablesOptions, _FisherObservableFunctionsOptional):
     pass
 
 
 @dataclass
-class FischerModel(_FischerModelOptions, _FischerModelBase):
+class FisherModel(_FisherModelOptions, _FisherModelBase):
     pass
 
 
 @dataclass
-class _FischerModelParametrizedBase(_FischerOdeFunctions):
-    _fsm_var_def: FischerVariables
-    _fsm_var_vals: FischerVariables
+class _FisherModelParametrizedBase(_FisherOdeFunctions):
+    _fsm_var_def: FisherVariables
+    _fsm_var_vals: FisherVariables
 
 
 @dataclass
-class _FischerModelParametrizedOptions(_FischerModelOptions):
+class _FisherModelParametrizedOptions(_FisherModelOptions):
     pass
 
 
 @dataclass
-class FischerModelParametrized(_FischerModelParametrizedOptions, _FischerModelParametrizedBase):
-    def init_from(fsm: FischerModel):
+class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParametrizedBase):
+    def init_from(fsm: FisherModel):
         # Create distinct classes to store
         # 1) Initial definition of model (ie. sample over certain variable; specify tuple of (min, max, n, dx, guess_method) or explicitly via np.array([...]))
         # 2) Explicit values together with initial guess such that every variable is parametrized
-        _fsm_var_def = FischerVariables(
+        _fsm_var_def = FisherVariables(
             fsm.ode_y0,
             fsm.ode_t0,
             fsm.times,
@@ -143,7 +143,7 @@ class FischerModelParametrized(_FischerModelParametrizedOptions, _FischerModelPa
             _fsm_var_vals.ode_t0 = fsm.ode_t0
 
         # Construct parametrized model class and return it
-        fsmp = FischerModelParametrized(
+        fsmp = FisherModelParametrized(
             _fsm_var_def=_fsm_var_def,
             _fsm_var_vals=_fsm_var_vals,
             ode_fun=fsm.ode_fun,
@@ -155,7 +155,7 @@ class FischerModelParametrized(_FischerModelParametrizedOptions, _FischerModelPa
         )
         return fsmp
 
-    # Define properties of class such that it can be used as a parametrized FischerModel
+    # Define properties of class such that it can be used as a parametrized FisherModel
     # Get every possible numeric quantity that is stored in the model
     @property
     def ode_y0(self) -> np.ndarray:
@@ -246,35 +246,35 @@ class FischerModelParametrized(_FischerModelParametrizedOptions, _FischerModelPa
 
 
 @dataclass
-class _FischerResultSingleBase(_FischerVariablesBase):
+class _FisherResultSingleBase(_FisherVariablesBase):
     ode_solution: list
 
 
 @dataclass
-class _FischerResultSingleOptions(_FischerVariablesOptions):
+class _FisherResultSingleOptions(_FisherVariablesOptions):
     pass
 
 
 @dataclass
-class FischerResultSingle(_FischerResultSingleOptions, _FischerResultSingleBase):
+class FisherResultSingle(_FisherResultSingleOptions, _FisherResultSingleBase):
     pass
 
 
 @dataclass
-class _FischerResultsBase(_FischerOdeFunctions):
+class _FisherResultsBase(_FisherOdeFunctions):
     criterion: float
     S: np.ndarray
     C: np.ndarray
     individual_results: list
-    _fsm_var_def: FischerVariables
+    _fsm_var_def: FisherVariables
     
 
 @dataclass
-class _FischerResultsOptions(_FischerObservableFunctionsOptional):
+class _FisherResultsOptions(_FisherObservableFunctionsOptional):
     pass
 
 
-class FischerResults(_FischerResultsOptions, _FischerResultsBase):
+class FisherResults(_FisherResultsOptions, _FisherResultsBase):
     def to_savedict(self):
         '''Used to store results in database'''
         d = {

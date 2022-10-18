@@ -2,7 +2,7 @@ import numpy as np
 from scipy.integrate import odeint, solve_ivp
 import itertools
 
-from FisInMa.model import FischerModelParametrized, FischerResults, FischerResultSingle
+from FisInMa.model import FisherModelParametrized, FisherResults, FisherResultSingle
 
 
 def ode_rhs(t, x, ode_fun, ode_dfdx, ode_dfdp, inputs, parameters, constants, n_x, n_p):
@@ -18,7 +18,7 @@ def ode_rhs(t, x, ode_fun, ode_dfdx, ode_dfdp, inputs, parameters, constants, n_
     return x_tot
 
 
-def get_S_matrix(fsmp: FischerModelParametrized, relative_sensitivities=False):
+def get_S_matrix(fsmp: FisherModelParametrized, relative_sensitivities=False):
     """"""
     # Helper variables
     # How many parameters are in the system?
@@ -87,7 +87,7 @@ def get_S_matrix(fsmp: FischerModelParametrized, relative_sensitivities=False):
         error_n[(slice(None),) + index] = r[0] * 0.25
         # TODO
         # TODO
-        fsrs = FischerResultSingle(
+        fsrs = FisherResultSingle(
             ode_y0=fsmp.ode_y0,
             ode_t0=fsmp.ode_t0,
             times=fsmp.times,
@@ -109,7 +109,7 @@ def get_S_matrix(fsmp: FischerModelParametrized, relative_sensitivities=False):
     return S, C, solutions
 
 
-def fischer_determinant(fsmp: FischerModelParametrized, S, C):
+def fisher_determinant(fsmp: FisherModelParametrized, S, C):
     # Calculate Fisher Matrix
     F = (S.dot(C)).dot(S.T)
 
@@ -118,7 +118,7 @@ def fischer_determinant(fsmp: FischerModelParametrized, S, C):
     return det
 
 
-def fischer_sumeigenval(fsmp: FischerModelParametrized, S, C):
+def fisher_sumeigenval(fsmp: FisherModelParametrized, S, C):
     # Calculate Fisher Matrix
     F = S.dot(C).dot(S.T)
 
@@ -127,7 +127,7 @@ def fischer_sumeigenval(fsmp: FischerModelParametrized, S, C):
     return sumeigval
 
 
-def fischer_mineigenval(fsmp: FischerModelParametrized, S, C):
+def fisher_mineigenval(fsmp: FisherModelParametrized, S, C):
     # Calculate Fisher Matrix
     F = S.dot(C).dot(S.T)
 
@@ -136,7 +136,7 @@ def fischer_mineigenval(fsmp: FischerModelParametrized, S, C):
     return mineigval
 
 
-def calculate_fischer_criterion(fsmp: FischerModelParametrized, covar=False, relative_sensitivities=False):
+def calculate_fisher_criterion(fsmp: FisherModelParametrized, covar=False, relative_sensitivities=False):
     S, C, solutions = get_S_matrix(fsmp, relative_sensitivities)
     if covar == False:
         C = np.eye(S.shape[1])
@@ -144,7 +144,7 @@ def calculate_fischer_criterion(fsmp: FischerModelParametrized, covar=False, rel
 
     args = {key:value for key, value in fsmp.__dict__.items() if not key.startswith('_')}
 
-    fsr = FischerResults(
+    fsr = FisherResults(
         **args,
         criterion=crit,
         sensitivity_matrix=S,

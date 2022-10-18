@@ -4,7 +4,7 @@ import copy
 import scipy as sp
 import time
 
-from FisInMa.model import FischerModelParametrized
+from FisInMa.model import FisherModelParametrized
 from FisInMa.solving import *
 
 from setUp import Setup_Class

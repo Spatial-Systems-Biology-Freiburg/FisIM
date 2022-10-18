@@ -1,2 +1,2 @@
-from .fischer_model import *
+from .fisher_model import *
 from .preprocessing import *
