@@ -22,26 +22,37 @@ class Test_SolvingMethods(Setup_Class):
     def test_ode_rhs(self):
         fsmp = copy.deepcopy(self.fsmp)
 
-        for index in itertools.product(*[range(len(q)) for q in fsmp.inputs]):
-            Q = [fsmp.inputs[i][j] for i, j in enumerate(index)]
-            if fsmp.identical_times==True:
-                t = fsmp.times
-            else:
-                t = fsmp.times[index]
-            # y = ode_rhs(fsmp.ode_t0, fsmp.ode_y0, fsmp.ode_fun, fsmp.ode_dfdx, fsmp.ode_dfdp, Q, fsmp.parameters, fsmp.constants)
+        for y0, t0, i_inputs in itertools.product(
+            fsmp.ode_y0,
+            fsmp.ode_t0,
+            itertools.product(*[range(len(q)) for q in fsmp.inputs])
+        ):
+            Q = [fsmp.inputs[i][j] for i, j in enumerate(i_inputs)]
 
-            n_x = len(fsmp.ode_y0)
+            # Helper variables
+            n_x = len(y0)
             n_p = len(fsmp.parameters)
-            y0 = np.concatenate((fsmp.ode_y0, np.zeros(n_x * n_p)))
-            res = solve_ivp(fun=ode_rhs, t_span=(fsmp.ode_t0, np.max(t)), y0=y0, t_eval=t, args=(fsmp.ode_fun, fsmp.ode_dfdx, fsmp.ode_dfdp, Q, fsmp.parameters, fsmp.constants, n_x, n_p), method="Radau")#, jac=fsmp.ode_dfdx)
-            
-            res.y[n_x:]
-            # y_fun, y_dfdx, y_dfdp, rest = lists = np.split(y0, [n_x, n_x+n_x**2, n_x+n_x**2+n_x*m_p])
-            # print("Lists:")
-            # print(y_fun)
-            # print(y_dfdx)
-            # print(y_dfdp)
 
+            # Test for initial values (initial values for sensitivities are 0 by default)
+            x0 = np.concatenate((y0, np.zeros(n_x * n_p)))
+            res = ode_rhs(t0, x0, fsmp.ode_fun, fsmp.ode_dfdx, fsmp.ode_dfdp, Q, fsmp.parameters, fsmp.constants, n_x, n_p)
+            
+            np.testing.assert_almost_equal(res[:n_x], fsmp.ode_fun(t0, y0, Q, fsmp.parameters, fsmp.constants))
+            np.testing.assert_almost_equal(res[n_x:], np.array(fsmp.ode_dfdp(t0, y0, Q, fsmp.parameters, fsmp.constants)).flatten())
+
+            # Test for non-zero sensitivity values
+            s0 = (np.zeros(n_x * n_p) + 1.0).reshape((n_x, n_p))
+            x0 = np.concatenate((y0, s0.flatten()))
+            res = ode_rhs(t0, x0, fsmp.ode_fun, fsmp.ode_dfdx, fsmp.ode_dfdp, Q, fsmp.parameters, fsmp.constants, n_x, n_p)
+            
+            # Mimic calculation of sensitivities
+            f_ty = fsmp.ode_fun(t0, y0, Q, fsmp.parameters, fsmp.constants)
+            np.testing.assert_almost_equal(res[:n_x], f_ty)
+            dfdp_ty = fsmp.ode_dfdp(t0, y0, Q, fsmp.parameters, fsmp.constants)
+            dfdx_ty = fsmp.ode_dfdx(t0, y0, Q, fsmp.parameters, fsmp.constants)
+            sensitivities = dfdp_ty + np.matmul(dfdx_ty, s0)
+            np.testing.assert_almost_equal(res[:n_x], np.array(f_ty).flatten())
+            np.testing.assert_almost_equal(res[n_x:], sensitivities.flatten())
 
 class TestCriterions(Setup_Class):
     pass
