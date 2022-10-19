@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
 import numpy as np
-import scipy as sp
-import matplotlib.pyplot as plt
 
 
 # Import custom package to solve such fisher models
