@@ -152,6 +152,7 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
             obs_fun=fsm.obs_fun,
             obs_dfdx=fsm.obs_dfdx,
             obs_dfdp=fsm.obs_dfdp,
+            identical_times=fsm.identical_times,
         )
         return fsmp
 
