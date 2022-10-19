@@ -2,8 +2,8 @@ import numpy as np
 import scipy as sp
 import itertools
 
-from FisInMa.data_structures import FischerModel, FischerModelParametrized
-from FisInMa.solving import calculate_fischer_criterion, fischer_determinant
+from FisInMa.model import FisherModel, FisherModelParametrized
+from FisInMa.solving import calculate_Fisher_criterion, Fisher_determinant
 
 
 def discrete_penalizer(x, dx, x_offset=0.0):
@@ -14,7 +14,7 @@ def discrete_penalizer(x, dx, x_offset=0.0):
     return 1 - 2 * r / dx
 
 
-def __scipy_optimizer_function(X, fsmp: FischerModelParametrized, discrete=None, full=False):
+def __scipy_optimizer_function(X, fsmp: FisherModelParametrized, discrete=None, full=False):
     if fsmp.individual_times==True:
         m = np.product(fsmp._times_shape)
     else:
@@ -35,7 +35,7 @@ def __scipy_optimizer_function(X, fsmp: FischerModelParametrized, discrete=None,
     fsmp.set_times(times)
     fsmp.set_q_values_mod(q)
 
-    fsr = calculate_fischer_criterion(fsmp, False, fsmp.relative_sensitivities)
+    fsr = calculate_Fisher_criterion(fsmp, False, fsmp.relative_sensitivities)
 
     if full:
         return fsr
@@ -44,7 +44,7 @@ def __scipy_optimizer_function(X, fsmp: FischerModelParametrized, discrete=None,
     return - fsr.criterion
 
 
-def __scipy_calculate_bounds_constraints(times0, q_values0, fsmp: FischerModelParametrized, min_distance=None):
+def __scipy_calculate_bounds_constraints(times0, q_values0, fsmp: FisherModelParametrized, min_distance=None):
     # Define linear constraints on times
     # Constraints are t0 <= t1 <= t2 ...
     # and tmin <= ti <= tmax
@@ -122,7 +122,7 @@ def __handle_custom_options(**args):
     return args, custom_args
 
 
-def __scipy_differential_evolution(times0, q_values0, fsmp: FischerModelParametrized, **args):
+def __scipy_differential_evolution(times0, q_values0, fsmp: FisherModelParametrized, **args):
     # Filter custom options and scipy options
     args, custom_args = __handle_custom_options(**args)
     
@@ -147,7 +147,7 @@ def __scipy_differential_evolution(times0, q_values0, fsmp: FischerModelParametr
     return __scipy_optimizer_function(res.x, fsmp, full=True)
 
 
-def __scipy_brute(times0, fsmp: FischerModelParametrized, **args):
+def __scipy_brute(times0, fsmp: FisherModelParametrized, **args):
     # Filter custom options and scipy options
     args, custom_args = __handle_custom_options(**args)
 
@@ -168,7 +168,7 @@ def __scipy_brute(times0, fsmp: FischerModelParametrized, **args):
     return __scipy_optimizer_function(res, fsmp, full=True)
 
 
-def __scipy_basinhopping(times0, fsmp: FischerModelParametrized, **args):
+def __scipy_basinhopping(times0, fsmp: FisherModelParametrized, **args):
     # Filter custom options and scipy options
     args, custom_args = __handle_custom_options(**args)
 
@@ -186,8 +186,8 @@ def __scipy_basinhopping(times0, fsmp: FischerModelParametrized, **args):
     return __scipy_optimizer_function(res.x, fsmp, full=True)
 
 
-def find_optimal(fsm: FischerModel, optimization_strategy: str, times_initial_guess=None, q_values_initial_guess=None, **args):
-    fsmp, times_initial_guess, q_values_initial_guess = FischerModelParametrized.initialize_from(fsm, times_initial_guess)
+def find_optimal(fsm: FisherModel, optimization_strategy: str, **args):
+    fsmp = FisherModelParametrized.initialize_from(fsm, times_initial_guess)
 
     optimization_strategies = {
         "scipy_differential_evolution": __scipy_differential_evolution,
@@ -197,4 +197,4 @@ def find_optimal(fsm: FischerModel, optimization_strategy: str, times_initial_gu
     if optimization_strategy not in optimization_strategies.keys():
         raise KeyError("Please specify one of the following optimization_strategies for optimization: " + str(optimization_strategies.keys()))
 
-    return optimization_strategies[optimization_strategy](times_initial_guess, q_values_initial_guess, fsmp, **args)
+    return optimization_strategies[optimization_strategy](fsmp.times, fsmp.inputs, fsmp, **args)
