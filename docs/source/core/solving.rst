@@ -1,6 +1,8 @@
 Solving
-=======
+-------
 
-.. automodule:: FisInMa.solving
-    :members: 
-    :show-inheritance:
+
+.. automodule:: FisInMa.solving.solve_fsm
+   :members:
+   :inherited-members:
+   :show-inheritance:

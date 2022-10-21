@@ -1,8 +1,8 @@
-Model
------
+Database
+--------
 
 
-.. automodule:: FisInMa.model.fisher_model
+.. automodule:: FisInMa.database
    :members:
    :inherited-members:
    :show-inheritance:

@@ -1,13 +1,14 @@
-Core
-====
-
-The core components of FisInMa consist of the FisherModel class and ...
+FisInMa
+=======
 
 
 .. toctree::
-    :maxdepth: 2
-    :hidden:
+   :maxdepth: 2
+   :caption: Contents:
+   :hidden:
 
-    model
-    optimization
-    solving
+   Model <model>
+   Solving <solving>
+   Optimization <optimization>
+   Database <database>
+   Plotting <plotting>

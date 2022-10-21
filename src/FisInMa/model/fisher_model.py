@@ -68,6 +68,14 @@ class _FisherModelParametrizedOptions(_FisherModelOptions):
 @dataclass
 class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParametrizedBase):
     def init_from(fsm: FisherModel):
+        """Initialize a parametrized FisherModel with initial guesses for the sampled variables.
+
+        :param fsm: A user-defined fisher model.
+        :type fsm: FisherModel
+        :raises TypeError: Currently does not accept sampling over initial values ode_y0.
+        :return: Fully parametrized model with initial guesses which can be numerically solved.
+        :rtype: FisherModelParametrized
+        """
         # Create distinct classes to store
         # 1) Initial definition of model (ie. sample over certain variable; specify tuple of (min, max, n, dx, guess_method) or explicitly via np.array([...]))
         # 2) Explicit values together with initial guess such that every variable is parametrized

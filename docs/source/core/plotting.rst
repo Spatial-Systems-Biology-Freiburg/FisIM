@@ -1,8 +1,8 @@
-Model
------
+Plotting
+--------
 
 
-.. automodule:: FisInMa.model.fisher_model
+.. automodule:: FisInMa.plotting
    :members:
    :inherited-members:
    :show-inheritance:

@@ -25,10 +25,13 @@ extensions = [
     'sphinx.ext.duration',
     'sphinx.ext.doctest',
     'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
 ]
 
+autosummary_generate = True
+
 templates_path = ['_templates']
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ['_build', '_templates', 'Thumbs.db', '.DS_Store']
 
 # Do not include documentation of these imports
 autodoc_mock_imports =  ["scipy", "dataclass"]

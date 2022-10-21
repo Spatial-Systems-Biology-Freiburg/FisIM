@@ -20,6 +20,7 @@ Welcome to FisInMa's documentation!
 
    Introduction <introduction/index>
    User Interface <user_interface/index>
+   Examples <examples/index>
    Core <core/index>
 
 
