@@ -6,3 +6,4 @@ Model
    :members:
    :inherited-members:
    :show-inheritance:
+   :undoc-members:
