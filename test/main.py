@@ -4,6 +4,7 @@ import unittest
 
 from model import *
 from solving import *
+from optimization import *
 
 if __name__ == "__main__":
     # Create a runner for all tests

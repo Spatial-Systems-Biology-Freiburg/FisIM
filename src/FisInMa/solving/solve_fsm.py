@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.integrate import odeint, solve_ivp
+import scipy as sp
 import itertools
 
 from FisInMa.model import FisherModelParametrized, FisherResults, FisherResultSingle
@@ -58,7 +58,7 @@ def get_S_matrix(fsmp: FisherModelParametrized, relative_sensitivities=False):
         y0_full = np.concatenate((y0, np.zeros(n_y0 * n_p)))
 
         # Actually solve the ODE for the selected parameter values
-        res = solve_ivp(fun=ode_rhs, t_span=(t0, np.max(t)), y0=y0_full, t_eval=t, args=(fsmp.ode_fun, fsmp.ode_dfdx, fsmp.ode_dfdp, Q, fsmp.parameters, fsmp.constants, n_y0, n_p), method="Radau")#, jac=fsmp.ode_dfdx)
+        res = sp.integrate.solve_ivp(fun=ode_rhs, t_span=(t0, np.max(t)), y0=y0_full, t_eval=t, args=(fsmp.ode_fun, fsmp.ode_dfdx, fsmp.ode_dfdp, Q, fsmp.parameters, fsmp.constants, n_y0, n_p), method="Radau")#, jac=fsmp.ode_dfdx)
         
         # Obtain sensitivities dg/dp from the last components of the ode
         r = res.y[n_y0:]

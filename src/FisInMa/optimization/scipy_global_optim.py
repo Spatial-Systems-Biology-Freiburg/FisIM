@@ -2,8 +2,8 @@ import numpy as np
 import scipy as sp
 import itertools
 
-from FisInMa.model import FisherModel, FisherModelParametrized
-from FisInMa.solving import calculate_Fisher_criterion, Fisher_determinant
+from FisInMa.model import FisherModel, FisherModelParametrized, VariableDefinition
+from FisInMa.solving import calculate_fisher_criterion, fisher_determinant
 
 
 def discrete_penalizer(x, dx, x_offset=0.0):
@@ -44,7 +44,6 @@ def __scipy_optimizer_function(X, fsmp: FisherModelParametrized, discrete=None, 
     return - fsr.criterion
 
 
-def __scipy_calculate_bounds_constraints(times0, q_values0, fsmp: FisherModelParametrized, min_distance=None):
     # Define linear constraints on times
     # Constraints are t0 <= t1 <= t2 ...
     # and tmin <= ti <= tmax
@@ -66,6 +65,7 @@ def __scipy_calculate_bounds_constraints(times0, q_values0, fsmp: FisherModelPar
         B = A
         ub_t = np.append(np.full(n_times-1, 0.0 if min_distance==None else -min_distance), np.full((n_times,), fsmp.time_interval[1]))
         lb_t = np.append(np.full(n_times-1, - np.inf), np.full((n_times,), fsmp.time_interval[0]))
+def _scipy_calculate_bounds_constraints(fsmp: FisherModelParametrized, min_distance=None):
     else:
         B = np.zeros(((n_times*2 -1) * n_q_values, n_q_values * n_times))
         # for i in range(n_q_values):
