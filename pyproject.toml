@@ -13,6 +13,7 @@ dependencies = [
   "scipy",
   "numpy",
   "pymongo",
+  "matplotlib",
 ]
 description = "Optimal experimental design utilizing the Fischer information matrix"
 readme = "README.md"
