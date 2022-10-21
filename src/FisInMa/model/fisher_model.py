@@ -190,7 +190,8 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
     def constants(self) -> tuple:
         return self._fsm_var_vals.constants
     
-    # These methods obtain only mutable quantities
+    # These methods obtain only mutable quantities.
+    # Return None or a list of None and values depending on which quantity is mutable
     @property
     def ode_y0_mut(self):
         if self._fsm_var_def.ode_y0 is None:
@@ -215,12 +216,29 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
     @property
     def inputs_mut(self):
         ret = []
-        for q_val, q in enumerate(self._fsm_var_def):
+        for q_val, q in zip(self._fsm_var_vals.inputs, self._fsm_var_def.inputs):
             if q is None:
                 ret.append(None)
             else:
-                ret.append(self._fsm_var_vals.inputs)
+                ret.append(q_val)
         return ret
+
+    # These methods return the definition or None if the values were picked by hand
+    @property
+    def ode_y0_def(self):
+        return self._fsm_var_def.ode_y0
+    
+    @property
+    def ode_t0_def(self):
+        return self._fsm_var_def.ode_t0
+    
+    @property
+    def times_def(self):
+        return self._fsm_var_def.times
+
+    @property
+    def inputs_def(self):
+        return self._fsm_var_def.inputs
 
     # These methods modify mutable quantities
     @ode_y0.setter

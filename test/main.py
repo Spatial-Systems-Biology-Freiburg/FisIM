@@ -25,7 +25,13 @@ if __name__ == "__main__":
     solve_fsmp = unittest.TestSuite()
     solve_fsmp.addTest(unittest.makeSuite(Test_SolvingMethods))
 
+    # Test suite für Optimization methods
+    optim_fsm = unittest.TestSuite()
+    optim_fsm.addTest(unittest.makeSuite(Test_ScipyGlobalOptimAlgorithms))
+    optim_fsm.addTest(unittest.makeSuite(Test_ScipyCalculateConstraints))
+
     # Run the suites
     runner.run(vardef)
     runner.run(fsmp)
-    runner.run(solve_fsmp)
+    # runner.run(solve_fsmp)
+    runner.run(optim_fsm)
