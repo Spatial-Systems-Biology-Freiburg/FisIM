@@ -7,7 +7,7 @@ import time
 from FisInMa.model import FisherModelParametrized
 from FisInMa.solving import *
 
-from setUp import Setup_Class
+from test.setUp import Setup_Class
 
 class Test_SolvingMethods(Setup_Class):
     def test_get_S_matrix(self):

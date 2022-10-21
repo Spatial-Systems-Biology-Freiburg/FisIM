@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 
 import unittest
+import sys, os
 
-from model import *
-from solving import *
-from optimization import *
+sys.path.append(os.getcwd())
+
+from setUp import Setup_Class
+from model.test_fisher_model import Test_FisherModelParametrized_Init, Test_FisherModelParametrized_Set_Get
+from model.test_preprocessing import TestVariableDefinition
+from solving.test_solver import Test_SolvingMethods
+from optimization import Test_ScipyCalculateConstraints, Test_ScipyGlobalOptimAlgorithms
 
 if __name__ == "__main__":
     # Create a runner for all tests

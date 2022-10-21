@@ -4,7 +4,9 @@ import unittest
 import numpy as np
 import copy
 
-from setUp import *
+from test.setUp import Setup_Class
+
+from FisInMa import FisherModelParametrized
 
 
 class Test_FisherModelParametrized_Init(Setup_Class):
