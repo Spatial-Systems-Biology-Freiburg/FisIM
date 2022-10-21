@@ -14,7 +14,7 @@ def discrete_penalizer(x, dx, x_offset=0.0):
     return 1 - 2 * r / dx
 
 
-def __scipy_optimizer_function(X, fsmp: FisherModelParametrized, discrete=None, full=False):
+def __scipy_optimizer_function(X, fsmp: FisherModelParametrized, full=False):
     if fsmp.individual_times==True:
         m = np.product(fsmp._times_shape)
     else:
@@ -44,7 +44,7 @@ def __scipy_optimizer_function(X, fsmp: FisherModelParametrized, discrete=None, 
     return - fsr.criterion
 
 
-def _scipy_calculate_bounds_constraints(fsmp: FisherModelParametrized, min_distance=None):
+def _scipy_calculate_bounds_constraints(fsmp: FisherModelParametrized):
     # Define array for upper and lower bounds
     ub = []
     lb = []
@@ -113,14 +113,23 @@ def _scipy_calculate_bounds_constraints(fsmp: FisherModelParametrized, min_dista
         # How many time points are we sampling?
         n_times = np.product(fsmp.times.shape)
 
-        # Store lower and uppwer bound
+        # Store lower and upper bound
         lb += [fsmp.times_def.lb] * n_times
         ub += [fsmp.times_def.ub] * n_times
 
-        #
+        # Constraints on variables
+        lc += [-np.inf] * (n_times-1) + [fsmp.times_def.lb] * n_times
+        uc += [-fsmp.times_def.min_distance if fsmp.times_def.min_distance!=None else np.inf] * (n_times-1) + [fsmp.times_def.ub] * n_times
 
         # Create the correct matrix to store.
         A = np.zeros((n_times*2-1, n_times))
+        # Fill the matrix like so:
+        #
+        #     | 1 -1  0  0 ... |
+        # A = | 0  1 -1  0 ... |
+        #     | 0  0  1 -1 ... |
+        #     | ...            |
+        #
         for i in range(n_times-1):
             A[i][i] = 1.0
             A[i][i+1] = -1.0
@@ -136,9 +145,42 @@ def _scipy_calculate_bounds_constraints(fsmp: FisherModelParametrized, min_dista
     i = 0
     for inp_def in fsmp.inputs_def:
         if type(inp_def)==VariableDefinition:
+            # Store lower and upper bound
             lb += [inp_def.lb] * inp_def.n
             ub += [inp_def.ub] * inp_def.n
-            A = np.eye(inp_def.n)
+
+            # Constraints on variables
+            m = inp_def.min_distance if inp_def.min_distance!=None else -np.inf
+            lc += [+m] * max(1, int(round(inp_def.n*(inp_def.n-1)/2,0)))
+            uc += [-m] * max(1, int(round(inp_def.n*(inp_def.n-1)/2,0)))
+
+            # Create correct matrix matrix to store
+            A = np.zeros((int(round(inp_def.n*(inp_def.n-1)/2,0)), inp_def.n))
+            count = 0
+            for i in range(inp_def.n-1):
+                A[count:count+inp_def.n-i-1,i] = 1.0
+                A[count:count+inp_def.n-i-1,i+1:] = -np.eye(inp_def.n-i-1)
+                count += inp_def.n-i-1
+            # Fill the matrix like so:
+            #
+            #     | 1 -1  0  0 ... |
+            #     | 1  0 -1  0 ... |
+            #     | 1  0  0 -1 ... |
+            # A = | ...            |
+            #     | 0  1 -1  0 ... |
+            #     | 0  1  0 -1 ... |
+            #     | ...            |
+            # 
+            # We denote the vector of mutable variables with
+            #   x = [v0, ... vN]
+            # and plug it into our linear system
+            #   lc <= A x <= uc
+            # Together with lower and upper constraints set to +d, -d respectively, we obtain the following equations:
+            # d <= vi - vj <= -d
+            # Or seperately
+            # d <= vi - vj
+            # d <= vj - vi
+            # which imposes the min_distance condition
             B = np.block([[B,np.zeros((B.shape[0],A.shape[1]))],[np.zeros((A.shape[0],B.shape[1])),A]])
             n_mut_check.append(A.shape[1])
             print("Sampling input", i)
@@ -147,16 +189,21 @@ def _scipy_calculate_bounds_constraints(fsmp: FisherModelParametrized, min_dista
             print("Not sampling input", i)
         i += 1
 
-    print(lb)
-    print(ub)
+    print("\nUpper/Lower bounds")
+    print(len(lb), lb)
+    print(len(ub), ub)
+    print("\nUpper/Lower constraints")
+    print(len(lc), lc)
+    print(len(uc), uc)
+    print("\nComparison matrix")
+    print(B.shape)
     print(B)
     print("Checking if all mutable variables have been identified:", n_mut, n_mut_check)
     print("Checking if B matrix has correct shape:", B.shape[1], np.sum(n_mut))
     print("Checking if lb and ub have same shape as B", len(lc), len(uc), B.shape[0])
 
     bounds = list(zip(lb, ub))
-    # constraints = scipy.LinearConstraint()
-    constraints = 1
+    constraints = sp.optimize.LinearConstraint(B, lc, uc)
     print("")
     return bounds, constraints
     
@@ -222,39 +269,9 @@ def _scipy_calculate_bounds_constraints(fsmp: FisherModelParametrized, min_dista
     return bounds, constraints
 
 
-def __handle_custom_options(**args):
-    custom_args = {}
-
-    # Determine if times should have a minimum distance between each other
-    if "min_distance" not in args.keys():
-        min_distance=False
-    else:
-        min_distance=args.pop("min_distance")
-    
-    # Determine if results should be discretized
-    if "discrete" not in args.keys():
-        discrete=None
-    else:
-        discrete=args.pop("discrete")
-        try:
-            iter(discrete)
-        except:
-            discrete = (discrete, 0.0)
-        if min_distance!=False:
-            print("Warning: option 'discrete' overwrites option 'min_distance'")
-        min_distance=discrete[0]
-    
-    custom_args["min_distance"] = min_distance
-    custom_args["discrete"] = discrete
-    return args, custom_args
-
-
 def __scipy_differential_evolution(fsmp: FisherModelParametrized, **args):
-    # Filter custom options and scipy options
-    args, custom_args = __handle_custom_options(**args)
-    
     # Create constraints and bounds
-    bounds, constraints = _scipy_calculate_bounds_constraints(fsmp, custom_args["min_distance"])
+    bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
 
     x0 = np.concatenate((times0.flatten(), *q_values0))
 
@@ -262,7 +279,7 @@ def __scipy_differential_evolution(fsmp: FisherModelParametrized, **args):
         "func": __scipy_optimizer_function,
         "bounds": bounds,
         "constraints":constraints,
-        "args":(fsmp, custom_args["discrete"]),
+        "args":(fsmp,),
         "polish":False,
         "workers":-1,
         "updating":'deferred',
@@ -275,16 +292,13 @@ def __scipy_differential_evolution(fsmp: FisherModelParametrized, **args):
 
 
 def __scipy_brute(times0, fsmp: FisherModelParametrized, **args):
-    # Filter custom options and scipy options
-    args, custom_args = __handle_custom_options(**args)
-
     # Create constraints and bounds
-    bounds, constraints = _scipy_calculate_bounds_constraints(fsmp, custom_args["min_distance"])
+    bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
 
     opt_args = {
         "func": __scipy_optimizer_function,
         "ranges": bounds,
-        "args":(fsmp, custom_args["discrete"]),
+        "args":(fsmp,),
         "finish":False,
         "workers":-1,
         "Ns":5
@@ -296,16 +310,13 @@ def __scipy_brute(times0, fsmp: FisherModelParametrized, **args):
 
 
 def __scipy_basinhopping(times0, fsmp: FisherModelParametrized, **args):
-    # Filter custom options and scipy options
-    args, custom_args = __handle_custom_options(**args)
-
     # Create constraints and bounds
-    bounds, constraints = _scipy_calculate_bounds_constraints(fsmp, custom_args["min_distance"])
+    bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
 
     opt_args = {
         "func": __scipy_optimizer_function,
         "x0": times0.flatten(),
-        "minimizer_kwargs":{"args":(fsmp, custom_args["discrete"]), "constraints": constraints, "bounds": bounds}
+        "minimizer_kwargs":{"args":(fsmp,), "constraints": constraints, "bounds": bounds}
     }
     opt_args.update(args)
     res = sp.optimize.basinhopping(**opt_args)
