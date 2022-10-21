@@ -65,13 +65,9 @@ def _scipy_calculate_bounds_constraints(fsmp: FisherModelParametrized):
     ]
     B = np.eye(0)
 
-    print("")
-
-    n_mut_check = []
     # Go through all possibly mutable variables and gather information about constraints and bounds
     # Check if initial times are sampled over
     if type(fsmp.ode_t0_def)==VariableDefinition:
-        print("Sampling initial times")
         # Bounds for value
         lb += [fsmp.ode_t0_def.lb] * fsmp.ode_t0_def.n
         ub += [fsmp.ode_t0_def.ub] * fsmp.ode_t0_def.n
@@ -83,14 +79,10 @@ def _scipy_calculate_bounds_constraints(fsmp: FisherModelParametrized):
         # Define matrix A which will extend B
         A = np.eye(fsmp.ode_t0_def.n)
         B = np.block([[B,np.zeros((B.shape[0],A.shape[1]))],[np.zeros((A.shape[0],B.shape[1])),A]])
-        n_mut_check.append(fsmp.ode_t0_def.n)
-    else:
-        n_mut_check.append(0)
-        print("Not sampling initial times")
 
     # Check if initial values are sampled over
     if type(fsmp.ode_y0_def)==VariableDefinition:
-        print("Sampling initial values")
+        # print("Sampling initial values")
         # Bounds for value
         lb.append(fsmp.ode_y0_def.lb)
         ub.append(fsmp.ode_y0_def.ub)
@@ -102,10 +94,6 @@ def _scipy_calculate_bounds_constraints(fsmp: FisherModelParametrized):
         # Define matrix A which will extend B
         A = np.eye(len(fsmp.ode_y0 * fsmp.ode_y0_def.n))
         B = np.block([[B,np.zeros((B.shape[0],A.shape[1]))],[np.zeros((A.shape[0],B.shape[1])),A]])
-        n_mut_check.append(A.shape[1])
-    else:
-        n_mut_check.append(0)
-        print("Not sampling initial values")
 
     # Check if times are sampled over
     if type(fsmp.times_def)==VariableDefinition:
@@ -136,13 +124,8 @@ def _scipy_calculate_bounds_constraints(fsmp: FisherModelParametrized):
         for i in range(n_times):
             A[i+n_times-1][i] = 1.0
         B = np.block([[B,np.zeros((B.shape[0],A.shape[1]))],[np.zeros((A.shape[0],B.shape[1])),A]])
-        n_mut_check.append(A.shape[1])
-    else:
-        n_mut_check.append(0)
-        print("Not sampling times")
 
     # Check which inputs are sampled
-    i = 0
     for inp_def in fsmp.inputs_def:
         if type(inp_def)==VariableDefinition:
             # Store lower and upper bound
@@ -182,90 +165,9 @@ def _scipy_calculate_bounds_constraints(fsmp: FisherModelParametrized):
             # d <= vj - vi
             # which imposes the min_distance condition
             B = np.block([[B,np.zeros((B.shape[0],A.shape[1]))],[np.zeros((A.shape[0],B.shape[1])),A]])
-            n_mut_check.append(A.shape[1])
-            print("Sampling input", i)
-        else:
-            n_mut_check.append(0)
-            print("Not sampling input", i)
-        i += 1
-
-    print("\nUpper/Lower bounds")
-    print(len(lb), lb)
-    print(len(ub), ub)
-    print("\nUpper/Lower constraints")
-    print(len(lc), lc)
-    print(len(uc), uc)
-    print("\nComparison matrix")
-    print(B.shape)
-    print(B)
-    print("Checking if all mutable variables have been identified:", n_mut, n_mut_check)
-    print("Checking if B matrix has correct shape:", B.shape[1], np.sum(n_mut))
-    print("Checking if lb and ub have same shape as B", len(lc), len(uc), B.shape[0])
 
     bounds = list(zip(lb, ub))
     constraints = sp.optimize.LinearConstraint(B, lc, uc)
-    print("")
-    return bounds, constraints
-    
-    # Check if initial values are sampled over
-    # if fsmp.ode_y0_def!=None:
-
-
-
-
-
-
-
-
-
-    # Define linear constraints on times
-    # Constraints are t0 <= t1 <= t2 ...
-    # and tmin <= ti <= tmax
-    
-    n_times_mut = np.product(fsmp.times_mut.shape if fsmp.times_mut!=None else [0])
-
-    # Check if we are changing the times
-    if n_times_mut > 0:
-        # Create time upper/lower values for lb_t <= B.x <= ub_t and matrix A
-        # First create matrix block A
-        A = np.zeros((max(0, n_times_mut*2-1), n_times_mut))
-        for i in range(n_times_mut-1):
-            A[i][i] = 1.0
-            A[i][i+1] = -1.0
-        for i in range(n_times_mut):
-            A[i+n_times_mut-1][i] = 1.0
-        
-        # Now if times are not individual, the created matrix block needs to be copied multiple times
-        if fsmp.identical_times == True:
-            B = A
-            ub_t = np.append(np.full(n_times_mut-1, 0.0 if min_distance==None else -min_distance), np.full((n_times_mut,), fsmp.times_def.ub))
-            lb_t = np.append(np.full(n_times_mut-1, - np.inf), np.full((n_times_mut,), fsmp.times_def.lb))
-        else:
-            B = np.zeros(((max(0, n_times_mut*2 -1)) * n_inputs_mut, n_inputs_mut * n_times_mut))
-            # for i in range(n_inputs_mut):
-            #     tmp = np.concatenate([np.zeros((n_times_mut*2-1, n_times_mut)) for _ in range(i)] + [A] + [np.zeros((n_times_mut*2-1, n_times_mut)) for _ in range(n_inputs_mut-1-i)], axis=1)
-            #     B[i*(2*n_times_mut-1):i*(2*n_times_mut-1)+2*n_times_mut-1] = tmp
-            B = np.block(
-                [np.zeros(2*n_times_mut-1, n_times_mut)] * i + [A] + [np.zeros(2*n_times_mut-1, n_times_mut)] * n_inputs_mut-1-i
-                for i in range(n_inputs_mut)
-            )
-            print(B)
-        
-            ub_t = [0]#np.concatenate([np.append(np.full(max(0, n_times_mut-1), 0.0 if min_distance==None else -min_distance), np.full((n_times_mut,), fsmp.times_def.ub))] * n_inputs_mut)
-            lb_t = [0]#np.concatenate([np.append(np.full(max(0, n_times_mut-1), - np.inf), np.full((n_times_mut,), fsmp.times_def.lb))] * n_inputs_mut)
-    
-    # Define linear constraints for 
-    n_inputs_mut = np.product([len(q) if q!=None else 1 for q in fsmp.inputs_mut])
-    ub = np.concatenate([np.append(np.full(max(0, n_times_mut-1), 0.0 if min_distance==None else -min_distance), np.full((n_times_mut,), fsmp.times_def.ub))] * n_q_values)
-    lb = np.concatenate([np.append(np.full(max(0, n_times_mut-1), - np.inf), np.full((n_times_mut,), fsmp.times_def.lb))] * n_q_values)
-
-    constraints = sp.optimize.LinearConstraint(B, lb, ub)
-
-    #
-    bounds_t = [(fsmp.times_def.lb, fsmp.times_def.ub) for _ in range(n_times_mut)]
-    bounds_q = [x[0:2] for x in fsmp.q_mod_values_ranges for _ in range(x[2])]
-    bounds = bounds_t + bounds_q
-
     return bounds, constraints
 
 
