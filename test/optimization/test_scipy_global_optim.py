@@ -10,9 +10,14 @@ from test.setUp import Setup_Class
 class Test_ScipyGlobalOptimAlgorithms(Setup_Class):
     def test_scipy_differential_evolution(self):
         fsm = copy.deepcopy(self.fsm)
-        fsm.times = (0.0, 10.0, 5)
-        fsm.identical_times=True
-        find_optimal(fsm, "scipy_differential_evolution")
+        fsm.ode_t0 = 0.0
+        fsm.ode_y0 = [np.array([0.05, 0.001])]
+        fsm.inputs=[
+            np.arange(2, 2+2),
+            np.arange(5, 2+5)
+        ]
+        fsm.times = (0.0, 10.0, 2)
+        find_optimal(fsm, "scipy_differential_evolution", workers=1, maxiter=10, popsize=10)
 
 
 class Test_ScipyCalculateConstraints(Setup_Class):
