@@ -1,5 +1,6 @@
 import numpy as np
 import scipy as sp
+import scipy.optimize as optimize
 import itertools
 
 from FisInMa.model import FisherModel, FisherModelParametrized, VariableDefinition
@@ -176,7 +177,7 @@ def __scipy_differential_evolution(fsmp: FisherModelParametrized, **args):
         "x0": x0
     }
     opt_args.update(args)
-    res = sp.optimize.differential_evolution(**opt_args)
+    res = optimize.differential_evolution(**opt_args)
 
     return __scipy_optimizer_function(res.x, fsmp, full=True)
 
@@ -194,7 +195,7 @@ def __scipy_brute(times0, fsmp: FisherModelParametrized, **args):
         "Ns":5
     }
     opt_args.update(args)
-    res = sp.optimize.brute(**opt_args)
+    res = optimize.brute(**opt_args)
 
     return __scipy_optimizer_function(res, fsmp, full=True)
 
@@ -209,7 +210,7 @@ def __scipy_basinhopping(times0, fsmp: FisherModelParametrized, **args):
         "minimizer_kwargs":{"args":(fsmp,), "constraints": constraints, "bounds": bounds}
     }
     opt_args.update(args)
-    res = sp.optimize.basinhopping(**opt_args)
+    res = optimize.basinhopping(**opt_args)
 
     return __scipy_optimizer_function(res.x, fsmp, full=True)
 
