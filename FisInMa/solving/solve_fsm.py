@@ -6,6 +6,33 @@ from FisInMa.model import FisherModelParametrized, FisherResults, FisherResultSi
 
 
 def ode_rhs(t, x, ode_fun, ode_dfdx, ode_dfdp, inputs, parameters, constants, n_x, n_p):
+    r"""Calculate the right-hand side of the ODEs system, containing the model definition with state variables :math:`\dot x = f(x, t, u, u, c)` 
+    and the equations for the local sensitivities :math:`\dot s = \frac{\partial f}{\partial x} s + \frac{\partial f}{\partial p}`.
+    
+    :param t: The measurement times :math:`t`.
+    :type t: np.ndarray
+    :param x: The array containing the state variables :math:`x` and sensitivities :math:`s`.
+    :type x: np.ndarray
+    :param ode_fun: The ODEs right-hand side function :math:`f` for the state variables :math:`x`.
+    :type ode_fun: callable
+    :param ode_dfdx: The derivative of the ODEs function with respect to state variables :math:`x`.
+    :type ode_dfdx: callable
+    :param ode_dfdp: The derivative of the ODEs function with respect to parameters :math:`p`.
+    :type ode_dfdp: callable
+    :param inputs: The inputs of the system.
+    :type inputs: list
+    :param parameters: The estimated parameters of the system :math:`p`.
+    :type params: tuple
+    :param constants: The constants of the system :math:`c`.
+    :type constants: tuple
+    :param n_x: The number of the state variables of the system.
+    :type n_x: int
+    :param n_p: The number of the estimated parameters of the system.
+    :type n_p: int
+
+    :return: The right-hand side of the ODEs system for sensitivities calculation.
+    :rtype: np.ndarray
+    """   
     x_fun, s, rest = lists = np.split(x, [n_x, n_x + n_x*n_p])
     s = s.reshape((n_x, n_p))
     dx_f = ode_fun(t, x_fun, inputs, parameters, constants)
@@ -19,7 +46,16 @@ def ode_rhs(t, x, ode_fun, ode_dfdx, ode_dfdp, inputs, parameters, constants, n_
 
 
 def get_S_matrix(fsmp: FisherModelParametrized, relative_sensitivities=False):
-    """"""
+    r"""Calculate the sensitivity matrix for a Fisher Model.
+
+    :param fsmp: The parametrized FisherModel with a chosen values for the sampled variables.
+    :type fsmp: FisherModelParametrized
+    :param relative_sensitivities: Use relative local sensitivities :math:`s_{ij} = \frac{\partial y_i}{\partial p_j} \frac{p_j}{y_i}` instead of absolute. Defaults to False.
+    :type relative_sensitivities: bool, optional
+
+    :return: The sensitivity matrix S, the cobvariance matrix C, the object of type FisherResultSingle with ODEs solutions.
+    :rtype: np.ndarray, np.ndarray, FisherResultSingle
+    """   
     # Helper variables
     # How many parameters are in the system?
     n_p = len(fsmp.parameters)
@@ -110,6 +146,18 @@ def get_S_matrix(fsmp: FisherModelParametrized, relative_sensitivities=False):
 
 
 def fisher_determinant(fsmp: FisherModelParametrized, S, C):
+    """Calculate the determinant of the Fisher information matrix using the sensitivity matrix.
+
+    :param fsmp: The parametrized FisherModel with a chosen values for the sampled variables.
+    :type fsmp: FisherModelParametrized
+    :param S: The sensitivity matrix.
+    :type S: np.ndarray
+    :param C: The covariance matrix of the measurement errors.
+    :type C: np.ndarray
+
+    :return: The determinant of the Fisher information matrix.
+    :rtype: float
+    """
     # Calculate Fisher Matrix
     F = (S.dot(C)).dot(S.T)
 
@@ -119,6 +167,18 @@ def fisher_determinant(fsmp: FisherModelParametrized, S, C):
 
 
 def fisher_sumeigenval(fsmp: FisherModelParametrized, S, C):
+    """Calculate the sum of the all eigenvalues of the Fisher information matrix using the sensitivity matrix.
+
+    :param fsmp: The parametrized FisherModel with a chosen values for the sampled variables.
+    :type fsmp: FisherModelParametrized
+    :param S: The sensitivity matrix.
+    :type S: np.ndarray
+    :param C: The covariance matrix of the measurement errors.
+    :type C: np.ndarray
+
+    :return: The sum of the eigenvalues of the Fisher information matrix.
+    :rtype: float
+    """
     # Calculate Fisher Matrix
     F = S.dot(C).dot(S.T)
 
@@ -128,6 +188,18 @@ def fisher_sumeigenval(fsmp: FisherModelParametrized, S, C):
 
 
 def fisher_mineigenval(fsmp: FisherModelParametrized, S, C):
+    """Calculate the minimal eigenvalue of the Fisher information matrix using the sensitivity matrix.
+
+    :param fsmp: The parametrized FisherModel with a chosen values for the sampled variables.
+    :type fsmp: FisherModelParametrized
+    :param S: The sensitivity matrix.
+    :type S: np.ndarray
+    :param C: The covariance matrix of the measurement errors.
+    :type C: np.ndarray
+
+    :return: The sum of the eigenvalues of the Fisher information matrix.
+    :rtype: float
+    """
     # Calculate Fisher Matrix
     F = S.dot(C).dot(S.T)
 
@@ -137,6 +209,18 @@ def fisher_mineigenval(fsmp: FisherModelParametrized, S, C):
 
 
 def calculate_fisher_criterion(fsmp: FisherModelParametrized, covar=False, relative_sensitivities=False):
+    r"""Calculate the Fisher information optimality criterion for a chosen Fisher model.
+
+    :param fsmp: The parametrized FisherModel with a chosen values for the sampled variables.
+    :type fsmp: FisherModelParametrized
+    :param covar: Use the covariance matrix of error measurements. Defaults to False.
+    :type covar: bool, optional
+    :param relative_sensitivities: Use relative local sensitivities :math:`s_{ij} = \frac{\partial y_i}{\partial p_j} \frac{p_j}{y_i}` instead of absolute. Defaults to False.
+    :type relative_sensitivities: bool, optional
+
+    :return: The result of the Fisher information optimality criterion represented as a FisherResults object.
+    :rtype: FisherResults
+    """
     S, C, solutions = get_S_matrix(fsmp, relative_sensitivities)
     if covar == False:
         C = np.eye(S.shape[1])
