@@ -297,10 +297,11 @@ class _FisherResultsBase(_FisherOdeFunctions):
     
 
 @dataclass
-class _FisherResultsOptions(_FisherObservableFunctionsOptional):
+class _FisherResultsOptions(_FisherModelOptions):
     pass
 
 
+@dataclass
 class FisherResults(_FisherResultsOptions, _FisherResultsBase):
     def to_savedict(self):
         '''Used to store results in database'''
