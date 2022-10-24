@@ -6,7 +6,33 @@ from FisInMa.model import FisherModel, FisherModelParametrized, VariableDefiniti
 from FisInMa.solving import calculate_fisher_criterion, fisher_determinant
 
 
-def discrete_penalizer(x, dx, x_offset=0.0):
+def _create_comparison_matrix(n, value=1.0):
+    """Creates a matrix for linear constraints of scipy such that lower and higher values can be compared
+
+    Args:
+        n (int): Dimensionality of the resulting matrix will be (n-1,n)
+        value (float, optional): Values of the matrix' entries.
+
+    Returns:
+        np.ndarary: Matrix of dimension (n-1,n) with entries at A[i][i] (positive) and A[i][i+1] (negative).
+    """
+    
+    # Fill the matrix like so:
+    #         | 1 -1  0  0 ... |
+    # A = | 0  1 -1  0 ... |
+    #     | 0  0  1 -1 ... |
+    #     | ...            |
+    #     This enables us to compare variables like to
+    #     a_(i) - a_(i+1) <= - min_distance
+    # <=> a_(i) + min_distance <= a_(i+1)
+    A = np.zeros((max(0,n-1), max(0,n)))
+    for i in range(n-1):
+        A[i][i] = value
+        A[i][i+1] = -value
+    return A
+
+
+def _discrete_penalizer(x, dx, x_offset=0.0):
     y = x - x_offset
     n, p = np.divmod(y, dx)
     _, q = np.divmod((n+1) * dx - y, dx)
@@ -73,16 +99,15 @@ def _scipy_calculate_bounds_constraints(fsmp: FisherModelParametrized):
         ub += [fsmp.ode_t0_def.ub] * fsmp.ode_t0_def.n
         
         # Constraints on variables
-        lc += [-np.inf] * fsmp.ode_t0_def.n
-        uc += [fsmp.ode_t0_def.min_distance if fsmp.ode_t0_def.min_distance!=None else np.inf] * fsmp.ode_t0_def.n
+        lc += [-np.inf] * (fsmp.ode_t0_def.n-1)
+        uc += [fsmp.ode_t0_def.min_distance if fsmp.ode_t0_def.min_distance!=None else np.inf] * (fsmp.ode_t0_def.n-1)
         
         # Define matrix A which will extend B
-        A = np.eye(fsmp.ode_t0_def.n)
+        A = _create_comparison_matrix(fsmp.ode_t0_def.n)
         B = np.block([[B,np.zeros((B.shape[0],A.shape[1]))],[np.zeros((A.shape[0],B.shape[1])),A]])
 
     # Check if initial values are sampled over
     if type(fsmp.ode_y0_def)==VariableDefinition:
-        # print("Sampling initial values")
         # Bounds for value
         lb.append(fsmp.ode_y0_def.lb)
         ub.append(fsmp.ode_y0_def.ub)
@@ -91,13 +116,12 @@ def _scipy_calculate_bounds_constraints(fsmp: FisherModelParametrized):
         lc += []
         uc += []
 
-        # Define matrix A which will extend B
-        A = np.eye(len(fsmp.ode_y0 * fsmp.ode_y0_def.n))
+        # Extend matrix B
+        A = np.eye(0)
         B = np.block([[B,np.zeros((B.shape[0],A.shape[1]))],[np.zeros((A.shape[0],B.shape[1])),A]])
 
     # Check if times are sampled over
     if type(fsmp.times_def)==VariableDefinition:
-        print("Sampling times")
         # How many time points are we sampling?
         n_times = np.product(fsmp.times.shape)
 
@@ -106,25 +130,15 @@ def _scipy_calculate_bounds_constraints(fsmp: FisherModelParametrized):
         ub += [fsmp.times_def.ub] * n_times
 
         # Constraints on variables
-        lc += [-np.inf] * (n_times-1) + [fsmp.times_def.lb] * n_times
-        uc += [-fsmp.times_def.min_distance if fsmp.times_def.min_distance!=None else np.inf] * (n_times-1) + [fsmp.times_def.ub] * n_times
+        # lc += [-np.inf] * (n_times-1) + [fsmp.times_def.lb] * n_times
 
-        # Create the correct matrix to store.
-        A = np.zeros((n_times*2-1, n_times))
-        # Fill the matrix like so:
-        #
-        #     | 1 -1  0  0 ... |
-        # A = | 0  1 -1  0 ... |
-        #     | 0  0  1 -1 ... |
-        #     | ...            |
-        #
-        for i in range(n_times-1):
-            A[i][i] = 1.0
-            A[i][i+1] = -1.0
-        for i in range(n_times):
-            A[i+n_times-1][i] = 1.0
+        lc += [-np.inf] * (n_times-1)
+        uc += [-fsmp.times_def.min_distance if fsmp.times_def.min_distance!=None else 0.0] * (n_times-1)
+
+        # Extend matrix B
+        A = _create_comparison_matrix(n_times)
         B = np.block([[B,np.zeros((B.shape[0],A.shape[1]))],[np.zeros((A.shape[0],B.shape[1])),A]])
-
+    
     # Check which inputs are sampled
     for inp_def in fsmp.inputs_def:
         if type(inp_def)==VariableDefinition:
@@ -133,41 +147,15 @@ def _scipy_calculate_bounds_constraints(fsmp: FisherModelParametrized):
             ub += [inp_def.ub] * inp_def.n
 
             # Constraints on variables
-            m = inp_def.min_distance if inp_def.min_distance!=None else -np.inf
-            lc += [+m] * max(1, int(round(inp_def.n*(inp_def.n-1)/2,0)))
-            uc += [-m] * max(1, int(round(inp_def.n*(inp_def.n-1)/2,0)))
+            lc += [-np.inf] * (inp_def.n-1)
+            uc += [-inp_def.min_distance if inp_def.min_distance!=None else 0.0] * (inp_def.n-1)
 
             # Create correct matrix matrix to store
-            A = np.zeros((int(round(inp_def.n*(inp_def.n-1)/2,0)), inp_def.n))
-            count = 0
-            for i in range(inp_def.n-1):
-                A[count:count+inp_def.n-i-1,i] = 1.0
-                A[count:count+inp_def.n-i-1,i+1:] = -np.eye(inp_def.n-i-1)
-                count += inp_def.n-i-1
-            # Fill the matrix like so:
-            #
-            #     | 1 -1  0  0 ... |
-            #     | 1  0 -1  0 ... |
-            #     | 1  0  0 -1 ... |
-            # A = | ...            |
-            #     | 0  1 -1  0 ... |
-            #     | 0  1  0 -1 ... |
-            #     | ...            |
-            # 
-            # We denote the vector of mutable variables with
-            #   x = [v0, ... vN]
-            # and plug it into our linear system
-            #   lc <= A x <= uc
-            # Together with lower and upper constraints set to +d, -d respectively, we obtain the following equations:
-            # d <= vi - vj <= -d
-            # Or seperately
-            # d <= vi - vj
-            # d <= vj - vi
-            # which imposes the min_distance condition
+            A = _create_comparison_matrix(inp_def.n)
             B = np.block([[B,np.zeros((B.shape[0],A.shape[1]))],[np.zeros((A.shape[0],B.shape[1])),A]])
 
     bounds = list(zip(lb, ub))
-    constraints = sp.optimize.LinearConstraint(B, lc, uc)
+    constraints = optimize.LinearConstraint(B, lc, uc)
     return bounds, constraints
 
 
