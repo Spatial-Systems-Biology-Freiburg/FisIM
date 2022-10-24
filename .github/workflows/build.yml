@@ -25,3 +25,7 @@ jobs:
       - name: Install package
         run:
           pip install dist/fisinma*.tar.gz
+      - name: Yield the package
+        uses: actions/upload-artifact@v3
+        with:
+          path: dist/fisinma*.tar.gz
