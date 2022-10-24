@@ -23,6 +23,8 @@ class VariableDefinition:
                 self.initial_guess = self.lb + uniform_dist + np.arange(self.n) * self.discrete
             else:
                 self.initial_guess = discrete[0:self.n]
+        elif type(self.initial_guess)==np.nparray:
+            self.initial_guess = np.sort(self.initial_guess, axis=-1)
         elif type(self.initial_guess)!=np.ndarray:
-            raise ValueError("Unknown method to sample initial guess")
+            raise ValueError("Unknown input {}: Either specify list of values, numpy ndarray or method to obtain initial guess.".format(self.initial_guess))
         self.bounds = (self.lb, self.ub)
