@@ -97,7 +97,8 @@ def get_S_matrix(fsmp: FisherModelParametrized, relative_sensitivities=False):
         res = integrate.solve_ivp(fun=ode_rhs, t_span=(t0, np.max(t)), y0=y0_full, t_eval=t, args=(fsmp.ode_fun, fsmp.ode_dfdx, fsmp.ode_dfdp, Q, fsmp.parameters, fsmp.constants, n_y0, n_p), method="Radau")#, jac=fsmp.ode_dfdx)
         
         # Obtain sensitivities dg/dp from the last components of the ode
-        r = res.y[n_y0:]
+        r = np.array(res.y[n_y0:])
+        
         s = np.swapaxes(r.reshape((n_y0, n_p, -1)), 0, 1)
 
         # Calculate the S-Matrix from the sensitivities
