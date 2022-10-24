@@ -6,7 +6,7 @@
 Welcome to FisInMa's documentation!
 ===================================
 
-**FisInMa** is a Python library ...
+FisInMa** is a Python library for finding the optimal experimental design for the systems described by the ordinary differential equations (ODEs).
 
 .. note::
 
