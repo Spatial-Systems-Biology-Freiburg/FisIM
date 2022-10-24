@@ -209,7 +209,7 @@ def fisher_mineigenval(fsmp: FisherModelParametrized, S, C):
     return mineigval
 
 
-def calculate_fisher_criterion(fsmp: FisherModelParametrized, covar=False, relative_sensitivities=False):
+def calculate_fisher_criterion(fsmp: FisherModelParametrized, criterion=fisher_determinant, covar=False, relative_sensitivities=False):
     r"""Calculate the Fisher information optimality criterion for a chosen Fisher model.
 
     :param fsmp: The parametrized FisherModel with a chosen values for the sampled variables.
@@ -225,15 +225,16 @@ def calculate_fisher_criterion(fsmp: FisherModelParametrized, covar=False, relat
     S, C, solutions = get_S_matrix(fsmp, relative_sensitivities)
     if covar == False:
         C = np.eye(S.shape[1])
-    crit = fsmp.criterion_func(fsmp, S, C)
+    crit = criterion(fsmp, S, C)
 
     args = {key:value for key, value in fsmp.__dict__.items() if not key.startswith('_')}
 
     fsr = FisherResults(
-        **args,
         criterion=crit,
-        sensitivity_matrix=S,
-        covariance_matrix=C,
-        ode_solutions=solutions
+        S=S,
+        C=C,
+        individual_results=solutions,
+        _fsm_var_def=fsmp._fsm_var_def,
+        **args,
     )
     return fsr
