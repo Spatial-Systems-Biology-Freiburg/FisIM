@@ -42,33 +42,33 @@ def _discrete_penalizer(x, dx, x_offset=0.0):
 
 
 def __scipy_optimizer_function(X, fsmp: FisherModelParametrized, full=False):
-    if fsmp.individual_times==True:
-        m = np.product(fsmp._times_shape)
-    else:
-        m = fsmp.times.shape[-1]
-    t = X[:m]
-    q = X[m:]
-    if fsmp.individual_times == True:
-        times = np.sort(t.reshape(fsmp._times_shape), axis=-1)
-    else:
-        times = np.sort(t)
+    total = 0
+    # Get values for ode_t0
+    if fsmp.ode_t0_def!=None:
+        fsmp.ode_t0 = X[:fsmp.ode_t0_def.n]
+        total += fsmp.ode_t0_def.n
     
-    q_values = []
-    tot = 0
-    for _, _, k in fsmp.q_mod_values_ranges:
-        q_values.append(q[tot:tot+k])
-        tot += k
+    # Get values for ode_y0
+    if fsmp.ode_y0_def!=None:
+        fsmp.ode_y0 = X[total:total + fsmp.ode_y0_def.n * fsmp.ode_y0.size]
+        total += fsmp.ode_y0_def.n
 
-    fsmp.set_times(times)
-    fsmp.set_q_values_mod(q)
+    # Get values for times
+    if fsmp.times_def!=None:
+        fsmp.times = np.sort(X[total:total+fsmp.times.size].reshape(fsmp.times.shape), axis=-1)
+        total += fsmp.times.size
 
-    fsr = calculate_Fisher_criterion(fsmp, False, fsmp.relative_sensitivities)
+    # Get values for inputs
+    for i, q_def in enumerate(fsmp.inputs_def):
+        if q_def!=None:
+            fsmp.inputs[i]=X[total:total+inp_def.n]
+            total += inp_def.n
+
+    fsr = calculate_fisher_criterion(fsmp)
 
     if full:
         return fsr
-    if discrete!=None:
-        return -fsr.criterion * np.product(discrete_penalizer(fsmp.times.flatten(), discrete[0], discrete[1]))
-    return - fsr.criterion
+    return -fsr.criterion# * _discrete_penalizer(fsr)
 
 
 def _scipy_calculate_bounds_constraints(fsmp: FisherModelParametrized):
@@ -164,7 +164,17 @@ def __scipy_differential_evolution(fsmp: FisherModelParametrized, **args):
     # Create constraints and bounds
     bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
 
-    x0 = np.concatenate((times0.flatten(), *q_values0))
+    x0 = np.concatenate([
+        np.array(fsmp.ode_y0).flatten() if fsmp.ode_y0_def!=None else [],
+        np.array(fsmp.ode_t0).flatten() if fsmp.ode_t0_def!=None else [],
+        np.array(fsmp.times).flatten() if fsmp.times_def!=None else [],
+        *[
+            np.array(inp_val).flatten() if inp_def!=None else []
+            for inp_val, inp_def in zip(fsmp.inputs_def, fsmp.inputs_mut)
+        ]
+    ])
+
+    print("x0 shape:", x0.shape)
 
     opt_args = {
         "func": __scipy_optimizer_function,
