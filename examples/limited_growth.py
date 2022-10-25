@@ -1,5 +1,14 @@
 #!/usr/bin/env python3
 
+#################################
+# THESE LINES ARE ONLY NEEDED   #
+# WHEN FisInMa IS NOT INSTALLED #
+# OTHERWISE REMOVE THEM         #
+#################################
+import os, sys
+sys.path.append(os.getcwd())
+#################################
+
 import numpy as np
 
 
@@ -72,26 +81,18 @@ if __name__ == "__main__":
             ode_fun=exp_growth,
             ode_dfdx=dedx,
             ode_dfdp=dedp,
-            ode_y0=y0,
             ode_t0=times_low,
+            ode_y0=y0,
             times=(times_low, times_high, n_times),
             inputs=inputs,
             parameters=parameters,
             constants=constants,
     )
 
-    fsmp = FisherModelParametrized.init_from(fsm)
-
-    S, C, solutions = get_S_matrix(fsmp)
-
     ####################
     ### OPTIMIZATION ###
     ####################
-    # fsr = find_optimal(fsm, "scipy_differential_evolution", discrete=0.5, workers=1)
-    # print(fsr.times)
-    # print(fsr.criterion)
-    # d = fsr.criterion
-    # solutions = fsr.ode_solutions
+    fsr = find_optimal(fsm, "scipy_differential_evolution")
 
     ####################
     ##### PLOTTING #####
