@@ -97,4 +97,4 @@ if __name__ == "__main__":
     ####################
     ##### PLOTTING #####
     ####################
-    # plot_all_odes(fsr)
+    plot_all_odes(fsr)
