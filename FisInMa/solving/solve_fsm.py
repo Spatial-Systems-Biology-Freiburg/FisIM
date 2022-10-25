@@ -125,10 +125,10 @@ def get_S_matrix(fsmp: FisherModelParametrized, relative_sensitivities=False):
         # TODO
         # TODO
         fsrs = FisherResultSingle(
-            ode_y0=fsmp.ode_y0,
-            ode_t0=fsmp.ode_t0,
-            times=fsmp.times,
-            inputs=fsmp.inputs,
+            ode_y0=y0,
+            ode_t0=t0,
+            times=t,
+            inputs=Q,
             parameters=fsmp.parameters,
             constants=fsmp.constants,
             ode_solution=res,
