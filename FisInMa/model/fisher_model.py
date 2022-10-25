@@ -100,7 +100,7 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
                 _inputs_vals.append(q_def.initial_guess)
             else:
                 _inputs_def.append(None)
-                _inputs_vals.append(q)
+                _inputs_vals.append(np.array(q))
         
         _fsm_var_def.inputs = _inputs_def
         _fsm_var_vals.inputs = _inputs_vals
@@ -108,10 +108,10 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
 
         # Check if we want to sample over initial values
         if type(fsm.ode_y0)==float:
-            y0_def = [np.array([fsm.ode_y0])]
+            y0_def = None
             y0_vals = [np.array([fsm.ode_y0])]
         elif type(fsm.ode_y0)==np.ndarray and fsm.ode_y0.ndim == 1:
-            y0_def = [fsm.ode_y0]
+            y0_def = None
             y0_vals = [fsm.ode_y0]
         # TODO currently not working
         elif type(fsm.ode_y0)==tuple and len(fsm.ode_y0)>=3:
@@ -121,7 +121,7 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
             raise TypeError("Warning! Specifying initial values as tuple enables sampling over initial values. This is currently not implemented!")
         else:
             y0_def = None
-            y0_vals = fsm.ode_y0
+            y0_vals = np.array(fsm.ode_y0)
 
         _fsm_var_def.ode_y0 = y0_def
         _fsm_var_vals.ode_y0 = y0_vals
@@ -133,7 +133,7 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
             _fsm_var_vals.times = t.initial_guess
         else:
             _fsm_var_def.times = None
-            _fsm_var_vals.times = fsm.times
+            _fsm_var_vals.times = np.array(fsm.times)
         # If non-identical times were chosen, expand initial guess to full array
         if fsm.identical_times==False:
             _fsm_var_vals.times = np.full(inputs_shape + _fsm_var_vals.times.shape, _fsm_var_vals.times)
@@ -148,7 +148,7 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
             _fsm_var_vals.ode_t0 = np.array([fsm.ode_t0])
         else:
             _fsm_var_def.ode_t0 = None
-            _fsm_var_vals.ode_t0 = fsm.ode_t0
+            _fsm_var_vals.ode_t0 = np.array(fsm.ode_t0)
 
         # Construct parametrized model class and return it
         fsmp = FisherModelParametrized(
