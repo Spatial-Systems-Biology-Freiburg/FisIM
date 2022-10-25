@@ -44,23 +44,23 @@ def _discrete_penalizer(x, dx, x_offset=0.0):
 def __scipy_optimizer_function(X, fsmp: FisherModelParametrized, full=False):
     total = 0
     # Get values for ode_t0
-    if fsmp.ode_t0_def!=None:
+    if fsmp.ode_t0_def is not None:
         fsmp.ode_t0 = X[:fsmp.ode_t0_def.n]
         total += fsmp.ode_t0_def.n
     
     # Get values for ode_y0
-    if fsmp.ode_y0_def!=None:
+    if fsmp.ode_y0_def is not None:
         fsmp.ode_y0 = X[total:total + fsmp.ode_y0_def.n * fsmp.ode_y0.size]
         total += fsmp.ode_y0_def.n
 
     # Get values for times
-    if fsmp.times_def!=None:
+    if fsmp.times_def is not None:
         fsmp.times = np.sort(X[total:total+fsmp.times.size].reshape(fsmp.times.shape), axis=-1)
         total += fsmp.times.size
 
     # Get values for inputs
-    for i, q_def in enumerate(fsmp.inputs_def):
-        if q_def!=None:
+    for i, inp_def in enumerate(fsmp.inputs_def):
+        if inp_def is not None:
             fsmp.inputs[i]=X[total:total+inp_def.n]
             total += inp_def.n
 
@@ -82,11 +82,11 @@ def _scipy_calculate_bounds_constraints(fsmp: FisherModelParametrized):
     uc = []
 
     # Determine the number of mutable variables which can be sampled over
-    n_times = np.product(fsmp.times.shape) if fsmp.times_def !=None else 0
-    n_inputs = [len(q) if q_def!=None else 0 for q, q_def in zip(fsmp.inputs, fsmp.inputs_def)]
+    n_times = np.product(fsmp.times.shape) if fsmp.times_def  is not None else 0
+    n_inputs = [len(q) if q_def is not None else 0 for q, q_def in zip(fsmp.inputs, fsmp.inputs_def)]
     n_mut = [
-        fsmp.ode_t0_def.n if fsmp.ode_t0_def!=None else 0,
-        fsmp.ode_y0_def.n if fsmp.ode_y0_def!=None else 0,
+        fsmp.ode_t0_def.n if fsmp.ode_t0_def is not None else 0,
+        fsmp.ode_y0_def.n if fsmp.ode_y0_def is not None else 0,
         n_times,
         *n_inputs
     ]
@@ -101,7 +101,7 @@ def _scipy_calculate_bounds_constraints(fsmp: FisherModelParametrized):
         
         # Constraints on variables
         lc += [-np.inf] * (fsmp.ode_t0_def.n-1)
-        uc += [fsmp.ode_t0_def.min_distance if fsmp.ode_t0_def.min_distance!=None else np.inf] * (fsmp.ode_t0_def.n-1)
+        uc += [fsmp.ode_t0_def.min_distance if fsmp.ode_t0_def.min_distance is not None else np.inf] * (fsmp.ode_t0_def.n-1)
         
         # Define matrix A which will extend B
         A = _create_comparison_matrix(fsmp.ode_t0_def.n)
@@ -134,7 +134,7 @@ def _scipy_calculate_bounds_constraints(fsmp: FisherModelParametrized):
         # lc += [-np.inf] * (n_times-1) + [fsmp.times_def.lb] * n_times
 
         lc += [-np.inf] * (n_times-1)
-        uc += [-fsmp.times_def.min_distance if fsmp.times_def.min_distance!=None else 0.0] * (n_times-1)
+        uc += [-fsmp.times_def.min_distance if fsmp.times_def.min_distance is not None else 0.0] * (n_times-1)
 
         # Extend matrix B
         A = _create_comparison_matrix(n_times)
@@ -149,7 +149,7 @@ def _scipy_calculate_bounds_constraints(fsmp: FisherModelParametrized):
 
             # Constraints on variables
             lc += [-np.inf] * (inp_def.n-1)
-            uc += [-inp_def.min_distance if inp_def.min_distance!=None else 0.0] * (inp_def.n-1)
+            uc += [-inp_def.min_distance if inp_def.min_distance is not None else 0.0] * (inp_def.n-1)
 
             # Create correct matrix matrix to store
             A = _create_comparison_matrix(inp_def.n)
@@ -165,12 +165,12 @@ def __scipy_differential_evolution(fsmp: FisherModelParametrized, **args):
     bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
 
     x0 = np.concatenate([
-        np.array(fsmp.ode_y0).flatten() if fsmp.ode_y0_def!=None else [],
-        np.array(fsmp.ode_t0).flatten() if fsmp.ode_t0_def!=None else [],
-        np.array(fsmp.times).flatten() if fsmp.times_def!=None else [],
+        np.array(fsmp.ode_y0).flatten() if fsmp.ode_y0_def is not None else [],
+        np.array(fsmp.ode_t0).flatten() if fsmp.ode_t0_def is not None else [],
+        np.array(fsmp.times).flatten() if fsmp.times_def is not None else [],
         *[
-            np.array(inp_val).flatten() if inp_def!=None else []
-            for inp_val, inp_def in zip(fsmp.inputs_def, fsmp.inputs_mut)
+            np.array(inp_mut_val).flatten() if inp_mut_val is not None else []
+            for inp_mut_val in fsmp.inputs_mut
         ]
     ])
 
