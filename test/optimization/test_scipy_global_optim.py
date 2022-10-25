@@ -63,6 +63,21 @@ class Test_ScipyCalculateConstraints(Setup_Class):
                 # Test how many non-zero entries the matrix has. If the count matches, the matrix is correct
                 np.testing.assert_equal(np.sum(A!=0.0), 2*(k-1))
 
+    def test_scipy_calculate_bounds_constraints_sample_none(self):
+        fsm = copy.deepcopy(self.fsm)
+        fsm.ode_y0 = [0.0, 0.0]
+        fsm.ode_t0 = 0.0
+        fsm.times = [1.0, 2.0, 3.0, 4.0]
+        fsm.inputs = [
+            [1.0, 2.0, 3.0],
+            [2.0, 3.0, 4.0]
+        ]
+        fsmp = FisherModelParametrized.init_from(fsm)
+        bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
+        np.testing.assert_almost_equal(bounds, [])
+        np.testing.assert_almost_equal(constraints.ub, [])
+        np.testing.assert_almost_equal(constraints.lb, [])
+        np.testing.assert_almost_equal(constraints.A, np.eye(0))
 
     def test_scipy_calculate_bounds_constraints_sample_ode_t0(self):
         fsm = copy.deepcopy(self.fsm)
