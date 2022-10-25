@@ -174,8 +174,6 @@ def __scipy_differential_evolution(fsmp: FisherModelParametrized, **args):
         ]
     ])
 
-    print("x0 shape:", x0.shape)
-
     opt_args = {
         "func": __scipy_optimizer_function,
         "bounds": bounds,
