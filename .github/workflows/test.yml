@@ -28,4 +28,5 @@ jobs:
       - name: Yield coverage report
         uses: actions/upload-artifact@v3
         with:
+          name: Coverage-Report
           path: report.txt
