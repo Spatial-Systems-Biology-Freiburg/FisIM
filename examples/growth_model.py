@@ -1,46 +1,51 @@
 #!/usr/bin/env python3
 
+#################################
+# THESE LINES ARE ONLY NEEDED   #
+# WHEN FisInMa IS NOT INSTALLED #
+# OTHERWISE REMOVE THEM         #
+#################################
+import os, sys
+sys.path.append(os.getcwd())
+#################################
+
 import numpy as np
 import scipy as sp
 import matplotlib.pyplot as plt
 
 
 # Import custom functions for optimization
-from FisInMa.solving import fischer_determinant
-from FisInMa.data_structures import FischerModel
-from FisInMa.optimization import find_optimal
-from FisInMa.plotting import plot_all_odes
+from FisInMa import *
 
 
 # System of equation for pool-model and sensitivities
 ###############################
 ### USER DEFINES ODE SYSTEM ###
 ###############################
-def pool_model_sensitivity(y, t, Q, P, Const):
+def pool_model(t, y, Q, P, Const):
     (a, b, c) = P
     (Temp,H) = Q
     (n0, n_max) = Const
-    (n, sa, sb, sc) = y
+    (n,) = y
+    return [(a*Temp + c*H) * (n - n0*np.exp(-b*Temp*t))*(1-n/n_max)]
+
+def dfdx(t, y, Q, P, Const):
+    (a, b, c) = P
+    (Temp,H) = Q
+    (n0, n_max) = Const
+    (n,) = y
+    return (a*Temp + c*H) * (1-n/n_max) + (a*Temp + c*H) * (n - n0*np.exp(-b*Temp*t))*(-1/n_max)
+
+def dfdp(t, y, Q, P, Const):
+    (a, b, c) = P
+    (Temp,H) = Q
+    (n0, n_max) = Const
+    (n,) = y
     return [
-        (a*Temp + c*H) * (n -        n0 * np.exp(-b*Temp*t))*(1-n/n_max),
-        (  Temp      ) * (n -        n0 * np.exp(-b*Temp*t))*(1-n/n_max) + (a*Temp + c*H) * (1 - 2*n/n_max + n0/n_max * np.exp(-b*Temp*t)) * sa,
-        (a*Temp + c*H) * (    n0*t*Temp * np.exp(-b*Temp*t))*(1-n/n_max) + (a*Temp + c*H) * (1 - 2*n/n_max + n0/n_max * np.exp(-b*Temp*t)) * sb,
-        (     H      ) * (n -        n0 * np.exp(-b*Temp*t))*(1-n/n_max) + (a*Temp + c*H) * (1 - 2*n/n_max + n0/n_max * np.exp(-b*Temp*t)) * sc
+        (Temp) * (n - n0*np.exp(-b*Temp*t))*(1-n/n_max),
+        (a*Temp + c*H) * (Temp*t*n0*np.exp(-b*Temp*t))*(1-n/n_max),
+        (H) * (n - n0*np.exp(-b*Temp*t))*(1-n/n_max)
     ]
-
-
-def jacobi(y, t, Q, P, Const):
-    (n, sa, sb, sc) = y
-    (a, b, c) = P
-    (Temp,H) = Q
-    (n0, n_max) = Const
-    dfdn = (a*Temp + c*H) * (1 - 2*n/n_max + n0/n_max * np.exp(-b*Temp*t))
-    return np.array([
-        [   dfdn,                                                                                             0,    0,    0   ],
-        [(  Temp      ) * (1 - 2*n/n_max + n0/n_max * np.exp(-b*Temp*t)) + (a*Temp + c*H) * (1 - 2 / n_max) * sa, dfdn, 0,    0   ],
-        [(a*Temp + c*H) * (  -  n0/n_max * t * Temp * np.exp(-b*Temp*t)) + (a*Temp + c*H) * (1 - 2 / n_max) * sb, 0,    dfdn, 0   ],
-        [(     H      ) * (1 - 2*n/n_max + n0/n_max * np.exp(-b*Temp*t)) + (a*Temp + c*H) * (1 - 2 / n_max) * sc, 0,    0,    dfdn]
-    ])
 
 
 if __name__ == "__main__":
@@ -62,7 +67,7 @@ if __name__ == "__main__":
 
     # Initial values for complete ODE (with S-Terms)
     t0 = 0.0
-    y0 = np.array([n0, 0, 0, 0])
+    y0 = n0
 
     # Define bounds for sampling
     temp_low = 4.0
@@ -74,34 +79,29 @@ if __name__ == "__main__":
     humidity_low = 0.8
     humidity_high = 1.2
 
-    # Initial conditions with initial time
-    y0_t0 = (y0, t0)
-
     # Construct parameter hyperspace
     n_times = 4
     n_temps = 2
     n_humidity = 1
     
     # Values for temperatures (Q-Values)
-    q_values = [
+    inputs = [
         np.linspace(temp_low, temp_high, n_temps),
         np.linspace(humidity_low, humidity_high, n_humidity)
     ]
     # Values for times (can be same for every temperature or different)
     # the distinction is made by dimension of array
 
-    fsm = FischerModel(
-        # Required arguments
-        time_interval=(times_low, times_high),
-        n_times=n_times,
-        parameters=P,
-        q_values=q_values,
-        constants=Const,
-        y0=y0,
-        ode_func=pool_model_sensitivity,
-        criterion_func=fischer_determinant,
-        # Optional arguments
-        jacobian=jacobi
+    fsm = FisherModel(
+            ode_fun=pool_model,
+            ode_dfdx=dfdx,
+            ode_dfdp=dfdp,
+            ode_t0=times_low,
+            ode_y0=y0,
+            times=(times_low, times_high, n_times),
+            inputs=inputs,
+            parameters=P,
+            constants=Const,
     )
 
     ###############################
