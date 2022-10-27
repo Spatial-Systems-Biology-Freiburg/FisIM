@@ -19,6 +19,20 @@ class Test_FisherModelParametrized_Init(Setup_Class):
         for p, q in zip(y0, fsmp.ode_y0):
             np.testing.assert_almost_equal(p, q)
 
+    def test_fixed_ode_y0_explicit_single_vector(self):
+        fsm = copy.deepcopy(self.fsm)
+        y0 = [0.02, 0.0005]
+        fsm.ode_y0 = y0
+        fsmp = FisherModelParametrized.init_from(fsm)
+        np.testing.assert_almost_equal([y0], fsmp.ode_y0)
+    
+    def test_fixed_ode_y0_explicit_single_float(self):
+        fsm = copy.deepcopy(self.fsm)
+        y0 = 0.2
+        fsm.ode_y0 = y0
+        fsmp = FisherModelParametrized.init_from(fsm)
+        np.testing.assert_almost_equal([[y0]], fsmp.ode_y0)
+
     def test_sample_ode_t0(self):
         fsm = copy.deepcopy(self.fsm)
         t0 = (1.1, 7.2, 4)
@@ -26,6 +40,30 @@ class Test_FisherModelParametrized_Init(Setup_Class):
         fsm.identical_times = True
         fsmp = FisherModelParametrized.init_from(fsm)
         np.testing.assert_almost_equal(fsmp.ode_t0, np.linspace(*t0))
+
+    def test_fixed_ode_t0_float(self):
+        fsm = copy.deepcopy(self.fsm)
+        t0 = 0.0
+        fsm.ode_t0 = t0
+        fsm.identical_times = True
+        fsmp = FisherModelParametrized.init_from(fsm)
+        np.testing.assert_almost_equal(fsmp.ode_t0, [t0])
+    
+    def test_fixed_ode_t0_list(self):
+        fsm = copy.deepcopy(self.fsm)
+        t0 = [0.0, 0.1]
+        fsm.ode_t0 = t0
+        fsm.identical_times = True
+        fsmp = FisherModelParametrized.init_from(fsm)
+        np.testing.assert_almost_equal(fsmp.ode_t0, t0)
+
+    def test_fixed_ode_t0_np_array(self):
+        fsm = copy.deepcopy(self.fsm)
+        t0 = np.array([0.0, 0.1])
+        fsm.ode_t0 = t0
+        fsm.identical_times = True
+        fsmp = FisherModelParametrized.init_from(fsm)
+        np.testing.assert_almost_equal(fsmp.ode_t0, t0)
 
     def test_sample_times_identical(self):
         fsm = copy.deepcopy(self.fsm)
