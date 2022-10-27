@@ -70,11 +70,11 @@ def get_S_matrix(fsmp: FisherModelParametrized, relative_sensitivities=False):
 
     # The shape of the initial S matrix is given by
     # (n_p, n_t0, n_x0, n_q0, ..., n_ql, n_times)
-    # S = np.zeros((n_x * n_p, fsmp.times.shape[-1],) + tuple(len(x) for x in fsmp.inputs))
     S = np.zeros((n_p, n_t0, N_x0, n_x0) + inputs_shape + (fsmp.times.shape[-1],))
+    print(S.shape)
     error_n = np.zeros((fsmp.times.shape[-1],) + tuple(len(x) for x in fsmp.inputs))
 
-    # Iterate over all combinations of Q-Values
+    # Iterate over all combinations of input-Values and initial values
     solutions = []
     for (i_x0, x0), (i_t0, t0), index in itertools.product(
         enumerate(fsmp.ode_x0),
@@ -88,13 +88,12 @@ def get_S_matrix(fsmp: FisherModelParametrized, relative_sensitivities=False):
             t = fsmp.times
         else:
             t = fsmp.times[index]
-        # t_init = np.insert(t, 0, fsmp.ode_t0)
 
         # Define initial values for ode
         x0_full = np.concatenate((x0, np.zeros(n_x0 * n_p)))
 
         # Actually solve the ODE for the selected parameter values
-        res = integrate.solve_ivp(fun=ode_rhs, t_span=(t0, np.max(t)), x0=x0_full, t_eval=t, args=(fsmp.ode_fun, fsmp.ode_dfdx, fsmp.ode_dfdp, Q, fsmp.parameters, fsmp.ode_args, n_x0, n_p), method="Radau")#, jac=fsmp.ode_dfdx)
+        res = integrate.solve_ivp(fun=ode_rhs, t_span=(t0, np.max(t)), y0=x0_full, t_eval=t, args=(fsmp.ode_fun, fsmp.ode_dfdx, fsmp.ode_dfdp, Q, fsmp.parameters, fsmp.ode_args, n_x0, n_p), method="Radau")#, jac=fsmp.ode_dfdx)
         
         # Obtain sensitivities dg/dp from the last components of the ode
         r = np.array(res.y[n_x0:])
