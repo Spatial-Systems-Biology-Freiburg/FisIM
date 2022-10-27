@@ -87,14 +87,14 @@ class model:
 
 
 if __name__ == "__main__":
-    # Parameters, constants and initial conditions were derived from K. Grijspeerdt1 and P. Vanrolleghem (1999) results
+    # Parameters, ode_args and initial conditions were derived from K. Grijspeerdt1 and P. Vanrolleghem (1999) results
     # for Salmonella enteritidis growth curve in egg yolk at 30 C
 
     # Define parameters
     p = (np.exp(21.1), 0.038, 2) # (x_max, b, T_min)
     #p = (1, 2, 3)
     
-    # Define constants
+    # Define ode_args
     c = ()
 
     # Define initial conditions
@@ -126,7 +126,7 @@ if __name__ == "__main__":
         times=times,
         inputs=inputs,
         parameters=p,
-        constants=c,
+        ode_args=c,
         # Optional observable arguments
         obs_fun=g,#=None
         obs_dfdx=dgdx,#=None

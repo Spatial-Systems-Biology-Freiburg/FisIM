@@ -47,9 +47,9 @@ if __name__ == "__main__":
     ### USER DEFINES PARAMETERS ###
     ###############################
 
-    # Define constants for the simulation duration
+    # Define ode_args for the simulation duration
     n_max = 2e4
-    constants = (n_max,)
+    ode_args = (n_max,)
 
     # Define initial parameter guesses
     a = 0.065
@@ -86,7 +86,7 @@ if __name__ == "__main__":
             times=(times_low, times_high, n_times),
             inputs=inputs,
             parameters=parameters,
-            constants=constants,
+            ode_args=ode_args,
     )
 
     ####################

@@ -38,7 +38,7 @@ if __name__ == "__main__":
     # Define parameters
     p = ()
 
-    # Define constants
+    # Define ode_args
     c = ()
 
     # Define initial conditions
@@ -70,7 +70,7 @@ if __name__ == "__main__":
         times=times,
         inputs=inputs,
         parameters=p,
-        constants=c,
+        ode_args=c,
         # Optional observable arguments
         obs_fun=g,#=None
         obs_dfdx=dgdx,#=None

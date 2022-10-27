@@ -172,9 +172,9 @@ class Test_FisherModelParametrized_Set_Get(Setup_Class):
         fsmp = copy.deepcopy(self.fsmp)
         np.testing.assert_almost_equal(fsmp.parameters, self.parameters)
     
-    def test_get_constants(self):
+    def test_get_ode_args(self):
         fsmp = copy.deepcopy(self.fsmp)
-        np.testing.assert_almost_equal(fsmp.constants, self.constants)
+        np.testing.assert_almost_equal(fsmp.ode_args, self.ode_args)
 
     @unittest.expectedFailure
     def test_set_immutable_y0(self):

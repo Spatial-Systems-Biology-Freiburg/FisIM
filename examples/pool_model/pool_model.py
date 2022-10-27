@@ -97,7 +97,7 @@ def get_new_combinations_from_best(best, N_spawn, temp_low, temp_high, dtemp, ti
 
 
 if __name__ == "__main__":
-    # Define constants for the simulation duration
+    # Define ode_args for the simulation duration
     n0 = 0.25
     n_max = 2e4
     effort_low = 2
@@ -165,7 +165,7 @@ if __name__ == "__main__":
                 times=times,
                 parameters=P,
                 q_values=[temperatures],
-                constants=Const,
+                ode_args=Const,
                 y0_t0=(y0, times_low),
                 ode_func=pool_model_sensitivity,
                 jacobian=jacobi

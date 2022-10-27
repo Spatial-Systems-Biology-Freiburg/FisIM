@@ -5,7 +5,7 @@ import itertools
 from FisInMa.model import FisherModelParametrized, FisherResults, FisherResultSingle
 
 
-def ode_rhs(t, x, ode_fun, ode_dfdx, ode_dfdp, inputs, parameters, constants, n_x, n_p):
+def ode_rhs(t, x, ode_fun, ode_dfdx, ode_dfdp, inputs, parameters, ode_args, n_x, n_p):
     r"""Calculate the right-hand side of the ODEs system, containing the model definition with state variables :math:`\dot x = f(x, t, u, u, c)` 
     and the equations for the local sensitivities :math:`\dot s = \frac{\partial f}{\partial x} s + \frac{\partial f}{\partial p}`.
     
@@ -23,8 +23,8 @@ def ode_rhs(t, x, ode_fun, ode_dfdx, ode_dfdp, inputs, parameters, constants, n_
     :type inputs: list
     :param parameters: The estimated parameters of the system :math:`p`.
     :type params: tuple
-    :param constants: The constants of the system :math:`c`.
-    :type constants: tuple
+    :param ode_args: The ode_args of the system :math:`c`.
+    :type ode_args: tuple
     :param n_x: The number of the state variables of the system.
     :type n_x: int
     :param n_p: The number of the estimated parameters of the system.
@@ -35,9 +35,9 @@ def ode_rhs(t, x, ode_fun, ode_dfdx, ode_dfdp, inputs, parameters, constants, n_
     """   
     x_fun, s, rest = lists = np.split(x, [n_x, n_x + n_x*n_p])
     s = s.reshape((n_x, n_p))
-    dx_f = ode_fun(t, x_fun, inputs, parameters, constants)
-    dfdx = ode_dfdx(t, x_fun, inputs, parameters, constants)
-    dfdp = ode_dfdp(t, x_fun, inputs, parameters, constants)
+    dx_f = ode_fun(t, x_fun, inputs, parameters, ode_args)
+    dfdx = ode_dfdx(t, x_fun, inputs, parameters, ode_args)
+    dfdp = ode_dfdp(t, x_fun, inputs, parameters, ode_args)
     # Calculate the rhs of the sensitivities
     # TODO validate these equations!
     ds = np.dot(dfdx, s) + dfdp
@@ -94,7 +94,7 @@ def get_S_matrix(fsmp: FisherModelParametrized, relative_sensitivities=False):
         y0_full = np.concatenate((y0, np.zeros(n_y0 * n_p)))
 
         # Actually solve the ODE for the selected parameter values
-        res = integrate.solve_ivp(fun=ode_rhs, t_span=(t0, np.max(t)), y0=y0_full, t_eval=t, args=(fsmp.ode_fun, fsmp.ode_dfdx, fsmp.ode_dfdp, Q, fsmp.parameters, fsmp.constants, n_y0, n_p), method="Radau")#, jac=fsmp.ode_dfdx)
+        res = integrate.solve_ivp(fun=ode_rhs, t_span=(t0, np.max(t)), y0=y0_full, t_eval=t, args=(fsmp.ode_fun, fsmp.ode_dfdx, fsmp.ode_dfdp, Q, fsmp.parameters, fsmp.ode_args, n_y0, n_p), method="Radau")#, jac=fsmp.ode_dfdx)
         
         # Obtain sensitivities dg/dp from the last components of the ode
         r = np.array(res.y[n_y0:])
@@ -130,7 +130,7 @@ def get_S_matrix(fsmp: FisherModelParametrized, relative_sensitivities=False):
             times=t,
             inputs=Q,
             parameters=fsmp.parameters,
-            constants=fsmp.constants,
+            ode_args=fsmp.ode_args,
             ode_solution=res,
             identical_times=fsmp.identical_times
         )
@@ -234,7 +234,6 @@ def calculate_fisher_criterion(fsmp: FisherModelParametrized, criterion=fisher_d
         S=S,
         C=C,
         individual_results=solutions,
-        _fsm_var_def=fsmp._fsm_var_def,
         **args,
     )
     return fsr

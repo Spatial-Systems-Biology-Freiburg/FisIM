@@ -53,7 +53,7 @@ if __name__ == "__main__":
     ### USER DEFINES PARAMETERS ###
     ###############################
 
-    # Define constants for the simulation duration
+    # Define ode_args for the simulation duration
     n0 = 0.25
     n_max = 2e4
     Const = (n0, n_max)

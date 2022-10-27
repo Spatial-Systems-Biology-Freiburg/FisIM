@@ -66,8 +66,8 @@ class Setup_Class(unittest.TestCase):
         ]
         
         self.parameters=(2.95, 8.4768, 0.001)
-        # n_constants = 3
-        self.constants=(1.0, 2.0, 1.5)
+        # n_ode_args = 3
+        self.ode_args=(1.0, 2.0, 1.5)
         self.fsm = FisherModel(
             ode_fun=f,
             ode_dfdx=dfdx,
@@ -77,7 +77,7 @@ class Setup_Class(unittest.TestCase):
             times=self.times,
             inputs=self.inputs,
             parameters=self.parameters,
-            constants=self.constants,
+            ode_args=self.ode_args,
             obs_fun=g,
             obs_dfdx=dgdx,
             obs_dfdp=dgdp,

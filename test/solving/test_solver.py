@@ -77,21 +77,21 @@ class Test_SolvingMethods(Setup_Class):
 
             # Test for initial values (initial values for sensitivities are 0 by default)
             x0 = np.concatenate((y0, np.zeros(n_x * n_p)))
-            res = ode_rhs(t0, x0, fsmp.ode_fun, fsmp.ode_dfdx, fsmp.ode_dfdp, Q, fsmp.parameters, fsmp.constants, n_x, n_p)
+            res = ode_rhs(t0, x0, fsmp.ode_fun, fsmp.ode_dfdx, fsmp.ode_dfdp, Q, fsmp.parameters, fsmp.ode_args, n_x, n_p)
             
-            np.testing.assert_almost_equal(res[:n_x], fsmp.ode_fun(t0, y0, Q, fsmp.parameters, fsmp.constants))
-            np.testing.assert_almost_equal(res[n_x:], np.array(fsmp.ode_dfdp(t0, y0, Q, fsmp.parameters, fsmp.constants)).flatten())
+            np.testing.assert_almost_equal(res[:n_x], fsmp.ode_fun(t0, y0, Q, fsmp.parameters, fsmp.ode_args))
+            np.testing.assert_almost_equal(res[n_x:], np.array(fsmp.ode_dfdp(t0, y0, Q, fsmp.parameters, fsmp.ode_args)).flatten())
 
             # Test for non-zero sensitivity values
             s0 = (np.zeros(n_x * n_p) + 1.0).reshape((n_x, n_p))
             x0 = np.concatenate((y0, s0.flatten()))
-            res = ode_rhs(t0, x0, fsmp.ode_fun, fsmp.ode_dfdx, fsmp.ode_dfdp, Q, fsmp.parameters, fsmp.constants, n_x, n_p)
+            res = ode_rhs(t0, x0, fsmp.ode_fun, fsmp.ode_dfdx, fsmp.ode_dfdp, Q, fsmp.parameters, fsmp.ode_args, n_x, n_p)
             
             # Mimic calculation of sensitivities
-            f_ty = fsmp.ode_fun(t0, y0, Q, fsmp.parameters, fsmp.constants)
+            f_ty = fsmp.ode_fun(t0, y0, Q, fsmp.parameters, fsmp.ode_args)
             np.testing.assert_almost_equal(res[:n_x], f_ty)
-            dfdp_ty = fsmp.ode_dfdp(t0, y0, Q, fsmp.parameters, fsmp.constants)
-            dfdx_ty = fsmp.ode_dfdx(t0, y0, Q, fsmp.parameters, fsmp.constants)
+            dfdp_ty = fsmp.ode_dfdp(t0, y0, Q, fsmp.parameters, fsmp.ode_args)
+            dfdx_ty = fsmp.ode_dfdx(t0, y0, Q, fsmp.parameters, fsmp.ode_args)
             sensitivities = dfdp_ty + np.matmul(dfdx_ty, s0)
             np.testing.assert_almost_equal(res[:n_x], np.array(f_ty).flatten())
             np.testing.assert_almost_equal(res[n_x:], sensitivities.flatten())
