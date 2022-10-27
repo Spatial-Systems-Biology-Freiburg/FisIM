@@ -129,14 +129,12 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
             y0_def = y0
             y0_vals = [y0.initial_guess]
             raise TypeError("Warning! Specifying initial values as tuple enables sampling over initial values. This is currently not implemented!")
-        elif type(fsm.ode_y0)==list and np.array(fsm.ode_y0).ndim == 1:
+        elif type(fsm.ode_y0)==list[float]:
             y0_def = None
             y0_vals = [np.array(fsm.ode_y0)]
-            print("Got here!", fsm.ode_y0)
         elif type(fsm.ode_y0)==list[list[float]]:
             y0_def = None
             y0_vals = np.array(fsm.ode_y0)
-            print("Got here 2!", fsm.ode_y0)
         else:
             y0_def = None
             y0_vals = np.array(fsm.ode_y0)
