@@ -54,10 +54,10 @@ def dgdp(t, x, inputs, params, consts):
 
 class Setup_Class(unittest.TestCase):
     @classmethod
-    def setUpClass(self, N_y0=2, n_t0=13, n_times=5, n_inputs=(7, 11), identical_times=False):
+    def setUpClass(self, N_x0=2, n_t0=13, n_times=5, n_inputs=(7, 11), identical_times=False):
         # Use prime numbers for sampled parameters to 
         # show errors in code where reshaping is done
-        self.y0=[np.array([0.05 / i, 0.001 / i]) for i in range(1, N_y0+1)]
+        self.x0=[np.array([0.05 / i, 0.001 / i]) for i in range(1, N_x0+1)]
         self.t0=np.linspace(0.0, 0.01, n_t0)
         self.times=np.linspace(0.1, 10.0, n_times)
         self.inputs=[
@@ -72,7 +72,7 @@ class Setup_Class(unittest.TestCase):
             ode_fun=f,
             ode_dfdx=dfdx,
             ode_dfdp=dfdp,
-            ode_y0=self.y0,
+            ode_x0=self.x0,
             ode_t0=self.t0,
             times=self.times,
             inputs=self.inputs,

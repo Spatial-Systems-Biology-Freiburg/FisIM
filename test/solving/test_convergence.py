@@ -60,7 +60,7 @@ def dgdp(t, x, inputs, params, consts):
 class Setup_Convergence(unittest.TestCase):
     @classmethod
     def setUp(self, n_times=4, n_inputs=3, identical_times=False):
-        self.y0=[1.0, 0.5]
+        self.x0=[1.0, 0.5]
         self.t0=0.0
         self.times=np.linspace(0.0, 10.0, n_times)
         self.inputs=[
@@ -74,7 +74,7 @@ class Setup_Convergence(unittest.TestCase):
             ode_fun=ode_fun,
             ode_dfdx=ode_dfdx,
             ode_dfdp=ode_dfdp,
-            ode_y0=self.y0,
+            ode_x0=self.x0,
             ode_t0=self.t0,
             times=self.times,
             inputs=self.inputs,

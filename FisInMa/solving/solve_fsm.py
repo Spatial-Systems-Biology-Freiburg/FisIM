@@ -62,22 +62,22 @@ def get_S_matrix(fsmp: FisherModelParametrized, relative_sensitivities=False):
     # How many initial times do we have?
     n_t0 = len(fsmp.ode_t0)
     # How large is the vector of one initial value? (ie. dimensionality of the ODE)
-    n_y0 = len(fsmp.ode_y0[0])
+    n_x0 = len(fsmp.ode_x0[0])
     # How many different initial values do we have?
-    N_y0 = len(fsmp.ode_y0)
+    N_x0 = len(fsmp.ode_x0)
     # The lengths of the individual input variables stored as tuple
     inputs_shape = tuple(len(q) for q in fsmp.inputs)
 
     # The shape of the initial S matrix is given by
-    # (n_p, n_t0, n_y0, n_q0, ..., n_ql, n_times)
+    # (n_p, n_t0, n_x0, n_q0, ..., n_ql, n_times)
     # S = np.zeros((n_x * n_p, fsmp.times.shape[-1],) + tuple(len(x) for x in fsmp.inputs))
-    S = np.zeros((n_p, n_t0, N_y0, n_y0) + inputs_shape + (fsmp.times.shape[-1],))
+    S = np.zeros((n_p, n_t0, N_x0, n_x0) + inputs_shape + (fsmp.times.shape[-1],))
     error_n = np.zeros((fsmp.times.shape[-1],) + tuple(len(x) for x in fsmp.inputs))
 
     # Iterate over all combinations of Q-Values
     solutions = []
-    for (i_y0, y0), (i_t0, t0), index in itertools.product(
-        enumerate(fsmp.ode_y0),
+    for (i_x0, x0), (i_t0, t0), index in itertools.product(
+        enumerate(fsmp.ode_x0),
         enumerate(fsmp.ode_t0),
         itertools.product(*[range(len(q)) for q in fsmp.inputs])
     ):
@@ -91,15 +91,15 @@ def get_S_matrix(fsmp: FisherModelParametrized, relative_sensitivities=False):
         # t_init = np.insert(t, 0, fsmp.ode_t0)
 
         # Define initial values for ode
-        y0_full = np.concatenate((y0, np.zeros(n_y0 * n_p)))
+        x0_full = np.concatenate((x0, np.zeros(n_x0 * n_p)))
 
         # Actually solve the ODE for the selected parameter values
-        res = integrate.solve_ivp(fun=ode_rhs, t_span=(t0, np.max(t)), y0=y0_full, t_eval=t, args=(fsmp.ode_fun, fsmp.ode_dfdx, fsmp.ode_dfdp, Q, fsmp.parameters, fsmp.ode_args, n_y0, n_p), method="Radau")#, jac=fsmp.ode_dfdx)
+        res = integrate.solve_ivp(fun=ode_rhs, t_span=(t0, np.max(t)), x0=x0_full, t_eval=t, args=(fsmp.ode_fun, fsmp.ode_dfdx, fsmp.ode_dfdp, Q, fsmp.parameters, fsmp.ode_args, n_x0, n_p), method="Radau")#, jac=fsmp.ode_dfdx)
         
         # Obtain sensitivities dg/dp from the last components of the ode
-        r = np.array(res.y[n_y0:])
+        r = np.array(res.y[n_x0:])
         
-        s = np.swapaxes(r.reshape((n_y0, n_p, -1)), 0, 1)
+        s = np.swapaxes(r.reshape((n_x0, n_p, -1)), 0, 1)
 
         # Calculate the S-Matrix from the sensitivities
         # Depending on if we want to calculate the relative sensitivities
@@ -109,13 +109,13 @@ def get_S_matrix(fsmp: FisherModelParametrized, relative_sensitivities=False):
                 s[i] *= p
 
             # Divide by observable
-            for i, o in enumerate(res.y[:n_y0]):
+            for i, o in enumerate(res.y[:n_x0]):
                 s[(slice(None), i)] /= o
             
             # Fill S-Matrix
-            S[(slice(None), i_t0, i_y0, slice(None)) + index] = s
+            S[(slice(None), i_t0, i_x0, slice(None)) + index] = s
         else:
-            S[(slice(None), i_t0, i_y0, slice(None)) + index] = s
+            S[(slice(None), i_t0, i_x0, slice(None)) + index] = s
 
         # Assume that the error of the measurement is 25% from the measured value r[0] n 
         # (use for covariance matrix calculation)
@@ -125,7 +125,7 @@ def get_S_matrix(fsmp: FisherModelParametrized, relative_sensitivities=False):
         # TODO
         # TODO
         fsrs = FisherResultSingle(
-            ode_y0=y0,
+            ode_x0=x0,
             ode_t0=t0,
             times=t,
             inputs=Q,

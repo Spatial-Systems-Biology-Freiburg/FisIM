@@ -118,7 +118,7 @@ if __name__ == "__main__":
     P = (a, b, c)
 
     # Initial values for complete ODE (with S-Terms)
-    y0 = [n0, 0, 0, 0]
+    x0 = [n0, 0, 0, 0]
 
     # Define bounds for sampling
     temp_low = 2.0
@@ -134,7 +134,7 @@ if __name__ == "__main__":
     times_total = np.linspace(times_low, times_low + dtimes * (n_times_max - 1), n_times_max)
 
     # Initial conditions with initial time
-    y0_t0 = (y0, times_low)
+    x0_t0 = (x0, times_low)
 
     # How often should we choose a sample with same number of temperatures and times
     N_mult = 3
@@ -166,7 +166,7 @@ if __name__ == "__main__":
                 parameters=P,
                 q_values=[temperatures],
                 ode_args=Const,
-                y0_t0=(y0, times_low),
+                x0_t0=(x0, times_low),
                 ode_func=pool_model_sensitivity,
                 jacobian=jacobi
             )

@@ -48,10 +48,10 @@ def __scipy_optimizer_function(X, fsmp: FisherModelParametrized, full=False):
         fsmp.ode_t0 = X[:fsmp.ode_t0_def.n]
         total += fsmp.ode_t0_def.n
     
-    # Get values for ode_y0
-    if fsmp.ode_y0_def is not None:
-        fsmp.ode_y0 = X[total:total + fsmp.ode_y0_def.n * fsmp.ode_y0.size]
-        total += fsmp.ode_y0_def.n
+    # Get values for ode_x0
+    if fsmp.ode_x0_def is not None:
+        fsmp.ode_x0 = X[total:total + fsmp.ode_x0_def.n * fsmp.ode_x0.size]
+        total += fsmp.ode_x0_def.n
 
     # Get values for times
     if fsmp.times_def is not None:
@@ -86,7 +86,7 @@ def _scipy_calculate_bounds_constraints(fsmp: FisherModelParametrized):
     n_inputs = [len(q) if q_def is not None else 0 for q, q_def in zip(fsmp.inputs, fsmp.inputs_def)]
     n_mut = [
         fsmp.ode_t0_def.n if fsmp.ode_t0_def is not None else 0,
-        fsmp.ode_y0_def.n if fsmp.ode_y0_def is not None else 0,
+        fsmp.ode_x0_def.n if fsmp.ode_x0_def is not None else 0,
         n_times,
         *n_inputs
     ]
@@ -108,10 +108,10 @@ def _scipy_calculate_bounds_constraints(fsmp: FisherModelParametrized):
         B = np.block([[B,np.zeros((B.shape[0],A.shape[1]))],[np.zeros((A.shape[0],B.shape[1])),A]])
 
     # Check if initial values are sampled over
-    if type(fsmp.ode_y0_def)==VariableDefinition:
+    if type(fsmp.ode_x0_def)==VariableDefinition:
         # Bounds for value
-        lb.append(fsmp.ode_y0_def.lb)
-        ub.append(fsmp.ode_y0_def.ub)
+        lb.append(fsmp.ode_x0_def.lb)
+        ub.append(fsmp.ode_x0_def.ub)
         
         # Constraints on variables
         lc += []
@@ -165,7 +165,7 @@ def __scipy_differential_evolution(fsmp: FisherModelParametrized, **args):
     bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
 
     x0 = np.concatenate([
-        np.array(fsmp.ode_y0).flatten() if fsmp.ode_y0_def is not None else [],
+        np.array(fsmp.ode_x0).flatten() if fsmp.ode_x0_def is not None else [],
         np.array(fsmp.ode_t0).flatten() if fsmp.ode_t0_def is not None else [],
         np.array(fsmp.times).flatten() if fsmp.times_def is not None else [],
         *[

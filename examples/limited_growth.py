@@ -65,7 +65,7 @@ if __name__ == "__main__":
 
     # Initial values for complete ODE (with S-Terms)
     n0 = 0.25
-    y0 = n0
+    x0 = n0
 
     # Construct parameter hyperspace
     n_times = 4
@@ -82,7 +82,7 @@ if __name__ == "__main__":
             ode_dfdx=dedx,
             ode_dfdp=dedp,
             ode_t0=times_low,
-            ode_y0=y0,
+            ode_x0=x0,
             times=(times_low, times_high, n_times),
             inputs=inputs,
             parameters=parameters,

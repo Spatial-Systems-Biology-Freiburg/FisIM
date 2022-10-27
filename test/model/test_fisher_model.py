@@ -11,48 +11,48 @@ from FisInMa import FisherModelParametrized
 
 class Test_FisherModelParametrized_Init(Setup_Class):
     # Individual sampling tests
-    def test_sample_ode_y0_explicit(self):
+    def test_sample_ode_x0_explicit(self):
         fsm = copy.deepcopy(self.fsm)
-        y0 = [[0.02, 0.0005], [0.015, 0.001]]
-        fsm.ode_y0 = y0
+        x0 = [[0.02, 0.0005], [0.015, 0.001]]
+        fsm.ode_x0 = x0
         fsmp = FisherModelParametrized.init_from(fsm)
-        for p, q in zip(y0, fsmp.ode_y0):
+        for p, q in zip(x0, fsmp.ode_x0):
             np.testing.assert_almost_equal(p, q)
 
-    def test_fixed_ode_y0_explicit_single_vector(self):
+    def test_fixed_ode_x0_explicit_single_vector(self):
         fsm = copy.deepcopy(self.fsm)
-        y0 = np.array([0.02, 0.0005])
-        fsm.ode_y0 = y0
+        x0 = np.array([0.02, 0.0005])
+        fsm.ode_x0 = x0
         fsmp = FisherModelParametrized.init_from(fsm)
-        np.testing.assert_almost_equal([y0], fsmp.ode_y0)
+        np.testing.assert_almost_equal([x0], fsmp.ode_x0)
     
-    def test_fixed_ode_y0_explicit_single_vector_list(self):
+    def test_fixed_ode_x0_explicit_single_vector_list(self):
         fsm = copy.deepcopy(self.fsm)
-        y0 = [0.02, 0.0005]
-        fsm.ode_y0 = y0
+        x0 = [0.02, 0.0005]
+        fsm.ode_x0 = x0
         fsmp = FisherModelParametrized.init_from(fsm)
-        np.testing.assert_almost_equal([y0], fsmp.ode_y0)
+        np.testing.assert_almost_equal([x0], fsmp.ode_x0)
 
     @unittest.expectedFailure
-    def test_fixed_ode_y0_too_large_array(self):
+    def test_fixed_ode_x0_too_large_array(self):
         fsm = copy.deepcopy(self.fsm)
-        y0 = np.array([[0.02, 0.05],[0.015, 0.04767]])
-        fsm.ode_y0 = y0
+        x0 = np.array([[0.02, 0.05],[0.015, 0.04767]])
+        fsm.ode_x0 = x0
         fsmp = FisherModelParametrized.init_from(fsm)
 
-    def test_fixed_ode_y0_explicit_multiple_vector(self):
+    def test_fixed_ode_x0_explicit_multiple_vector(self):
         fsm = copy.deepcopy(self.fsm)
-        y0 = [[0.02, 0.0005],[0.015, 0.001]]
-        fsm.ode_y0 = y0
+        x0 = [[0.02, 0.0005],[0.015, 0.001]]
+        fsm.ode_x0 = x0
         fsmp = FisherModelParametrized.init_from(fsm)
-        np.testing.assert_almost_equal(y0, fsmp.ode_y0)
+        np.testing.assert_almost_equal(x0, fsmp.ode_x0)
     
-    def test_fixed_ode_y0_explicit_single_float(self):
+    def test_fixed_ode_x0_explicit_single_float(self):
         fsm = copy.deepcopy(self.fsm)
-        y0 = 0.2
-        fsm.ode_y0 = y0
+        x0 = 0.2
+        fsm.ode_x0 = x0
         fsmp = FisherModelParametrized.init_from(fsm)
-        np.testing.assert_almost_equal([[y0]], fsmp.ode_y0)
+        np.testing.assert_almost_equal([[x0]], fsmp.ode_x0)
 
     def test_sample_ode_t0(self):
         fsm = copy.deepcopy(self.fsm)
@@ -114,25 +114,25 @@ class Test_FisherModelParametrized_Init(Setup_Class):
             np.testing.assert_almost_equal(i, j)
     
     # Test combinations (2)
-    def test_sample_ode_y0_ode_t0(self):
+    def test_sample_ode_x0_ode_t0(self):
         fsm = copy.deepcopy(self.fsm)
-        y0 = [[0.0187, 0.000498], [0.0291, 0.002]]
+        x0 = [[0.0187, 0.000498], [0.0291, 0.002]]
         t0 = (0.0, 1.0, 7)
-        fsm.ode_y0 = y0
+        fsm.ode_x0 = x0
         fsm.ode_t0 = t0
         fsmp = FisherModelParametrized.init_from(fsm)
-        for p, q in zip(fsmp.ode_y0, y0):
+        for p, q in zip(fsmp.ode_x0, x0):
             np.testing.assert_almost_equal(p, q)
         np.testing.assert_almost_equal(fsmp.ode_t0, np.linspace(*t0))
     
-    def test_sample_ode_y0_times(self):
+    def test_sample_ode_x0_times(self):
         fsm = copy.deepcopy(self.fsm)
-        y0 = [[0.0187, 0.000498], [0.0291, 0.002]]
+        x0 = [[0.0187, 0.000498], [0.0291, 0.002]]
         t = (3.21, 11.44, 2)
-        fsm.ode_y0 = y0
+        fsm.ode_x0 = x0
         fsm.times = t
         fsmp = FisherModelParametrized.init_from(fsm)
-        for p, q in zip(fsmp.ode_y0, y0):
+        for p, q in zip(fsmp.ode_x0, x0):
             np.testing.assert_almost_equal(p, q)
         np.testing.assert_almost_equal(fsmp.times, np.full(tuple(len(q) for q in fsmp.inputs) + (t[2],), np.linspace(*t)))
 
@@ -147,7 +147,7 @@ class Test_FisherModelParametrized_Init(Setup_Class):
         np.testing.assert_almost_equal(fsmp.times, np.full(tuple(len(q) for q in fsmp.inputs) + (t[2],), np.linspace(*t)))
 
     # TODO
-    # def test_sample_ode_y0_inputs(self):
+    # def test_sample_ode_x0_inputs(self):
     #     pass
     # 
     # def test_sample_ode_t0_inputs(self):
@@ -157,7 +157,7 @@ class Test_FisherModelParametrized_Init(Setup_Class):
     #     pass
     # 
     # # Test combinations (3)
-    # def test_sample_ode_y0_times_inputs(self):
+    # def test_sample_ode_x0_times_inputs(self):
     #     pass
     # 
     # def test_sample_ode_t0_times_inputs(self):
@@ -166,11 +166,11 @@ class Test_FisherModelParametrized_Init(Setup_Class):
     # def test_sample_times_inputs(self):
     #     pass
     # 
-    # def test_sample_ode_y0_ode_t0_inputs(self):
+    # def test_sample_ode_x0_ode_t0_inputs(self):
     #     pass
     # 
     # # Test combinations (4)
-    # def test_sample_ode_y0_ode_t0_times_inputs(self):
+    # def test_sample_ode_x0_ode_t0_times_inputs(self):
     #     pass
 
 
@@ -184,14 +184,14 @@ class Test_FisherModelParametrized_Set_Get(Setup_Class):
         fsmp.t0 = t0
         self.assertEqual(fsmp.t0, t0)
 
-    def test_set_get_y0(self):
+    def test_set_get_x0(self):
         fsm = copy.deepcopy(self.fsm)
-        y0 = np.array([4.22, 9.44])
-        fsm.ode_y0 = y0
+        x0 = np.array([4.22, 9.44])
+        fsm.ode_x0 = x0
         fsmp = FisherModelParametrized.init_from(fsm)
-        y0 = np.array([33.2, 12.3])
-        fsmp.y0 = y0
-        np.testing.assert_almost_equal(y0, fsmp.y0)
+        x0 = np.array([33.2, 12.3])
+        fsmp.x0 = x0
+        np.testing.assert_almost_equal(x0, fsmp.x0)
     
     def test_set_get_times_identical(self):
         fsm = copy.deepcopy(self.fsm)
@@ -236,9 +236,9 @@ class Test_FisherModelParametrized_Set_Get(Setup_Class):
         np.testing.assert_almost_equal(fsmp.ode_args, self.ode_args)
 
     @unittest.expectedFailure
-    def test_set_immutable_y0(self):
+    def test_set_immutable_x0(self):
         fsm = copy.deepcopy(self.fsm)
-        fsmp.y0 = np.linspace(0, 10)
+        fsmp.x0 = np.linspace(0, 10)
     
     @unittest.expectedFailure
     def test_set_immutable_t0(self):

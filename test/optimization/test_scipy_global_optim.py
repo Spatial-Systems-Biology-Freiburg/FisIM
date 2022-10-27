@@ -11,7 +11,7 @@ class Test_ScipyGlobalOptimAlgorithms(Setup_Class):
     def test_scipy_differential_evolution(self):
         fsm = copy.deepcopy(self.fsm)
         fsm.ode_t0 = 0.0
-        fsm.ode_y0 = [np.array([0.05, 0.001])]
+        fsm.ode_x0 = [np.array([0.05, 0.001])]
         fsm.inputs=[
             np.arange(2, 2+2),
             np.arange(5, 2+5)
@@ -65,7 +65,7 @@ class Test_ScipyCalculateConstraints(Setup_Class):
 
     def test_scipy_calculate_bounds_constraints_sample_none(self):
         fsm = copy.deepcopy(self.fsm)
-        fsm.ode_y0 = [0.0, 0.0]
+        fsm.ode_x0 = [0.0, 0.0]
         fsm.ode_t0 = 0.0
         fsm.times = [1.0, 2.0, 3.0, 4.0]
         fsm.inputs = [
@@ -89,9 +89,9 @@ class Test_ScipyCalculateConstraints(Setup_Class):
         np.testing.assert_almost_equal(constraints.ub, [np.inf]*(fsm.ode_t0[2]-1))
         np.testing.assert_almost_equal(constraints.A, _create_comparison_matrix(fsm.ode_t0[2]))
     
-    def test_scipy_calculate_bounds_constraints_sample_ode_y0(self):
+    def test_scipy_calculate_bounds_constraints_sample_ode_x0(self):
         fsm = copy.deepcopy(self.fsm)
-        fsm.ode_y0 = [[0.0,0.0],[0.1,0.05]]
+        fsm.ode_x0 = [[0.0,0.0],[0.1,0.05]]
         fsmp = FisherModelParametrized.init_from(fsm)
         bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
         np.testing.assert_almost_equal(bounds, [])
@@ -136,7 +136,7 @@ class Test_ScipyCalculateConstraints(Setup_Class):
 
     # Combinations (2)
     """
-    def test_scipy_calculate_bounds_constraints_sample_ode_t0_ode_y0(self):
+    def test_scipy_calculate_bounds_constraints_sample_ode_t0_ode_x0(self):
         pass
 
     def test_scipy_calculate_bounds_constraints_sample_ode_t0_times(self):
@@ -145,29 +145,29 @@ class Test_ScipyCalculateConstraints(Setup_Class):
     def test_scipy_calculate_bounds_constraints_sample_ode_t0_inputs(self):
         pass
 
-    def test_scipy_calculate_bounds_constraints_sample_ode_y0_times(self):
+    def test_scipy_calculate_bounds_constraints_sample_ode_x0_times(self):
         pass
 
-    def test_scipy_calculate_bounds_constraints_sample_ode_y0_inputs(self):
+    def test_scipy_calculate_bounds_constraints_sample_ode_x0_inputs(self):
         pass
 
     def test_scipy_calculate_bounds_constraints_sample_times_inputs(self):
         pass
 
     # Combinations (3)
-    def test_scipy_calculate_bounds_constraints_sample_ode_t0_ode_y0_times(self):
+    def test_scipy_calculate_bounds_constraints_sample_ode_t0_ode_x0_times(self):
         pass
 
-    def test_scipy_calculate_bounds_constraints_sample_ode_t0_ode_y0_inputs(self):
+    def test_scipy_calculate_bounds_constraints_sample_ode_t0_ode_x0_inputs(self):
         pass
 
     def test_scipy_calculate_bounds_constraints_sample_ode_t0_times_inputs(self):
         pass
 
-    def test_scipy_calculate_bounds_constraints_sample_ode_y0_times_inputs(self):
+    def test_scipy_calculate_bounds_constraints_sample_ode_x0_times_inputs(self):
         pass
 
     # Combination (4)
-    def test_scipy_calculate_bounds_constraints_sample_ode_t0_ode_y0_times_inputs(self):
+    def test_scipy_calculate_bounds_constraints_sample_ode_t0_ode_x0_times_inputs(self):
         pass
     """

@@ -165,15 +165,15 @@ def plot_solution_with_exp_design_choice(n_time_temp, fischer_results, sorting_k
     fig, ax = plt.subplots()
     for k, fis in enumerate(fisher_chosen):
         (obs, times, P, Q_arr, Const, Y0) = fis
-        (y0, t0) = Y0
+        (x0, t0) = Y0
         times_test = np.linspace(t0, times.max()+1, 100)
 
         for index in iter.product(*[range(len(q)) for q in Q_arr]):
             # Store the results of the respective ODE solution
             Q = [Q_arr[i][j] for i, j in enumerate(index)]
             t = times[index]
-            sol_model = odeint(ODE_func, y0, times_test, args=(Q, P, Const)).T[0]
-            sol_model_design = odeint(ODE_func, y0, np.insert(t, 0, t0), args=(Q, P, Const)).T[0, 1:]
+            sol_model = odeint(ODE_func, x0, times_test, args=(Q, P, Const)).T[0]
+            sol_model_design = odeint(ODE_func, x0, np.insert(t, 0, t0), args=(Q, P, Const)).T[0, 1:]
 
             ax.plot(times_test, sol_model, linestyle='dotted', label = r'T = {}'.format(Q[0]))
             ax.scatter(t, sol_model_design)

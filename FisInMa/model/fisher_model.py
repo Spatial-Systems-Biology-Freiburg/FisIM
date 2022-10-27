@@ -17,7 +17,7 @@ class Config:
 
 @dataclass(config=Config)
 class _FisherVariablesBase:
-    ode_y0: Union[np.ndarray, List[float], List[list[float]], float, List[np.ndarray]]
+    ode_x0: Union[np.ndarray, List[float], List[list[float]], float, List[np.ndarray]]
     ode_t0: Union[tuple, float, np.ndarray, List]
     times: Union[tuple, List[float], list[list[float]], np.ndarray]
     inputs: list# list[Union[list[float],np.ndarray]]
@@ -82,7 +82,7 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
 
         :param fsm: A user-defined fisher model.
         :type fsm: FisherModel
-        :raises TypeError: Currently does not accept sampling over initial values ode_y0.
+        :raises TypeError: Currently does not accept sampling over initial values ode_x0.
         :return: Fully parametrized model with initial guesses which can be numerically solved.
         :rtype: FisherModelParametrized
         """
@@ -90,7 +90,7 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
         # 1) Initial definition of model (ie. sample over certain variable; specify tuple of (min, max, n, dx, guess_method) or explicitly via np.array([...]))
         # 2) Explicit values together with initial guess such that every variable is parametrized
         variable_definitions = FisherVariables(
-            fsm.ode_y0,
+            fsm.ode_x0,
             fsm.ode_t0,
             fsm.times,
             fsm.inputs,
@@ -117,35 +117,35 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
         inputs_shape = tuple(len(q) for q in _inputs_vals)
 
         # Check if we want to sample over initial values
-        if type(fsm.ode_y0) is float:
-            y0_def = None
-            y0_vals = [np.array([fsm.ode_y0])]
-        elif type(fsm.ode_y0) is np.ndarray and fsm.ode_y0.ndim == 1:
-            y0_def = None
-            y0_vals = [fsm.ode_y0]
-        elif type(fsm.ode_y0) is np.ndarray and fsm.ode_y0.ndim > 1:
-            raise TypeError("Variable ode_y0 should be list of arrays with dimension 1 respectively!")
+        if type(fsm.ode_x0) is float:
+            x0_def = None
+            x0_vals = [np.array([fsm.ode_x0])]
+        elif type(fsm.ode_x0) is np.ndarray and fsm.ode_x0.ndim == 1:
+            x0_def = None
+            x0_vals = [fsm.ode_x0]
+        elif type(fsm.ode_x0) is np.ndarray and fsm.ode_x0.ndim > 1:
+            raise TypeError("Variable ode_x0 should be list of arrays with dimension 1 respectively!")
         # TODO currently not working
-        elif type(fsm.ode_y0) is tuple and len(fsm.ode_y0) >= 3:
-            y0 = VariableDefinition(*fsm.ode_y0)
-            y0_def = y0
-            y0_vals = [y0.initial_guess]
+        elif type(fsm.ode_x0) is tuple and len(fsm.ode_x0) >= 3:
+            x0 = VariableDefinition(*fsm.ode_x0)
+            x0_def = x0
+            x0_vals = [x0.initial_guess]
             raise TypeError("Warning! Specifying initial values as tuple enables sampling over initial values. This is currently not implemented!")
-        elif type(fsm.ode_y0) is list and len(fsm.ode_y0) > 0 and type(fsm.ode_y0[0]) is list and len(fsm.ode_y0[0]) > 0 and type(fsm.ode_y0[0][0]) is float:
-            y0_def = None
-            y0_vals = [np.array(xi) for xi in fsm.ode_y0]
-        elif type(fsm.ode_y0) is list and len(fsm.ode_y0) > 0 and type(fsm.ode_y0[0])==np.ndarray:
-            y0_def = None
-            y0_vals = fsm.ode_y0
-        elif type(fsm.ode_y0) is list and len(fsm.ode_y0) > 0 and type(fsm.ode_y0[0]==float):
-            y0_def = None
-            y0_vals = [np.array(fsm.ode_y0)]
+        elif type(fsm.ode_x0) is list and len(fsm.ode_x0) > 0 and type(fsm.ode_x0[0]) is list and len(fsm.ode_x0[0]) > 0 and type(fsm.ode_x0[0][0]) is float:
+            x0_def = None
+            x0_vals = [np.array(xi) for xi in fsm.ode_x0]
+        elif type(fsm.ode_x0) is list and len(fsm.ode_x0) > 0 and type(fsm.ode_x0[0])==np.ndarray:
+            x0_def = None
+            x0_vals = fsm.ode_x0
+        elif type(fsm.ode_x0) is list and len(fsm.ode_x0) > 0 and type(fsm.ode_x0[0]==float):
+            x0_def = None
+            x0_vals = [np.array(fsm.ode_x0)]
         else:
-            y0_def = None
-            y0_vals = np.array(fsm.ode_y0)
+            x0_def = None
+            x0_vals = np.array(fsm.ode_x0)
 
-        variable_definitions.ode_y0 = y0_def
-        _fsm_var_vals.ode_y0 = y0_vals
+        variable_definitions.ode_x0 = x0_def
+        _fsm_var_vals.ode_x0 = x0_vals
 
         # Check if time values are sampled
         if type(fsm.times) == tuple and len(fsm.times) >= 3:
@@ -191,8 +191,8 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
     # Define properties of class such that it can be used as a parametrized FisherModel
     # Get every possible numeric quantity that is stored in the model
     @property
-    def ode_y0(self) -> np.ndarray:
-        return self._fsm_var_vals.ode_y0
+    def ode_x0(self) -> np.ndarray:
+        return self._fsm_var_vals.ode_x0
     
     @property
     def ode_t0(self) -> float:
@@ -217,11 +217,11 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
     # These methods obtain only mutable quantities.
     # Return None or a list of None and values depending on which quantity is mutable
     @property
-    def ode_y0_mut(self):
-        if self.variable_definitions.ode_y0 is None:
+    def ode_x0_mut(self):
+        if self.variable_definitions.ode_x0 is None:
             return None
         else:
-            return self._fsm_var_vals.ode_y0
+            return self._fsm_var_vals.ode_x0
     
     @property
     def ode_t0_mut(self):
@@ -249,8 +249,8 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
 
     # These methods return the definition or None if the values were picked by hand
     @property
-    def ode_y0_def(self):
-        return self.variable_definitions.ode_y0
+    def ode_x0_def(self):
+        return self.variable_definitions.ode_x0
     
     @property
     def ode_t0_def(self):
@@ -265,12 +265,12 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
         return self.variable_definitions.inputs
 
     # These methods modify mutable quantities
-    @ode_y0.setter
-    def ode_y0(self, y0) -> None:
-        for i, y in enumerate(y0):
-            self._fsm_var_vals.ode_y0[i] = y
-            if self.variable_definitions.ode_y0[i] is None:
-                raise AttributeError("Variable ode_y0 is not mutable!")
+    @ode_x0.setter
+    def ode_x0(self, x0) -> None:
+        for i, y in enumerate(x0):
+            self._fsm_var_vals.ode_x0[i] = y
+            if self.variable_definitions.ode_x0[i] is None:
+                raise AttributeError("Variable ode_x0 is not mutable!")
     
     @ode_t0.setter
     def ode_t0(self, t0) -> None:
@@ -279,7 +279,7 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
         else:
             self._fsm_var_vals.ode_t0 = t0
         if self.variable_definitions.ode_t0 is None:
-            raise AttributeError("Variable ode_y0 is not mutable!")
+            raise AttributeError("Variable ode_x0 is not mutable!")
     
     @times.setter
     def times(self, times) -> None:
@@ -335,7 +335,7 @@ class FisherResults(_FisherResultsOptions, _FisherResultsBase):
             "parameters": apply_marks(self.parameters),
             "q_values": apply_marks(self.q_values),
             "ode_args": apply_marks(self.ode_args),
-            "y0": apply_marks(self.y0),
+            "x0": apply_marks(self.x0),
             "criterion": apply_marks(self.criterion),
             "criterion_func": apply_marks(self.criterion_func.__name__),
             "sensitivity_matrix": apply_marks(self.sensitivity_matrix),
