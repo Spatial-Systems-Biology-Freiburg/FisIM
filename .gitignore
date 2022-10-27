@@ -1,6 +1,8 @@
 *.npy
 *.png
+*.svg
 __pycache__*
 out/*
 dist
 build
+
