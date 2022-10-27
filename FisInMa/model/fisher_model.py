@@ -6,7 +6,7 @@ try:
     from collections.abc import Callable
 except:
     from typing import Callable
-from typing import Optional, Union, Any
+from typing import Optional, Union, Any, List
 
 from .preprocessing import VariableDefinition
 
@@ -17,12 +17,12 @@ class Config:
 
 @dataclass(config=Config)
 class _FisherVariablesBase:
-    ode_y0: Union[np.ndarray, list[float], list[list[float]], float, list[np.ndarray]]
-    ode_t0: Union[tuple, float, np.ndarray, list]
-    times: Union[tuple, list[float], list[list[float]], np.ndarray]
+    ode_y0: Union[np.ndarray, List[float], List[list[float]], float, List[np.ndarray]]
+    ode_t0: Union[tuple, float, np.ndarray, List]
+    times: Union[tuple, List[float], list[list[float]], np.ndarray]
     inputs: list# list[Union[list[float],np.ndarray]]
     parameters: Union[tuple,list]
-    ode_args: Optional[Any] 
+    ode_args: Optional[Any]
 
 
 @dataclass(config=Config)
@@ -117,24 +117,29 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
         inputs_shape = tuple(len(q) for q in _inputs_vals)
 
         # Check if we want to sample over initial values
-        if type(fsm.ode_y0)==float:
+        if type(fsm.ode_y0) is float:
             y0_def = None
             y0_vals = [np.array([fsm.ode_y0])]
-        elif type(fsm.ode_y0)==np.ndarray and fsm.ode_y0.ndim == 1:
+        elif type(fsm.ode_y0) is np.ndarray and fsm.ode_y0.ndim == 1:
             y0_def = None
             y0_vals = [fsm.ode_y0]
+        elif type(fsm.ode_y0) is np.ndarray and fsm.ode_y0.ndim > 1:
+            raise TypeError("Variable ode_y0 should be list of arrays with dimension 1 respectively!")
         # TODO currently not working
-        elif type(fsm.ode_y0)==tuple and len(fsm.ode_y0)>=3:
+        elif type(fsm.ode_y0) is tuple and len(fsm.ode_y0) >= 3:
             y0 = VariableDefinition(*fsm.ode_y0)
             y0_def = y0
             y0_vals = [y0.initial_guess]
             raise TypeError("Warning! Specifying initial values as tuple enables sampling over initial values. This is currently not implemented!")
-        elif type(fsm.ode_y0)==list[float]:
+        elif type(fsm.ode_y0) is list and len(fsm.ode_y0) > 0 and type(fsm.ode_y0[0]) is list and len(fsm.ode_y0[0]) > 0 and type(fsm.ode_y0[0][0]) is float:
+            y0_def = None
+            y0_vals = [np.array(xi) for xi in fsm.ode_y0]
+        elif type(fsm.ode_y0) is list and len(fsm.ode_y0) > 0 and type(fsm.ode_y0[0])==np.ndarray:
+            y0_def = None
+            y0_vals = fsm.ode_y0
+        elif type(fsm.ode_y0) is list and len(fsm.ode_y0) > 0 and type(fsm.ode_y0[0]==float):
             y0_def = None
             y0_vals = [np.array(fsm.ode_y0)]
-        elif type(fsm.ode_y0)==list[list[float]]:
-            y0_def = None
-            y0_vals = np.array(fsm.ode_y0)
         else:
             y0_def = None
             y0_vals = np.array(fsm.ode_y0)

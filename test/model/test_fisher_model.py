@@ -21,10 +21,31 @@ class Test_FisherModelParametrized_Init(Setup_Class):
 
     def test_fixed_ode_y0_explicit_single_vector(self):
         fsm = copy.deepcopy(self.fsm)
+        y0 = np.array([0.02, 0.0005])
+        fsm.ode_y0 = y0
+        fsmp = FisherModelParametrized.init_from(fsm)
+        np.testing.assert_almost_equal([y0], fsmp.ode_y0)
+    
+    def test_fixed_ode_y0_explicit_single_vector_list(self):
+        fsm = copy.deepcopy(self.fsm)
         y0 = [0.02, 0.0005]
         fsm.ode_y0 = y0
         fsmp = FisherModelParametrized.init_from(fsm)
         np.testing.assert_almost_equal([y0], fsmp.ode_y0)
+
+    @unittest.expectedFailure
+    def test_fixed_ode_y0_too_large_array(self):
+        fsm = copy.deepcopy(self.fsm)
+        y0 = np.array([[0.02, 0.05],[0.015, 0.04767]])
+        fsm.ode_y0 = y0
+        fsmp = FisherModelParametrized.init_from(fsm)
+
+    def test_fixed_ode_y0_explicit_multiple_vector(self):
+        fsm = copy.deepcopy(self.fsm)
+        y0 = [[0.02, 0.0005],[0.015, 0.001]]
+        fsm.ode_y0 = y0
+        fsmp = FisherModelParametrized.init_from(fsm)
+        np.testing.assert_almost_equal(y0, fsmp.ode_y0)
     
     def test_fixed_ode_y0_explicit_single_float(self):
         fsm = copy.deepcopy(self.fsm)
