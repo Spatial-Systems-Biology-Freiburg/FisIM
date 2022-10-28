@@ -53,11 +53,19 @@ def plot_all_sensitivities(fsr: FisherResults, outdir=Path(".")):
         # Iterate over all possible sensitivities
         for j, k in itertools.product(range(n_x), range(n_p)):
             # Get ODE solutions
-            r = sol.ode_solution.y[n_x:].reshape((n_x, n_p, -1))[j, k]
+            if fsr.relative_sensitivities==False:
+                norm1 = 1.0
+                norm2 = 1.0
+            else:
+                norm1 = sol.ode_solution.y[:n_x].reshape((n_x, -1))[j]
+                norm2 = np.array(res.y[:n_x].reshape((n_x, -1))[j])
+
+            r = sol.ode_solution.y[n_x:].reshape((n_x, n_p, -1))[j, k] / norm1
+            
 
             # Create figure and axis
             fig, ax = plt.subplots(figsize=(10, 6))
-            y = np.array(res.y[n_x:].reshape((n_x, n_p, -1))[j, k])
+            y = np.array(res.y[n_x:].reshape((n_x, n_p, -1))[j, k]) / norm2
             ax.plot(t, y, color="#21918c", label="Sensitivities Solution")
 
             # Plot sampled time points

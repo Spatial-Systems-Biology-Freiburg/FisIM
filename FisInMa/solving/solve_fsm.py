@@ -232,6 +232,7 @@ def calculate_fisher_criterion(fsmp: FisherModelParametrized, criterion=fisher_d
         S=S,
         C=C,
         individual_results=solutions,
+        relative_sensitivities=relative_sensitivities,
         **args,
     )
     return fsr

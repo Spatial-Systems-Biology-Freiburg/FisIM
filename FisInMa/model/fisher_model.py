@@ -318,6 +318,7 @@ class _FisherResultsBase(_FisherOdeFunctions):
     C: np.ndarray
     individual_results: list
     variable_definitions: FisherVariables
+    relative_sensitivities: bool
     
 
 @dataclass(config=Config)
