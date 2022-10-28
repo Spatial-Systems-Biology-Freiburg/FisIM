@@ -175,7 +175,7 @@ def __scipy_differential_evolution(fsmp: FisherModelParametrized, relative_sensi
     opt_args = {
         "func": __scipy_optimizer_function,
         "bounds": bounds,
-        "constraints":constraints,
+        #"constraints":constraints,
         "args":(fsmp, False, relative_sensitivities),
         "polish":False,
         "workers":-1,
