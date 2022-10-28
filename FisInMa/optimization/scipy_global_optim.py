@@ -158,10 +158,7 @@ def _scipy_calculate_bounds_constraints(fsmp: FisherModelParametrized):
     return bounds, constraints
 
 
-def __scipy_differential_evolution(fsmp: FisherModelParametrized, relative_sensitivities=False, **args):
-    # Create constraints and bounds
-    bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
-
+def __initial_guess(fsmp: FisherModelParametrized):
     x0 = np.concatenate([
         np.array(fsmp.ode_x0).flatten() if fsmp.ode_x0_def is not None else [],
         np.array(fsmp.ode_t0).flatten() if fsmp.ode_t0_def is not None else [],
@@ -171,6 +168,14 @@ def __scipy_differential_evolution(fsmp: FisherModelParametrized, relative_sensi
             for inp_mut_val in fsmp.inputs_mut
         ]
     ])
+    return x0
+
+
+def __scipy_differential_evolution(fsmp: FisherModelParametrized, relative_sensitivities=False, **args):
+    # Create constraints and bounds
+    bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
+
+    x0 = __initial_guess(fsmp)
 
     opt_args = {
         "func": __scipy_optimizer_function,
@@ -188,7 +193,7 @@ def __scipy_differential_evolution(fsmp: FisherModelParametrized, relative_sensi
     return __scipy_optimizer_function(res.x, fsmp, full=True, relative_sensitivities=relative_sensitivities)
 
 
-def __scipy_brute(times0, fsmp: FisherModelParametrized, relative_sensitivities=False, **args):
+def __scipy_brute(fsmp: FisherModelParametrized, relative_sensitivities=False, **args):
     # Create constraints and bounds
     bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
 
@@ -206,14 +211,16 @@ def __scipy_brute(times0, fsmp: FisherModelParametrized, relative_sensitivities=
     return __scipy_optimizer_function(res, fsmp, full=True, relative_sensitivities=relative_sensitivities)
 
 
-def __scipy_basinhopping(times0, fsmp: FisherModelParametrized, relative_sensitivities=False, **args):
+def __scipy_basinhopping(fsmp: FisherModelParametrized, relative_sensitivities=False, **args):
     # Create constraints and bounds
     bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
 
+    x0 = __initial_guess(fsmp)
+
     opt_args = {
         "func": __scipy_optimizer_function,
-        "x0": times0.flatten(),
-        "minimizer_kwargs":{"args":(fsmp, False, relative_sensitivities), "constraints": constraints, "bounds": bounds}
+        "x0": x0,
+        "minimizer_kwargs":{"args":(fsmp, False, relative_sensitivities), "bounds": bounds}
     }
     opt_args.update(args)
     res = optimize.basinhopping(**opt_args)
