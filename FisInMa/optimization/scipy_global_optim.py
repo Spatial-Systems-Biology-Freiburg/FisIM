@@ -223,7 +223,7 @@ def __scipy_basinhopping(times0, fsmp: FisherModelParametrized, **args):
     return __scipy_optimizer_function(res.x, fsmp, full=True)
 
 
-def find_optimal(fsm: FisherModel, optimization_strategy: str, **args):
+def find_optimal(fsm: FisherModel, optimization_strategy: str="scipy_differential_evolution", **args):
     """Find the global optimum of the supplied FisherModel.
 
     :param fsm: _description_
