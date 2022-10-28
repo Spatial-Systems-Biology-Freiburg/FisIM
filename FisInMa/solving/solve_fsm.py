@@ -71,7 +71,6 @@ def get_S_matrix(fsmp: FisherModelParametrized, relative_sensitivities=False):
     # The shape of the initial S matrix is given by
     # (n_p, n_t0, n_x0, n_q0, ..., n_ql, n_times)
     S = np.zeros((n_p, n_t0, N_x0, n_x0) + inputs_shape + (fsmp.times.shape[-1],))
-    print(S.shape)
     error_n = np.zeros((fsmp.times.shape[-1],) + tuple(len(x) for x in fsmp.inputs))
 
     # Iterate over all combinations of input-Values and initial values
