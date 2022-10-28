@@ -10,10 +10,8 @@ jobs:
       - uses: actions/setup-python@v2
       - name: Install dependencies
         run: |
-          pip install sphinx sphinx_rtd_theme build
-      - name: Build package
-        run: |
-          pwd && python -m build && pip install dist/fisinma*.tar.gz
+          python -m pip install sphinx sphinx_rtd_theme build
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Sphinx build
         run: |
           cd docs && make html
