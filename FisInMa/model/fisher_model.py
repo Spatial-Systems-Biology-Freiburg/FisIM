@@ -17,10 +17,10 @@ class Config:
 
 @dataclass(config=Config)
 class _FisherVariablesBase:
-    ode_x0: Union[np.ndarray, List[float], List[list[float]], float, List[np.ndarray]]
+    ode_x0: Union[np.ndarray, List[float], List[List[float]], float, List[np.ndarray]]
     ode_t0: Union[tuple, float, np.ndarray, List]
-    times: Union[tuple, List[float], list[list[float]], np.ndarray]
-    inputs: list# list[Union[list[float],np.ndarray]]
+    times: Union[tuple, List[float], List[List[float]], np.ndarray]
+    inputs: List# list[Union[list[float],np.ndarray]]
     parameters: Union[tuple,list]
     ode_args: Optional[Any]
 
