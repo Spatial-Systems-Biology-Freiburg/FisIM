@@ -45,7 +45,7 @@ def ode_rhs(t, x, ode_fun, ode_dfdx, ode_dfdp, inputs, parameters, ode_args, n_x
     return x_tot
 
 
-def get_S_matrix(fsmp: FisherModelParametrized, relative_sensitivities=False):
+def get_S_matrix(fsmp: FisherModelParametrized, covar=False, relative_sensitivities=False):
     r"""Calculate the sensitivity matrix for a Fisher Model.
 
     :param fsmp: The parametrized FisherModel with a chosen values for the sampled variables.
@@ -117,11 +117,6 @@ def get_S_matrix(fsmp: FisherModelParametrized, relative_sensitivities=False):
 
         # Assume that the error of the measurement is 25% from the measured value r[0] n 
         # (use for covariance matrix calculation)
-        # TODO
-        # TODO This is unaceptable!
-        error_n[(slice(None),) + index] = r[0] * 0.25
-        # TODO
-        # TODO
         fsrs = FisherResultSingle(
             ode_x0=x0,
             ode_t0=t0,
@@ -136,11 +131,9 @@ def get_S_matrix(fsmp: FisherModelParametrized, relative_sensitivities=False):
     
     # Reshape to 2D Form (len(P),:)
     S = S.reshape((n_p,-1))
-    # TODO fix this covariance matrix stuff!
-    error_n = error_n.flatten()
-    # cov_matrix = np.eye(len(error_n), len(error_n)) * error_n**2
-    # C = np.linalg.inv(cov_matrix)
-    C = np.eye(len(error_n))
+    
+    # We have turned off the covariance calculation at this point
+    C = np.eye(S.shape[1])
     return S, C, solutions
 
 
@@ -220,7 +213,7 @@ def calculate_fisher_criterion(fsmp: FisherModelParametrized, criterion=fisher_d
     :return: The result of the Fisher information optimality criterion represented as a FisherResults object.
     :rtype: FisherResults
     """
-    S, C, solutions = get_S_matrix(fsmp, relative_sensitivities)
+    S, C, solutions = get_S_matrix(fsmp, covar, relative_sensitivities)
     if covar == False:
         C = np.eye(S.shape[1])
     crit = criterion(fsmp, S, C)
