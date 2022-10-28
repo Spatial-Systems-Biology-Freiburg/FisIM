@@ -87,17 +87,23 @@ def get_S_matrix(fsmp: FisherModelParametrized, covar=False, relative_sensitivit
             t = fsmp.times
         else:
             t = fsmp.times[index]
+        
+        # solve_ivp cannot cope with repeating values.
+        # Thus we will filter for them and in post multiply them again
+        t_red, counts = np.unique(t, return_counts=True)
 
         # Define initial values for ode
         x0_full = np.concatenate((x0, np.zeros(n_x0 * n_p)))
 
         # Actually solve the ODE for the selected parameter values
-        res = integrate.solve_ivp(fun=ode_rhs, t_span=(t0, np.max(t)), y0=x0_full, t_eval=t, args=(fsmp.ode_fun, fsmp.ode_dfdx, fsmp.ode_dfdp, Q, fsmp.parameters, fsmp.ode_args, n_x0, n_p), method="Radau")#, jac=fsmp.ode_dfdx)
+        res = integrate.solve_ivp(fun=ode_rhs, t_span=(t0, np.max(t)), y0=x0_full, t_eval=t_red, args=(fsmp.ode_fun, fsmp.ode_dfdx, fsmp.ode_dfdp, Q, fsmp.parameters, fsmp.ode_args, n_x0, n_p), method="LSODA", rtol=1e-4)#, jac=fsmp.ode_dfdx)
         
         # Obtain sensitivities dg/dp from the last components of the ode
         r = np.array(res.y[n_x0:])
-        
         s = np.swapaxes(r.reshape((n_x0, n_p, -1)), 0, 1)
+
+        # Multiply the values again to obtain desired shape for sensitivity matrix
+        s = np.repeat(s, counts, axis=2)
 
         # Calculate the S-Matrix from the sensitivities
         # Depending on if we want to calculate the relative sensitivities
@@ -108,7 +114,7 @@ def get_S_matrix(fsmp: FisherModelParametrized, covar=False, relative_sensitivit
 
             # Divide by observable
             for i, o in enumerate(res.y[:n_x0]):
-                s[(slice(None), i)] /= o
+                s[(slice(None), i)] /= np.repeat(o, counts, axis=0)
             
             # Fill S-Matrix
             S[(slice(None), i_t0, i_x0, slice(None)) + index] = s
