@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sp
 from pathlib import Path
+import itertools
 
 from FisInMa.model import FisherResults
 from FisInMa.solving import ode_rhs
@@ -37,9 +38,6 @@ def plot_all_odes(fsr: FisherResults, outdir=Path(".")):
 
 def plot_all_sensitivities(fsr: FisherResults, outdir=Path(".")):
     for i, sol in enumerate(fsr.individual_results):
-        # Get ODE solutions
-        r = sol.ode_solution
-
         # Get time interval over which to plot
         times_low = sol.ode_t0
         times_high = fsr.variable_definitions.times.ub if fsr.variable_definitions.times is not None else np.max(sol.times)
@@ -53,16 +51,19 @@ def plot_all_sensitivities(fsr: FisherResults, outdir=Path(".")):
         t = np.array(res.t)
 
         # Iterate over all possible sensitivities
-        for j in range(n_p):
+        for j, k in itertools.product(range(n_x), range(n_p)):
+            # Get ODE solutions
+            r = sol.ode_solution.y[n_x:].reshape((n_x, n_p, -1))[j, k]
+
             # Create figure and axis
             fig, ax = plt.subplots(figsize=(10, 6))
-            y = np.array(res.y[n_x+j])
+            y = np.array(res.y[n_x:].reshape((n_x, n_p, -1))[j, k])
             ax.plot(t, y, color="#21918c", label="Sensitivities Solution")
 
             # Plot sampled time points
-            ax.scatter(sol.ode_solution.t, sol.ode_solution.y[n_x+j], s=160, alpha=0.5, color="#440154", label="Q_values: " + str(sol.inputs))
+            ax.scatter(sol.ode_solution.t, r, s=160, alpha=0.5, color="#440154", label="Q_values: " + str(sol.inputs))
             ax.legend()
-            fig.savefig(outdir / Path("Sensitivities_Results_{}_{:03.0f}_{:02.0f}.svg".format(fsr.ode_fun.__name__, i, j)))
+            fig.savefig(outdir / Path("Sensitivities_Results_{}_{:03.0f}_x_{:02.0f}_p_{:02.0f}.svg".format(fsr.ode_fun.__name__, i, j, k)))
 
             # Remove figure to free space
             plt.close(fig)
