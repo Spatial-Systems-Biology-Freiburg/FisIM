@@ -13,27 +13,33 @@ def plot_all_odes(fsr: FisherResults, outdir=Path(".")):
         # Get ODE solutions
         r = sol.ode_solution
 
+        n_x = len(sol.ode_x0)
+
         # Get time interval over which to plot
         times_low = sol.ode_t0
         times_high = fsr.variable_definitions.times.ub if fsr.variable_definitions.times is not None else np.max(sol.times)
-
-        # Create figures and axis
-        fig, ax = plt.subplots(figsize=(10, 6))
         
-        # Plot solution to ode
+        # Solve the ODE on a sufficiently filled interval
         t_values = np.linspace(times_low, times_high)
         res = sp.integrate.solve_ivp(fsr.ode_fun, (times_low, times_high), sol.ode_x0, t_eval=t_values, args=(sol.inputs, sol.parameters, sol.ode_args))
         t = np.array(res.t)
         y = np.array(res.y)
-        ax.plot(t, y.T, color="#21918c", label="Ode Solution")
 
-        # Determine where multiple time points overlap by rounding
-        ax.scatter(sol.ode_solution.t, sol.ode_solution.y[:len(sol.ode_x0)], s=160, alpha=0.5, color="#440154", label="Q_values: " + str(sol.inputs))
-        ax.legend()
-        fig.savefig(outdir / Path("ODE_Result_{}_{:03.0f}.svg".format(fsr.ode_fun.__name__, i)))
+        # Plot the solution and store in individual files
+        for j in range(n_x):
+            # Create figures and axis
+            fig, ax = plt.subplots(figsize=(10, 6))
 
-        # Remove figure to free space
-        plt.close(fig)
+            # Plot the continuous ODE solution
+            ax.plot(t, y[j], color="#21918c", label="Ode Solution")
+            
+            # Determine where multiple time points overlap by rounding
+            ax.scatter(sol.ode_solution.t, sol.ode_solution.y[j], s=160, alpha=0.5, color="#440154", label="Q_values: " + str(sol.inputs))
+            ax.legend()
+            fig.savefig(outdir / Path("ODE_Result_{}_{:03.0f}_x_{:02.0f}.svg".format(fsr.ode_fun.__name__, i, j)))
+
+            # Remove figure to free space
+            plt.close(fig)
 
 
 def plot_all_sensitivities(fsr: FisherResults, outdir=Path(".")):
