@@ -67,7 +67,7 @@ class FisherModel(_FisherModelOptions, _FisherModelBase):
 @dataclass(config=Config)
 class _FisherModelParametrizedBase(_FisherOdeFunctions):
     variable_definitions: FisherVariables
-    _fsm_var_vals: FisherVariables
+    variable_values: FisherVariables
 
 
 @dataclass(config=Config)
@@ -98,7 +98,7 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
             fsm.ode_args,
             fsm.identical_times,
         )
-        _fsm_var_vals = deepcopy(variable_definitions)
+        variable_values = deepcopy(variable_definitions)
 
         # Check which external inputs are being sampled
         _inputs_def = []
@@ -113,7 +113,7 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
                 _inputs_vals.append(np.array(q))
         
         variable_definitions.inputs = _inputs_def
-        _fsm_var_vals.inputs = _inputs_vals
+        variable_values.inputs = _inputs_vals
         inputs_shape = tuple(len(q) for q in _inputs_vals)
 
         # Check if we want to sample over initial values
@@ -145,39 +145,39 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
             x0_vals = np.array(fsm.ode_x0)
 
         variable_definitions.ode_x0 = x0_def
-        _fsm_var_vals.ode_x0 = x0_vals
+        variable_values.ode_x0 = x0_vals
 
         # Check if time values are sampled
         if type(fsm.times) == tuple and len(fsm.times) >= 3:
             t = VariableDefinition(*fsm.times)
             variable_definitions.times = t
-            _fsm_var_vals.times = t.initial_guess
+            variable_values.times = t.initial_guess
         elif type(fsm.times)==list:
             variable_definitions.times = None
-            _fsm_var_vals.times = np.array(fsm.times)
+            variable_values.times = np.array(fsm.times)
         else:
             variable_definitions.times = None
-            _fsm_var_vals.times = np.array(fsm.times)
+            variable_values.times = np.array(fsm.times)
         # If non-identical times were chosen, expand initial guess to full array
         if fsm.identical_times==False:
-            _fsm_var_vals.times = np.full(inputs_shape + _fsm_var_vals.times.shape, _fsm_var_vals.times)
+            variable_values.times = np.full(inputs_shape + variable_values.times.shape, variable_values.times)
 
         # Check if we want to sample over initial time
         if type(fsm.ode_t0) == tuple and len(fsm.ode_t0) >= 3:
             t0 = VariableDefinition(*fsm.ode_t0)
             variable_definitions.ode_t0 = t0
-            _fsm_var_vals.ode_t0 = t0.initial_guess
+            variable_values.ode_t0 = t0.initial_guess
         elif type(fsm.ode_t0) == float:
             variable_definitions.ode_t0 = None
-            _fsm_var_vals.ode_t0 = np.array([fsm.ode_t0])
+            variable_values.ode_t0 = np.array([fsm.ode_t0])
         else:
             variable_definitions.ode_t0 = None
-            _fsm_var_vals.ode_t0 = np.array(fsm.ode_t0)
+            variable_values.ode_t0 = np.array(fsm.ode_t0)
 
         # Construct parametrized model class and return it
         fsmp = FisherModelParametrized(
             variable_definitions=variable_definitions,
-            _fsm_var_vals=_fsm_var_vals,
+            variable_values=variable_values,
             ode_fun=fsm.ode_fun,
             ode_dfdx=fsm.ode_dfdx,
             ode_dfdp=fsm.ode_dfdp,
@@ -192,27 +192,27 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
     # Get every possible numeric quantity that is stored in the model
     @property
     def ode_x0(self) -> np.ndarray:
-        return self._fsm_var_vals.ode_x0
+        return self.variable_values.ode_x0
     
     @property
     def ode_t0(self) -> float:
-        return self._fsm_var_vals.ode_t0
+        return self.variable_values.ode_t0
     
     @property
     def times(self) -> np.ndarray:
-        return self._fsm_var_vals.times
+        return self.variable_values.times
 
     @property
     def inputs(self) -> list:
-        return self._fsm_var_vals.inputs
+        return self.variable_values.inputs
 
     @property
     def parameters(self) -> tuple:
-        return self._fsm_var_vals.parameters
+        return self.variable_values.parameters
 
     @property
     def ode_args(self) -> tuple:
-        return self._fsm_var_vals.ode_args
+        return self.variable_values.ode_args
     
     # These methods obtain only mutable quantities.
     # Return None or a list of None and values depending on which quantity is mutable
@@ -221,26 +221,26 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
         if self.variable_definitions.ode_x0 is None:
             return None
         else:
-            return self._fsm_var_vals.ode_x0
+            return self.variable_values.ode_x0
     
     @property
     def ode_t0_mut(self):
         if self.variable_definitions.ode_t0 is None:
             return None
         else:
-            return self._fsm_var_vals.ode_t0
+            return self.variable_values.ode_t0
     
     @property
     def times_mut(self):
         if self.variable_definitions.times is None:
             return None
         else:
-            return self._fsm_var_vals.times
+            return self.variable_values.times
     
     @property
     def inputs_mut(self):
         ret = []
-        for q_val, q in zip(self._fsm_var_vals.inputs, self.variable_definitions.inputs):
+        for q_val, q in zip(self.variable_values.inputs, self.variable_definitions.inputs):
             if q is None:
                 ret.append(None)
             else:
@@ -268,22 +268,22 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
     @ode_x0.setter
     def ode_x0(self, x0) -> None:
         for i, y in enumerate(x0):
-            self._fsm_var_vals.ode_x0[i] = y
+            self.variable_values.ode_x0[i] = y
             if self.variable_definitions.ode_x0[i] is None:
                 raise AttributeError("Variable ode_x0 is not mutable!")
     
     @ode_t0.setter
     def ode_t0(self, t0) -> None:
         if type(t0) == float:
-            self._fsm_var_vals.ode_t0 = np.array([t0])
+            self.variable_values.ode_t0 = np.array([t0])
         else:
-            self._fsm_var_vals.ode_t0 = t0
+            self.variable_values.ode_t0 = t0
         if self.variable_definitions.ode_t0 is None:
             raise AttributeError("Variable ode_x0 is not mutable!")
     
     @times.setter
     def times(self, times) -> None:
-        self._fsm_var_vals.times = times
+        self.variable_values.times = times
         if self.variable_definitions.times is None:
             raise AttributeError("Variable times is not mutable!")
 
@@ -291,7 +291,7 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
     def inputs(self, inputs) -> None:
         for i, q in enumerate(inputs):
             if q is not None:
-                self._fsm_var_vals.inputs[i] = q
+                self.variable_values.inputs[i] = q
                 if self.variable_definitions.inputs[i] is None:
                     raise AttributeError("Variable inputs at index {} is not mutable!".format(i))
 
