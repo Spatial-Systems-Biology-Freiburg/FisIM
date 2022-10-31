@@ -33,12 +33,22 @@ def _create_comparison_matrix(n, value=1.0):
     return A
 
 
-def _discrete_penalizer(x, dx, x_offset=0.0):
-    y = x - x_offset
-    n, p = np.divmod(y, dx)
-    _, q = np.divmod((n+1) * dx - y, dx)
-    r = np.array([p, q]).min(axis=0)
-    return 1 - 2 * r / dx
+def _discrete_penalizer(fsr):
+    # Calculate the total pentalty
+    pen = 1
+
+    if type(fsr.variable_definitions.ode_t0) is VariableDefinition:
+        # Now we can expect that this parameter was sampled
+        # thus we want to look for possible discretization values
+        discr = fsr.variable_definitions.ode_t0.discrete
+        values = fsr.variable_values.ode_t0
+
+        # Now calculate the penalty
+        # penalty = (t0-z1)*(t0-z2)*(t0-z3)*...
+
+
+
+    return float
 
 
 def __scipy_optimizer_function(X, fsmp: FisherModelParametrized, full=False, relative_sensitivities=False):
