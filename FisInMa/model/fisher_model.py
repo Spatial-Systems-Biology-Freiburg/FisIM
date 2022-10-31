@@ -22,11 +22,11 @@ class _FisherVariablesBase:
     times: Union[tuple, List[float], List[List[float]], np.ndarray]
     inputs: List# list[Union[list[float],np.ndarray]]
     parameters: Union[tuple,list]
-    ode_args: Optional[Any]
 
 
 @dataclass(config=Config)
 class _FisherVariablesOptions:
+    ode_args: Any = None
     identical_times: bool = False
 
 
@@ -185,6 +185,7 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
             obs_dfdx=fsm.obs_dfdx,
             obs_dfdp=fsm.obs_dfdp,
             identical_times=fsm.identical_times,
+            ode_args=fsm.ode_args,
         )
         return fsmp
 
@@ -294,6 +295,10 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
                 self.variable_values.inputs[i] = q
                 if self.variable_definitions.inputs[i] is None:
                     raise AttributeError("Variable inputs at index {} is not mutable!".format(i))
+
+    @ode_args.setter
+    def ode_args(self, ode_args) -> None:
+        self.variable_values.ode_args = ode_args
 
 
 @dataclass(config=Config)
