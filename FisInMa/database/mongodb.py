@@ -1,5 +1,4 @@
 from pymongo import MongoClient
-import numpy as np
 from datetime import datetime
 
 from FisInMa.data_structures import FischerResult, apply_marks, revert_marks
