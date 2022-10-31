@@ -328,19 +328,4 @@ class _FisherResultsOptions(_FisherModelOptions):
 
 @dataclass(config=Config)
 class FisherResults(_FisherResultsOptions, _FisherResultsBase):
-    def to_savedict(self):
-        '''Used to store results in database'''
-        d = {
-            "time_interval": apply_marks(self.time_interval),
-            "times": apply_marks(self.times),
-            "parameters": apply_marks(self.parameters),
-            "q_values": apply_marks(self.q_values),
-            "ode_args": apply_marks(self.ode_args),
-            "x0": apply_marks(self.x0),
-            "criterion": apply_marks(self.criterion),
-            "criterion_func": apply_marks(self.criterion_func.__name__),
-            "sensitivity_matrix": apply_marks(self.sensitivity_matrix),
-            "covariance_matrix": apply_marks(self.covariance_matrix),
-            "ode_solutions": apply_marks(ode_solutions)
-        }
-        return d
+    pass
