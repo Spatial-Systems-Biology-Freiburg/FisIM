@@ -12,6 +12,7 @@ sys.path.append(os.getcwd())
 import numpy as np
 import scipy as sp
 import matplotlib.pyplot as plt
+import copy
 
 
 # Import custom functions for optimization
@@ -82,7 +83,7 @@ if __name__ == "__main__":
     # Construct parameter hyperspace
     n_times = 4
     n_temps = 2
-    n_humidity = 1
+    n_humidity = 2
     
     # Values for temperatures (Q-Values)
     inputs = [
@@ -101,18 +102,28 @@ if __name__ == "__main__":
             times=(times_low, times_high, n_times),
             inputs=inputs,
             parameters=P,
-            constants=Const,
+            ode_args=Const,
     )
+
+    fsm2 = copy.deepcopy(fsm)
+    fsm2.times = (times_low, times_high, n_times)
+
+    fsmp = FisherModelParametrized.init_from(fsm)
+
+    fsr = calculate_fisher_criterion(fsmp, relative_sensitivities=True)
+    print(fsr.criterion)
+    for sol in fsr.individual_results:
+        print(sol.times)
 
     ###############################
     ### OPTIMIZATION FUNCTION ? ###
     ###############################
-    fsr = find_optimal(fsm, "scipy_differential_evolution", workers=12, maxiter=500, popsize=100)
-    print(fsr.times)
-    print(fsr.criterion)
-    solutions = fsr.ode_solutions
+    fsr2 = find_optimal(fsm2, relative_sensitivities=True)# maxiter=2, popsize=30, 
+    print(fsr2.criterion)
+    for sol in fsr2.individual_results:
+        print(sol.times)
 
     ###############################
     ##### PLOTTING FUNCTION ? #####
     ###############################
-    plot_all_odes(fsr)
+    plot_all_solutions(fsr2, outdir="out")
