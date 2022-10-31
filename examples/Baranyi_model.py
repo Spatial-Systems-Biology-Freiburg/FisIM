@@ -128,4 +128,4 @@ if __name__ == "__main__":
         print(" >> ", sol.times)
 
     plot_all_solutions(fsr, outdir="out")
-    json_dump(fsr, "save.json")
+    json_dump(fsr, "baranyi.json")
