@@ -6,10 +6,10 @@ sys.path.append(os.getcwd())
 from FisInMa import *
 
 
-def ode_fun(t, x, u, P, ode_args):
+def ode_fun(t, x, u, p, ode_args):
     x1, x2 = x
     (Temp, ) = u
-    (x_max, b, Temp_min) = P
+    (x_max, b, Temp_min) = p
     # Define the maximum growth rate
     mu_max = b**2 * (Temp - Temp_min)**2
     return [
@@ -17,10 +17,10 @@ def ode_fun(t, x, u, P, ode_args):
         mu_max * x2                                   # f2
     ]
 
-def ode_dfdx(t, x, u, P, ode_args):
+def ode_dfdx(t, x, u, p, ode_args):
     x1, x2 = x
     (Temp, ) = u
-    (x_max, b, Temp_min) = P
+    (x_max, b, Temp_min) = p
     mu_max = b**2 * (Temp - Temp_min)**2
     return [
         [
@@ -33,10 +33,10 @@ def ode_dfdx(t, x, u, P, ode_args):
         ]
     ]
 
-def ode_dfdp(t, x, u, P, ode_args):
+def ode_dfdp(t, x, u, p, ode_args):
     x1, x2 = x
     (Temp, ) = u
-    (x_max, b, Temp_min) = P
+    (x_max, b, Temp_min) = p
     mu_max = b**2 * (Temp - Temp_min)**2
     return [
         [
@@ -52,24 +52,24 @@ def ode_dfdp(t, x, u, P, ode_args):
     ]
 
 
-def obs_fun(t, x, u, P, ode_args):
+def obs_fun(t, x, u, p, ode_args):
     x1, x2 = x
     (Temp, ) = u
-    (x_max, b, Temp_min) = P
+    (x_max, b, Temp_min) = p
     return [x1] # y = x1
 
-def obs_dgdx(t, x, u, P, ode_args):
+def obs_dgdx(t, x, u, p, ode_args):
     x1, x2 = x
     (Temp, ) = u
-    (x_max, b, Temp_min) = P
+    (x_max, b, Temp_min) = p
     return [
         [1, 0] # [dg/dx1, dg/dx2]
     ]
 
-def obs_dgdp(t, x, u, P, ode_args):
+def obs_dgdp(t, x, u, p, ode_args):
     x1, x2 = x
     (Temp, ) = u
-    (x_max, b, Temp_min) = P
+    (x_max, b, Temp_min) = p
     return [
         [0, 0, 0] # [dg/dx_max, dg/db, dg/dTemp_min]
     ]
