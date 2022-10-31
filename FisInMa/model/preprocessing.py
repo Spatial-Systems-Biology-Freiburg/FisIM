@@ -22,7 +22,7 @@ class VariableDefinition:
                 uniform_dist = (self.ub - self.lb - (self.n - 1) * self.discrete) / 2
                 self.initial_guess = self.lb + uniform_dist + np.arange(self.n) * self.discrete
             else:
-                self.initial_guess = discrete[0:self.n]
+                self.initial_guess = self.discrete[0:self.n]
         elif type(self.initial_guess)==np.nparray:
             self.initial_guess = np.sort(self.initial_guess, axis=-1)
         elif type(self.initial_guess)!=np.ndarray:
