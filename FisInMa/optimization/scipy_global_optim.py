@@ -238,14 +238,23 @@ def __scipy_basinhopping(fsmp: FisherModelParametrized, relative_sensitivities=F
     return __scipy_optimizer_function(res.x, fsmp, full=True, relative_sensitivities=relative_sensitivities)
 
 
-def find_optimal(fsm: FisherModel, optimization_strategy: str="scipy_differential_evolution", **args):
+def find_optimal(fsm: FisherModel, optimization_strategy: str="scipy_differential_evolution", criterion=fisher_determinant, **args):
     """Find the global optimum of the supplied FisherModel.
 
     :param fsm: _description_
     :type fsm: FisherModel
-    :param optimization_strategy: _description_
+    :param optimization_strategy:
+        - "scipy_differential_evolution"
+            This is a test
+        - "scipy_basinhopping"
+            Another test
+    :param criterion: descr
+        - fisher_determinant
+        - fisher_mineigenval
+        - ...
+    :type criterion: callable
     :type optimization_strategy: str
-    :raises KeyError: _description_
+    :raises KeyError: Raised if the chosen optimization strategy is not implemented.
     :return: _description_
     :rtype: FisherResults
     """
