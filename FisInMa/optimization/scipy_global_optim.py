@@ -1,3 +1,4 @@
+from tkinter import Variable
 import numpy as np
 import scipy as sp
 import scipy.optimize as optimize
@@ -36,19 +37,43 @@ def _create_comparison_matrix(n, value=1.0):
 def _discrete_penalizer(fsr):
     # Calculate the total pentalty
     pen = 1
-
+    # Help function  to calculate penalty of 1D array
+    penalty_term = lambda val, val_discr: np.prod([
+        1 - (np.abs(np.prod((val_discr - v))))**(1.0 / len(val_discr)) / (np.max(val_discr) - np.min(val_discr))
+        for v in val
+    ])
+    # ode_t0 = [float]
+    # ode_x0 = [np.ndarray] NOT WORKING AT THE MOMENT. JUST IGNORE IT
+    # times = np.ndarray
+    # times.shape[-1] == n_times
+    # inputs = [np.ndarray]
+    
+    # Penalty contribution from initial times
     if type(fsr.variable_definitions.ode_t0) is VariableDefinition:
         # Now we can expect that this parameter was sampled
         # thus we want to look for possible discretization values
         discr = fsr.variable_definitions.ode_t0.discrete
         values = fsr.variable_values.ode_t0
+        pen *= penalty_term(values, discr)
+    
+    # Penalty contribution from inputs
+    for var_def, var_val in zip(fsr.variable_definition.inputs, fsr.variable_values.inputs):
+        if type(var_def) == VariableDefinition:
+            discr = var_def.discrete
+            values = var_val
+            pen *= penalty_term(values, discr)
 
-        # Now calculate the penalty
-        # penalty = (t0-z1)*(t0-z2)*(t0-z3)*...
-
-
-
-    return float
+    # Penalty contribution from times
+    if type(fsr.variable_definitions.times) is VariableDefinition:
+        discr = fsr.variable_definition.times.discrete
+        if fsr.identical_times==True:
+            values = fsr.variable_values.times
+            pen *= penalty_term(values, discr)
+        else:
+            for index in itertools.product(*[range(len(q)) for q in fsr.variable_values.inputs]):
+                values = fsr.variable_values.times[index]
+                pen *= penalty_term(values, discr)
+    return pen
 
 
 def __scipy_optimizer_function(X, fsmp: FisherModelParametrized, full=False, relative_sensitivities=False):
