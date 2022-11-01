@@ -18,7 +18,9 @@ class Test_ScipyGlobalOptimAlgorithms(Setup_Class):
             np.arange(5, 2+5)
         ]
         fsm.times = (0.0, 10.0, 2)
-        find_optimal(fsm, "scipy_differential_evolution", workers=1, maxiter=10, popsize=10)
+        # Choose very small iteration and population numbers.
+        # This is not about convergence, but about if the method will not fail.
+        fsr = find_optimal(fsm, "scipy_differential_evolution", workers=1, maxiter=2, popsize=3)
 
 
 class Test_ScipyCalculateConstraints(Setup_Class):
