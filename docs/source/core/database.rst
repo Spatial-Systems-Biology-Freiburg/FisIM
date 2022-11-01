@@ -2,7 +2,7 @@ Database
 --------
 
 
-.. automodule:: FisInMa.database
+.. automodule:: FisInMa.database.json
    :members:
    :inherited-members:
    :show-inheritance:
