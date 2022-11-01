@@ -33,7 +33,7 @@ def _create_comparison_matrix(n, value=1.0):
     return A
 
 
-def _discrete_penalizer(fsr):
+def _discrete_penalizer(fsmp):
     # Calculate the total pentalty
     pen = 1
     # Help function  to calculate penalty of 1D array
@@ -41,37 +41,44 @@ def _discrete_penalizer(fsr):
         1 - (np.abs(np.prod((val_discr - v))))**(1.0 / len(val_discr)) / (np.max(val_discr) - np.min(val_discr))
         for v in val
     ])
+
     # ode_t0 = [float]
     # ode_x0 = [np.ndarray] NOT WORKING AT THE MOMENT. JUST IGNORE IT
     # times = np.ndarray
     # times.shape[-1] == n_times
     # inputs = [np.ndarray]
-    
+
     # Penalty contribution from initial times
-    if type(fsr.variable_definitions.ode_t0) is VariableDefinition:
+    if type(fsmp.ode_t0_def) is VariableDefinition:
         # Now we can expect that this parameter was sampled
         # thus we want to look for possible discretization values
-        discr = fsr.variable_definitions.ode_t0.discrete
-        values = fsr.variable_values.ode_t0
-        pen *= penalty_term(values, discr)
+        discr = fsmp.ode_t0_def.discrete
+        if type(discr) is np.ndarray:
+            values = fsmp.ode_t0
+            pen *= penalty_term(values, discr)
     
     # Penalty contribution from inputs
-    for var_def, var_val in zip(fsr.variable_definition.inputs, fsr.variable_values.inputs):
+    for var_def, var_val in zip(fsmp.inputs_def, fsmp.inputs):
         if type(var_def) == VariableDefinition:
             discr = var_def.discrete
-            values = var_val
-            pen *= penalty_term(values, discr)
+            if type(discr) is np.ndarray:
+                values = var_val
+                pen *= penalty_term(values, discr)
 
     # Penalty contribution from times
-    if type(fsr.variable_definitions.times) is VariableDefinition:
-        discr = fsr.variable_definition.times.discrete
-        if fsr.identical_times==True:
-            values = fsr.variable_values.times
-            pen *= penalty_term(values, discr)
-        else:
-            for index in itertools.product(*[range(len(q)) for q in fsr.variable_values.inputs]):
-                values = fsr.variable_values.times[index]
+    if type(fsmp.times_def) is VariableDefinition:
+        discr = fsmp.times_def.discrete
+        if type(discr) is np.ndarray:
+            if fsmp.identical_times==True:
+                values = fsmp.times
                 pen *= penalty_term(values, discr)
+            else:
+                for index in itertools.product(*[range(len(q)) for q in fsmp.inputs]):
+                    if fsmp.identical_times==True:
+                        values = fsmp.times
+                    else:
+                        values = fsmp.times[index]
+                    pen *= penalty_term(values, discr)
     return pen
 
 
@@ -102,7 +109,7 @@ def __scipy_optimizer_function(X, fsmp: FisherModelParametrized, full=False, rel
 
     if full:
         return fsr
-    return -fsr.criterion# * _discrete_penalizer(fsr)
+    return -fsr.criterion * _discrete_penalizer(fsmp)
 
 
 def _scipy_calculate_bounds_constraints(fsmp: FisherModelParametrized):

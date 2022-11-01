@@ -1,7 +1,8 @@
 import numpy as np
 import copy
 
-from FisInMa.optimization.scipy_global_optim import _scipy_calculate_bounds_constraints, _create_comparison_matrix, find_optimal
+from FisInMa.optimization.scipy_global_optim import _scipy_calculate_bounds_constraints, _create_comparison_matrix, find_optimal, _discrete_penalizer
+from FisInMa.solving import calculate_fisher_criterion
 from FisInMa import FisherModelParametrized
 
 from test.setUp import Setup_Class
@@ -171,3 +172,126 @@ class Test_ScipyCalculateConstraints(Setup_Class):
     def test_scipy_calculate_bounds_constraints_sample_ode_t0_ode_x0_times_inputs(self):
         pass
     """
+
+class Test_DiscretizationPenalty(Setup_Class):
+    def test_ode_t0_discr_penalty(self):
+        self.setUpClass(N_x0=2, n_t0=2, n_times=2, n_inputs=(2, 3), identical_times=False)
+        fsm = copy.deepcopy(self.fsm)
+        fsm.ode_t0 = (0.00, 0.001, 3, 0.0002)
+        # Initialize model with initial guess
+        fsmp = FisherModelParametrized.init_from(fsm)
+
+        # Test if discretization was correctly used
+        np.testing.assert_almost_equal(fsmp.ode_t0_def.discrete, np.arange(fsm.ode_t0[0], fsm.ode_t0[1] + fsm.ode_t0[3]/2, fsm.ode_t0[3]))
+        
+        # Calculate penalty for initial_guess = discretization
+        # The penalty should be non-effective (ie. = 1.0)
+        res = _discrete_penalizer(fsmp)
+        np.testing.assert_almost_equal(res, 1.0)
+        
+        # Now set the values to a non-discrete conforming value
+        fsmp.ode_t0 = [0.000, 0.0011, 0.0012]
+
+        # Test if the penalty is now below 1.0
+        res = _discrete_penalizer(fsmp)
+        self.assertLess(res, 1.0)
+
+        # Now see if after some time the penalty returns to 1 when going near specified discretization value
+        n_runs = 100
+        res_prev = None
+        converge = False
+        for i in (n_runs - np.arange(n_runs+1)):
+            fsmp.ode_t0 = [0.000, 0.001 + 0.0001*i/n_runs, 0.001 + 0.0002*i/n_runs]
+            res = _discrete_penalizer(fsmp)
+            if res_prev !=None and res > res_prev:
+                converge = True
+            if converge == True:
+                self.assertLess(res_prev, res)
+        
+        # Also test if we have reached 1.0 again
+        np.testing.assert_almost_equal(res, 1.0)
+
+    def test_times_discr_penalty(self):
+        self.setUpClass(N_x0=2, n_t0=2, n_times=2, n_inputs=(2, 3), identical_times=False)
+        fsm = copy.deepcopy(self.fsm)
+        fsm.times = (0.00, 10.0, 5, 0.5)
+        # Initialize model with initial guess
+        fsmp = FisherModelParametrized.init_from(fsm)
+
+        # Test if discretization was correctly used
+        np.testing.assert_almost_equal(fsmp.times_def.discrete, np.arange(fsm.times[0], fsm.times[1] + fsm.times[3]/2, fsm.times[3]))
+        
+        # Calculate penalty for initial_guess = discretization
+        # The penalty should be non-effective (ie. = 1.0)
+        res = _discrete_penalizer(fsmp)
+        np.testing.assert_almost_equal(res, 1.0)
+        
+        # Now set the values to a non-discrete conforming value
+        fsmp.times = np.full((2,3,5), np.array([
+            [0.0, 1.1, 1.6, 2.0, 7.5],
+            [0.0, 2.1, 2.4, 6.5, 9.5],
+            [0.0, 2.2, 2.6, 6.0, 10.0]
+        ]))
+
+        # Test if the penalty is now below 1.0
+        res = _discrete_penalizer(fsmp)
+        self.assertLess(res, 1.0)
+
+        # Now see if after some time the penalty returns to 1 when going near specified discretization value
+        n_runs = 100
+        res_prev = None
+        converge = False
+        for i in (n_runs - np.arange(n_runs+1)):
+            fsmp.times = np.full((2,3,5), np.array([
+                [0.0, 0.5 + 0.1*i/n_runs, 1.5 + 0.2*i/n_runs, 2.0, 7.5],
+                [0.0, 2.0 + 0.1*i/n_runs, 2.5 - 0.1*i/n_runs, 6.5, 9.5],
+                [0.0, 2.0 + 0.2*i/n_runs, 2.5 + 0.1*i/n_runs, 6.0, 10.0]
+            ]))
+            res = _discrete_penalizer(fsmp)
+            if res_prev !=None and res > res_prev:
+                converge = True
+            if converge == True:
+                self.assertLess(res_prev, res)
+
+        # Also test if we have reached 1.0 again
+        np.testing.assert_almost_equal(res, 1.0)
+
+    def test_inputs_discr_penalty(self):
+        self.setUpClass(N_x0=2, n_t0=2, n_times=2, n_inputs=(2, 3), identical_times=False)
+        fsm = copy.deepcopy(self.fsm)
+        fsm.inputs[0] = (5.0, 8.0, 3, 0.25)
+        # Initialize model with initial guess
+        fsmp = FisherModelParametrized.init_from(fsm)
+
+        # Test if discretization was correctly used
+        np.testing.assert_almost_equal(fsmp.inputs_def[0].discrete, np.arange(fsm.inputs[0][0], fsm.inputs[0][1] + fsm.inputs[0][3]/2, fsm.inputs[0][3]))
+
+        # Calculate penalty for initial_guess = discretization
+        # The penalty should be non-effective (ie. = 1.0)
+        res = _discrete_penalizer(fsmp)
+        np.testing.assert_almost_equal(res, 1.0)
+
+        # Now set the values to a non-discrete conforming value
+        fsmp.inputs[0] = np.array([5.0, 5.2, 6.3])
+
+        # Test if the penalty is now below 1.0
+        res = _discrete_penalizer(fsmp)
+        self.assertLess(res, 1.0)
+
+        # Now see if after some time the penalty returns to 1 when going near specified discretization value
+        n_runs = 100
+        res_prev = None
+        converge = False
+        for i in (n_runs - np.arange(n_runs+1)):
+            fsmp.inputs[0] = np.array([5.0, 5.0 + 0.2*i/n_runs, 6.5 - 0.2*i/n_runs])
+            res = _discrete_penalizer(fsmp)
+            if res_prev !=None and res > res_prev:
+                converge = True
+            if converge == True:
+                self.assertLess(res_prev, res)
+        
+        # Also test if we have reached 1.0 again
+        np.testing.assert_almost_equal(res, 1.0)
+
+    # TODO
+    # def test_ode_x0_discr_penalty(self):
