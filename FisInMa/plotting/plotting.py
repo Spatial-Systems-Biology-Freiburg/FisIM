@@ -86,3 +86,6 @@ def plot_all_sensitivities(fsr: FisherResults, outdir=Path(".")):
 def plot_all_solutions(fsr: FisherResults, outdir=Path(".")):
     plot_all_odes(fsr, outdir)
     plot_all_sensitivities(fsr, outdir)
+
+
+# TODO - find way to plot json dump from database

@@ -7,7 +7,6 @@ from FisInMa.model import FisherResults
 
 def _get_encoder(fsr: FisherResults):
     encoders = {
-        # TODO we need to make an additional entry here
         np.ndarray: lambda x: x.tolist(),
         np.int32: lambda x: str(x),
         fsr.ode_fun.__class__.__mro__[-2]: lambda x: x.__name__,
@@ -54,3 +53,7 @@ def json_dump(fsr: FisherResults, out, **args):
             json.dump(fsr, fp, **args)
     else:
         json.dump(fsr, out, **args)
+
+# TODO - json: find a way to deserialize json to read the model from it again.
+# Idea1: store file path of original
+# Idea2: specify ode_fun, ode_dfdx, ode_dfdp, ...

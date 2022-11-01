@@ -295,5 +295,5 @@ class Test_DiscretizationPenalty(Setup_Class):
         # Also test if we have reached 1.0 again
         np.testing.assert_almost_equal(res, 1.0)
 
-    # TODO
+    # TODO - but needs sampling over x0 first!
     # def test_ode_x0_discr_penalty(self):
