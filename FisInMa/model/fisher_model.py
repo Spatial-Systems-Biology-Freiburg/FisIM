@@ -345,7 +345,7 @@ class _FisherResultsBase(_FisherOdeFunctions):
 
 @dataclass(config=Config)
 class _FisherResultsOptions(_FisherModelOptions):
-    pass
+    penalty_discrete_summary: dict = None
 
 
 @dataclass(config=Config)

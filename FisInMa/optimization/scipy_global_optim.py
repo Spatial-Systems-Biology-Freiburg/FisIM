@@ -2,6 +2,7 @@ import numpy as np
 import scipy as sp
 import scipy.optimize as optimize
 import itertools
+from pydantic.dataclasses import dataclass
 
 from FisInMa.model import FisherModel, FisherModelParametrized, VariableDefinition
 from FisInMa.solving import calculate_fisher_criterion, fisher_determinant
@@ -33,56 +34,99 @@ def _create_comparison_matrix(n, value=1.0):
     return A
 
 
-def _discrete_penalizer(fsmp):
-    # Calculate the total pentalty
-    pen = 1
-    # Help function  to calculate penalty of 1D array
-    penalty_term = lambda val, val_discr: np.prod([
-        1 - (np.abs(np.prod((val_discr - v))))**(1.0 / len(val_discr)) / (np.max(val_discr) - np.min(val_discr))
-        for v in val
-    ])
+class PenaltyConfig:
+    arbitrary_types_allowed = True
 
-    # ode_t0 = [float]
-    # ode_x0 = [np.ndarray] NOT WORKING AT THE MOMENT. JUST IGNORE IT
-    # times = np.ndarray
-    # times.shape[-1] == n_times
-    # inputs = [np.ndarray]
 
+@dataclass(config=PenaltyConfig)
+class PenaltyInformation:
+    penalty: float
+    penalty_ode_t0: float
+    # TODO - add penalty for ode_x0 when sampling is done
+    # penalty_ode_x0: List[List[float]]
+    penalty_inputs: float
+    penalty_times: float
+    penalty_summary: dict
+
+
+def discrete_penalty_calculator_default(vals, vals_discr):
+    # TODO - document this function
+    # TODO - should be specifiable as parameter in optimization routine
+    # Calculate the penalty for provided values
+    prod = np.array([1 - (np.abs(np.prod((vals_discr - v))))**(1.0 / len(vals_discr)) / (np.max(vals_discr) - np.min(vals_discr)) for v in vals])
+    pen = np.product(prod)
+    # Return the penalty and the output per inserted variable
+    return pen, prod
+
+
+def _discrete_penalizer(fsmp, penalizer=discrete_penalty_calculator_default):
     # Penalty contribution from initial times
+    pen_ode_t0 = 1
+    pen_ode_t0_full = []
     if type(fsmp.ode_t0_def) is VariableDefinition:
         # Now we can expect that this parameter was sampled
         # thus we want to look for possible discretization values
         discr = fsmp.ode_t0_def.discrete
         if type(discr) is np.ndarray:
             values = fsmp.ode_t0
-            pen *= penalty_term(values, discr)
-    
+            pen_ode_t0, pen_ode_t0_full = penalizer(values, discr)
+
     # Penalty contribution from inputs
+    pen_inputs = 1
+    pen_inputs_full = []
     for var_def, var_val in zip(fsmp.inputs_def, fsmp.inputs):
         if type(var_def) == VariableDefinition:
             discr = var_def.discrete
             if type(discr) is np.ndarray:
                 values = var_val
-                pen *= penalty_term(values, discr)
+                p, p_full = penalizer(values, discr)
+                pen_inputs *= p
+                pen_inputs_full.append(p_full)
 
     # Penalty contribution from times
+    pen_times = 1
+    pen_times_full = []
     if type(fsmp.times_def) is VariableDefinition:
         discr = fsmp.times_def.discrete
         if type(discr) is np.ndarray:
             if fsmp.identical_times==True:
                 values = fsmp.times
-                pen *= penalty_term(values, discr)
+                pen_times, pen_times_full = penalizer(values, discr)
             else:
+                pen_times_full = []
                 for index in itertools.product(*[range(len(q)) for q in fsmp.inputs]):
                     if fsmp.identical_times==True:
                         values = fsmp.times
                     else:
                         values = fsmp.times[index]
-                    pen *= penalty_term(values, discr)
-    return pen
+                    p, p_full = penalizer(values, discr)
+                    pen_times *= p
+                    pen_times_full.append(p_full)
+
+    # Calculate the total penalty
+    pen = pen_ode_t0 * pen_inputs * pen_times
+
+    # Create a summary
+    pen_summary = {
+        "ode_t0": pen_ode_t0_full,
+        "inputs": pen_inputs_full,
+        "times": pen_times_full
+    }
+
+    # Store values in class
+    ret = PenaltyInformation(
+        penalty=pen,
+        penalty_ode_t0=pen_ode_t0,
+        penalty_inputs=pen_inputs,
+        penalty_times=pen_times,
+        penalty_summary=pen_summary,
+    )
+
+    # Store all results and calculate total penalty
+    return pen, ret
 
 
-def __scipy_optimizer_function(X, fsmp: FisherModelParametrized, full=False, relative_sensitivities=False):
+def __scipy_optimizer_function(X, fsmp: FisherModelParametrized, full=False, relative_sensitivities=False, penalizer=discrete_penalty_calculator_default):
     total = 0
     # Get values for ode_t0
     if fsmp.ode_t0_def is not None:
@@ -107,9 +151,16 @@ def __scipy_optimizer_function(X, fsmp: FisherModelParametrized, full=False, rel
 
     fsr = calculate_fisher_criterion(fsmp, relative_sensitivities=relative_sensitivities)
 
+    # Calculate the discretization penalty
+    penalty, penalty_summary = _discrete_penalizer(fsmp, penalizer)
+    
+    # Include information about the penalty
+    fsr.penalty_discrete_summary = penalty_summary
+
+    # Return full result if desired
     if full:
         return fsr
-    return -fsr.criterion * _discrete_penalizer(fsmp)
+    return -fsr.criterion * penalty
 
 
 def _scipy_calculate_bounds_constraints(fsmp: FisherModelParametrized):
