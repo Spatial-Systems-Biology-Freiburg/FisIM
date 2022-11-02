@@ -42,8 +42,9 @@ def plot_all_odes(fsr: FisherResults, outdir=Path(".")):
             ax.plot(t, y[j], color="#21918c", label="Ode Solution")
             
             # Determine where multiple time points overlap by rounding
-            ax.scatter(sol.ode_solution.t, sol.ode_solution.y[j], s=160, alpha=0.5, color="#440154", label="Q_values: " + str(sol.inputs))
+            ax.scatter(sol.ode_solution.t, sol.ode_solution.y[j], s=160, alpha=0.5, color="#440154", label="Time Points: " + str(sol.inputs))
             ax.legend()
+            # TODO - add table with parameters, inputs, ode_t0, ode_y0, etc.
             fig.savefig(outdir / Path("ODE_Result_{}_{:03.0f}_x_{:02.0f}.svg".format(fsr.ode_fun.__name__, i, j)))
 
             # Remove figure to free space
@@ -91,8 +92,9 @@ def plot_all_sensitivities(fsr: FisherResults, outdir=Path(".")):
             ax.plot(t, y, color="#21918c", label="Sensitivities Solution")
 
             # Plot sampled time points
-            ax.scatter(sol.ode_solution.t, r, s=160, alpha=0.5, color="#440154", label="Q_values: " + str(sol.inputs))
+            ax.scatter(sol.ode_solution.t, r, s=160, alpha=0.5, color="#440154", label="Time Points: " + str(sol.inputs))
             ax.legend()
+            # TODO - add table with parameters, inputs, ode_t0, ode_y0, etc.
             fig.savefig(outdir / Path("Sensitivities_Results_{}_{:03.0f}_x_{:02.0f}_p_{:02.0f}.svg".format(fsr.ode_fun.__name__, i, j, k)))
 
             # Remove figure to free space
