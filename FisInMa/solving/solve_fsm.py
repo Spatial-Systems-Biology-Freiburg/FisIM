@@ -39,7 +39,6 @@ def ode_rhs(t, x, ode_fun, ode_dfdx, ode_dfdp, inputs, parameters, ode_args, n_x
     dfdx = ode_dfdx(t, x_fun, inputs, parameters, ode_args)
     dfdp = ode_dfdp(t, x_fun, inputs, parameters, ode_args)
     # Calculate the rhs of the sensitivities
-    # TODO validate these equations!
     ds = np.dot(dfdx, s) + dfdp
     x_tot = np.concatenate((dx_f, *ds))
     return x_tot

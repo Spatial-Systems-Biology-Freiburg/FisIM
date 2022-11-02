@@ -46,6 +46,20 @@ class _FisherObservableFunctionsOptional:
 
 @dataclass(config=Config)
 class FisherVariables(_FisherVariablesOptions, _FisherVariablesBase):
+    # TODO - Documentation Fisher Variables
+    """Contains all necessary and optional numerical values needed to fully specify the model.
+    Note that it is not possible to directly use this class to numerically solve the model
+    since a initial guess for the corresponding values needs to be made.
+
+    :param ode_x0: Initial values of the ODE.
+    :type ode_x0: float, List[float], List[List[float]]
+    :param ode_t0: Initial time point of the ODE.
+    :type ode_t0: float, List[float]
+    :param times: Time points at which the ODE should be evaluated.
+    :type times:
+    :param _FisherVariablesOptions:
+    :type _FisherVariablesOptions: _type_
+    """
     pass
 
 
@@ -61,6 +75,7 @@ class _FisherModelOptions(_FisherVariablesOptions, _FisherObservableFunctionsOpt
 
 @dataclass(config=Config)
 class FisherModel(_FisherModelOptions, _FisherModelBase):
+    # TODO - Documentation Fisher Model
     pass
 
 
@@ -77,6 +92,7 @@ class _FisherModelParametrizedOptions(_FisherModelOptions):
 
 @dataclass(config=Config)
 class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParametrizedBase):
+    # TODO - Documentation Fisher Model Parametrized
     def init_from(fsm: FisherModel):
         """Initialize a parametrized FisherModel with initial guesses for the sampled variables.
 
@@ -125,7 +141,7 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
             x0_vals = [fsm.ode_x0]
         elif type(fsm.ode_x0) is np.ndarray and fsm.ode_x0.ndim > 1:
             raise TypeError("Variable ode_x0 should be list of arrays with dimension 1 respectively!")
-        # TODO currently not working
+        # TODO - ode_x0 sampling currently not working
         elif type(fsm.ode_x0) is tuple and len(fsm.ode_x0) >= 3:
             x0 = VariableDefinition(*fsm.ode_x0)
             x0_def = x0
@@ -313,6 +329,7 @@ class _FisherResultSingleOptions(_FisherVariablesOptions):
 
 @dataclass(config=Config)
 class FisherResultSingle(_FisherResultSingleOptions, _FisherResultSingleBase):
+    # TODO - Documentation Fisher Results Single
     pass
 
 
@@ -328,9 +345,10 @@ class _FisherResultsBase(_FisherOdeFunctions):
 
 @dataclass(config=Config)
 class _FisherResultsOptions(_FisherModelOptions):
-    pass
+    penalty_discrete_summary: dict = None
 
 
 @dataclass(config=Config)
 class FisherResults(_FisherResultsOptions, _FisherResultsBase):
+    # TODO - Documentation Fisher Results
     pass

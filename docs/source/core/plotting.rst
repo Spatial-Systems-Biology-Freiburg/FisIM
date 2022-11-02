@@ -2,7 +2,7 @@ Plotting
 --------
 
 
-.. automodule:: FisInMa.plotting
+.. automodule:: FisInMa.plotting.plotting
    :members:
    :inherited-members:
    :show-inheritance:

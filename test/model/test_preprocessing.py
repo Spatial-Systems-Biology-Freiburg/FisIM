@@ -27,4 +27,6 @@ class TestVariableDefinition(unittest.TestCase):
         ub = 4.0
         n = 10
         dx = 0.5
-        self.assertRaises(ValueError, VariableDefinition, lb, ub, n, dx)
+        unique = True
+        with self.assertRaises(ValueError):
+            VariableDefinition(lb, ub, n, dx, unique=unique)
