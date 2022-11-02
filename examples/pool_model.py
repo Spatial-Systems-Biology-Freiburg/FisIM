@@ -76,6 +76,8 @@ if __name__ == "__main__":
 
     times_low = t0
     times_high = 16.0
+    # Discretize explicitly
+    # dtimes = [2.0, 4.0, 5.0]
     dtimes = 1.0
 
     # Construct parameter hyperspace
@@ -95,7 +97,7 @@ if __name__ == "__main__":
             ode_dfdp=dfdp,
             ode_t0=times_low,
             ode_x0=x0,
-            times=(times_low, times_high, n_times, [2.0, 4.0, 5.0]),
+            times=(times_low, times_high, n_times, dtimes),
             inputs=inputs,
             parameters=P,
             ode_args=Const,
