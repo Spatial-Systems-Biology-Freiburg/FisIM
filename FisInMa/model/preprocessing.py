@@ -42,6 +42,7 @@ class VariableDefinition():
                     self.initial_guess = []
                     for i in range(self.n):
                         self.initial_guess.append(self.discrete[i % len(self.discrete)])
+                    self.initial_guess = np.array(self.initial_guess)
                 else:
                     n_low = round((len(self.discrete)- self.n)/2)
                     self.initial_guess = self.discrete[n_low:n_low+self.n]
