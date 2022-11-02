@@ -358,9 +358,7 @@ def find_optimal(fsm: FisherModel, optimization_strategy: str="scipy_differentia
         - "scipy_brute"
             The global optimization method uses the `scipy.optimize.brute <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.brute.html>`__ function.
             It is a grid search algorithm calculating the objective function value at each point of a multidimensional grid in a chosen region.
-            The advantage of this algorithm is that we can be sure that the global minimum is achieved while all possibilities are checked. 
-            However, this technique is rather slow and inefficient.
-            Even though the discretization and reduction of the whole number of possible values can improve the performance, the computational time allows optimization only for a small number of optimization times or inputs.    
+            The technique is rather slow and inefficient but the global minimum can be guaranteed.
     
     :param criterion: Choose the optimality criterion to determine the objective function and quantify the Experimental Design. The default is "fisher_determinant".
 
