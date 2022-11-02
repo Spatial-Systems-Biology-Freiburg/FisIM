@@ -64,20 +64,21 @@ if __name__ == "__main__":
     # Define initial conditions
     x0 = np.array([np.exp(2.36), 1 / (np.exp(2.66)-1)])
 
-    # Define bounds and number of sampling points for times, inputs
+    # Define interval and number of sampling points for times
     times = (0.0, 1500.0, 4)
 
-    # Example: Define fixed time points
-    # times = [1, 2, 3]
-
+    # Define explicit temperature points
     Temp_low = 4.0
     Temp_high = 8.0
     n_Temp = 3
+
+    # Summarize all input definitions in list (only temperatures)
     inputs = [
-        # Sample over the range I0_low to I0_high with I0_n values and discretization dI0
         np.linspace(Temp_low, Temp_high, n_Temp)
     ]
 
+    # Create the FisherModel which serves as the entry point
+    #  for the solving and optimization algorithms
     fsm = FisherModel(
         ode_x0=x0,
         ode_t0=0.0,
