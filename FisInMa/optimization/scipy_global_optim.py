@@ -1,4 +1,3 @@
-from tkinter import Variable
 import numpy as np
 import scipy as sp
 import scipy.optimize as optimize
