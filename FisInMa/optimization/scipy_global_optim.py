@@ -274,7 +274,7 @@ def __scipy_differential_evolution(fsmp: FisherModelParametrized, relative_sensi
         "bounds": bounds,
         #"constraints":constraints,
         "args":(fsmp, False, relative_sensitivities),
-        "polish":False,
+        "polish":True,
         "disp": True,
         "workers":-1,
         "updating":'deferred',
