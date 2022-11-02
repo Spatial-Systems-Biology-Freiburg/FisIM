@@ -10,8 +10,8 @@ def baranyi_roberts_ode(t, x, u, p, ode_args):
     # Define the maximum growth rate
     mu_max = b**2 * (Temp - Temp_min)**2
     return [
-        mu_max * (x2/(x2 + 1)) * (1 - x1/x_max) * x1, # f1
-        mu_max * x2                                   # f2
+        mu_max * (x2/(x2 + 1)) * (1 - x1/x_max) * x1,           # f1
+        mu_max * x2                                             # f2
     ]
 
 def ode_dfdp(t, x, u, p, ode_args):
@@ -21,17 +21,17 @@ def ode_dfdp(t, x, u, p, ode_args):
     mu_max = b**2 * (Temp - Temp_min)**2
     return [
         [
-            mu_max * (x2/(x2 + 1)) * (x1/x_max)**2,                               # df1/dx_max
+            mu_max * (x2/(x2 + 1)) * (x1/x_max)**2,             # df1/dx_max
              2 * b * (Temp - Temp_min)**2 * (x2/(x2 + 1))
-                * (1 - x1/x_max)*x1,    # df1/db
+                * (1 - x1/x_max)*x1,                            # df1/db
             -2 * b**2 * (Temp - Temp_min) * (x2/(x2 + 1))
-                * (1 - x1/x_max)*x1     # df1/dTemp_min
+                * (1 - x1/x_max)*x1                             # df1/dTemp_min
         ],
         [
-            0,                                                                    # df2/dx_max
-            2 * b * (Temp - Temp_min)**2 * x2,                                         # df2/db
-            2 * b**2 * (Temp - Temp_min) * x2                                          # df2/dTemp_min
-        ] 
+            0,                                                  # df2/dx_max
+            2 * b * (Temp - Temp_min)**2 * x2,                  # df2/db
+            2 * b**2 * (Temp - Temp_min) * x2                   # df2/dTemp_min
+        ]
     ]
 
 def ode_dfdx(t, x, u, p, ode_args):
@@ -41,12 +41,12 @@ def ode_dfdx(t, x, u, p, ode_args):
     mu_max = b**2 * (Temp - Temp_min)**2
     return [
         [
-            mu_max * (x2/(x2 + 1)) * (1 - 2*x1/x_max),  # df1/dx1
-            mu_max * 1/(x2 + 1)**2 * (1 - x1/x_max)*x1  # df1/dx2
-        ], 
+            mu_max * (x2/(x2 + 1)) * (1 - 2*x1/x_max),          # df1/dx1
+            mu_max * 1/(x2 + 1)**2 * (1 - x1/x_max)*x1          # df1/dx2
+        ],
         [
-            0,                                          # df2/dx1
-            mu_max                                      # df2/dx2
+            0,                                                  # df2/dx1
+            mu_max                                              # df2/dx2
         ]
     ]
 
