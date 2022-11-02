@@ -1,3 +1,4 @@
+from tkinter import Variable
 import numpy as np
 import scipy as sp
 import scipy.optimize as optimize
@@ -324,23 +325,57 @@ def __scipy_basinhopping(fsmp: FisherModelParametrized, relative_sensitivities=F
 
 
 def find_optimal(fsm: FisherModel, optimization_strategy: str="scipy_differential_evolution", criterion=fisher_determinant, **args):
-    """Find the global optimum of the supplied FisherModel.
+    r"""Find the global optimum of the supplied FisherModel.
 
-    :param fsm: _description_
+    :param fsm: The FisherModel object that defines the studied system with its all constraints.
     :type fsm: FisherModel
-    :param optimization_strategy:
-        - "scipy_differential_evolution"
-            This is a test
+    :param optimization_strategy: Choose the optimization strategy to find global maximum of the objective function. The default is "scipy_differential_evolution".
+
+        - "scipy_differential_evolution" (recommended)
+            The global optimization method uses the `scipy.optimize.differential_evolution <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.differential_evolution.html>`__ function showing rather good results for nonlinear dynamic problems.
+            The strategy was developed by Storn and Price (1996) and work as follows.
+
+            Firstly, the initial population of the vectors of all optimized values (times and inputs) for one Experimental Design (solutions) is randomly chosen from the region of available values.
+            Then each solution mutates by mixing with other candidates.
+            To a chosen one solution from the initial population :math:`D_0`, a weighted difference between two other random solutions from the same set :math:`(D_\text{rand1} - D_\text{rand2})` is added.
+            This process is called mutation and a new vector :math:`D_m` is obtained.
+            The next step is to construct a new trial solution.
+            This is done by randomly choosing the elements of this vector either from the initial :math:`D_0` or the mutated :math:`D_m` solutions.
+            For each new element of trial vector, from the segment [0, 1) the number should be randomly picked and compared to the so-called recombination constant.
+            If this number is less than a constant, then the new solution element is chosen from mutated vector :math:`D_m`, otherwise from :math:`D_0`.
+            So, in general, the degree of mutation can be controlled by changing this recombination constant.
+            When the trial candidate is built, it is compared to initial solution :math:`D_0`, and the best of them is chosen for the next generation.
+            This operation is repeated for every solution candidate of the initial population, and the new population generation can be formed.
+            The process of population mutation is repeated till the desired accuracy is achieved.
+            This method is rather simple, straightforward, does not require the gradient calculation and is able to be parallelized.
         - "scipy_basinhopping"
-            Another test
-    :param criterion: descr
+            The global optimization method uses the `scipy.optimize.basinhopping <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.basinhopping.html>`__ function.
+            The algorithm combines the Monte-Carlo optimization with Methropolis acceptance criterion and local optimization that works as follows.
+            The strategy is developed by David Wales and Jonathan Doye and combines the Monte-Carlo and local optimization. 
+            The classic Monte-Carlo algorithm implies that the values of the optimized vector are perturbed and are either accepted or rejected.
+            However, in this modified strategy, after perturbation, the vector is additionally subjected to local optimization.
+            And only after this procedure the move is accepted according to the Metropolis criterion.
+
+        - "scipy_brute"
+            The global optimization method uses the `scipy.optimize.brute <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.brute.html>`__ function.
+            It is a grid search algorithm calculating the objective function value at each point of a multidimensional grid in a chosen region.
+            The advantage of this algorithm is that we can be sure that the global minimum is achieved while all possibilities are checked. 
+            However, this technique is rather slow and inefficient.
+            Even though the discretization and reduction of the whole number of possible values can improve the performance, the computational time allows optimization only for a small number of optimization times or inputs.    
+    
+    :param criterion: Choose the optimality criterion to determine the objective function and quantify the Experimental Design. The default is "fisher_determinant".
+
         - fisher_determinant
+            Use the D-optimality criterion that maximizes the determinant of the Fisher Information matrix.
         - fisher_mineigenval
-        - ...
+            Use the E-optimality criterion that maximizes the minimal eigenvalue of the Fisher Information matrix.
+        - fisher_sumeigenval
+            Use the A-optimality criterion that maximizes the sum of all eigenvalues of the Fisher Information matrix.
+
     :type criterion: callable
     :type optimization_strategy: str
     :raises KeyError: Raised if the chosen optimization strategy is not implemented.
-    :return: _description_
+    :return: The result of the optimization as an object *FisherResults*. Important attributes are the conditions of the Optimal Experimental Design *times*, *inputs*, the resultion value of the objective function *criterion*.
     :rtype: FisherResults
     """
     fsmp = FisherModelParametrized.init_from(fsm)
