@@ -95,14 +95,20 @@ def get_S_matrix(fsmp: FisherModelParametrized, covar=False, relative_sensitivit
         x0_full = np.concatenate((x0, np.zeros(n_x0 * n_p)))
 
         # Actually solve the ODE for the selected parameter values
-        res = integrate.solve_ivp(fun=ode_rhs, t_span=(t0, np.max(t)), y0=x0_full, t_eval=t_red, args=(fsmp.ode_fun, fsmp.ode_dfdx, fsmp.ode_dfdp, Q, fsmp.parameters, fsmp.ode_args, n_x0, n_p), method="LSODA", rtol=1e-4)#, jac=fsmp.ode_dfdx)
-        
+        res = integrate.solve_ivp(fun=ode_rhs, t_span=(t0, np.max(t)), y0=x0_full, t_eval=t_red, args=(fsmp.ode_fun, fsmp.ode_dfdx, fsmp.ode_dfdp, Q, fsmp.parameters, fsmp.ode_args, n_x0, n_p), method="LSODA", rtol=1e-4)
         # Obtain sensitivities dg/dp from the last components of the ode
-        r = np.array(res.y[n_x0:])
-        s = np.swapaxes(r.reshape((n_x0, n_p, -1)), 0, 1)
+        # Check if t_red is made up of only initial values
 
-        # Multiply the values again to obtain desired shape for sensitivity matrix
-        s = np.repeat(s, counts, axis=2)
+        # If time values were only made up of initial time,
+        # we simply set everything to zero, since these are the initial values for the sensitivities
+        if np.all(t_red == t0):
+            s = np.zeros((n_p, n_x0, counts[0]))
+        else:
+            r = np.array(res.y[n_x0:])
+            s = np.swapaxes(r.reshape((n_x0, n_p, -1)), 0, 1)
+
+            # Multiply the values again to obtain desired shape for sensitivity matrix
+            s = np.repeat(s, counts, axis=2)
 
         # Calculate the S-Matrix from the sensitivities
         # Depending on if we want to calculate the relative sensitivities
