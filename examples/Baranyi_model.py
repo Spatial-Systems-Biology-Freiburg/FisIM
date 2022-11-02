@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
 import numpy as np
-import os, sys
-sys.path.append(os.getcwd())
-
 from FisInMa import *
 
 
