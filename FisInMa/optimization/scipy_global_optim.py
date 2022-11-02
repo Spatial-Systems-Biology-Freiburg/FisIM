@@ -275,6 +275,7 @@ def __scipy_differential_evolution(fsmp: FisherModelParametrized, relative_sensi
         #"constraints":constraints,
         "args":(fsmp, False, relative_sensitivities),
         "polish":False,
+        "disp": True,
         "workers":-1,
         "updating":'deferred',
         "x0": x0
@@ -294,6 +295,7 @@ def __scipy_brute(fsmp: FisherModelParametrized, relative_sensitivities=False, *
         "ranges": bounds,
         "args":(fsmp, False, relative_sensitivities),
         "finish":False,
+        "disp": True,
         "workers":-1,
         "Ns":5
     }
@@ -312,6 +314,7 @@ def __scipy_basinhopping(fsmp: FisherModelParametrized, relative_sensitivities=F
     opt_args = {
         "func": __scipy_optimizer_function,
         "x0": x0,
+        "disp": True,
         "minimizer_kwargs":{"args":(fsmp, False, relative_sensitivities), "bounds": bounds}
     }
     opt_args.update(args)
