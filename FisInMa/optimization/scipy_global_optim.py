@@ -264,47 +264,48 @@ def __initial_guess(fsmp: FisherModelParametrized):
     return x0
 
 
-def __scipy_differential_evolution(fsmp: FisherModelParametrized, discrete_penalizer=discrete_penalty_calculator_default, **kwargs):
-    # Create constraints and bounds
-    bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
+def __update_arguments(optim_func, optim_args, kwargs):
+    # Gather all arguments which can be supplied to the optimization function and check for intersections
+    o_keys = set(optim_func.__code__.co_varnames)
 
+    # Take all keys which are ment to go into the routine and put it in the corresponding dictionary
+    intersect = {key: kwargs.pop(key) for key in o_keys & kwargs.keys()}
+
+    # Update the arguments for the optimization routine. Pass everything else to our custom methods.
+    optim_args.update(intersect)
+
+    return optim_args, kwargs
+
+
+def __scipy_differential_evolution(fsmp: FisherModelParametrized, discrete_penalizer=discrete_penalty_calculator_default, **kwargs):
+    # Create bounds, constraints and initial guess
+    bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
     x0 = __initial_guess(fsmp)
 
     opt_args = {
         "func": __scipy_optimizer_function,
         "bounds": bounds,
         "args":(fsmp, False, discrete_penalizer, kwargs),
-        "strategy": 'best1bin',
-        "maxiter": 1000,
-        "popsize": 15,
-        "tol": 0.01,
-        "mutation": (0.5, 1),
-        "recombination": 0.7,
-        "seed": None,
-        "callback": None,
         "disp": True,
         "polish": True,
-        "init": 'latinhypercube',
-        "atol": 0,
         "updating": 'deferred',
         "workers": -1,
-        "constraints": (),
         #"constraints":constraints,
-        "x0": x0,
-        "integrality": None,
-        "vectorized": False
+        "x0": x0
     }
-    # Take all keys which are ment to go into the routine and put it in the corresponding dictionary
-    intersect = {key: kwargs.pop(key) for key in opt_args.keys() & kwargs.keys()}
-    opt_args.update(intersect)
 
+    # Check for intersecting arguments and update the default arguments in opt_args with arguments from kwargs.
+    opt_args, kwargs = __update_arguments(optimize.differential_evolution, opt_args, kwargs)
+
+    # Actually call the optimization function
     res = optimize.differential_evolution(**opt_args)
 
+    # Return the full result
     return __scipy_optimizer_function(res.x, fsmp, full=True, discrete_penalizer=discrete_penalizer, kwargs_dict=kwargs)
 
 
 def __scipy_brute(fsmp: FisherModelParametrized, discrete_penalizer=discrete_penalty_calculator_default, **kwargs):
-    # Create constraints and bounds
+    # Create bounds and constraints
     bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
 
     opt_args = {
@@ -317,45 +318,42 @@ def __scipy_brute(fsmp: FisherModelParametrized, discrete_penalizer=discrete_pen
         "disp":True,
         "workers":-1
     }
-    # Take all keys which are ment to go into the routine and put it in the corresponding dictionary
-    intersect = {key: kwargs.pop(key) for key in opt_args.keys() & kwargs.keys()}
-    opt_args.update(intersect)
 
+    # Check for intersecting arguments and update the default arguments in opt_args with arguments from kwargs.
+    opt_args, kwargs = __update_arguments(optimize.brute, opt_args, kwargs)
+
+    # Actually call the optimization function
     res = optimize.brute(**opt_args)
 
     return __scipy_optimizer_function(res, fsmp, full=True, discrete_penalizer=discrete_penalizer, kwargs_dict=kwargs)
 
 
 def __scipy_basinhopping(fsmp: FisherModelParametrized, discrete_penalizer=discrete_penalty_calculator_default, **kwargs):
-    # Create constraints and bounds
+    # Create bounds, constraints and initial guess
     bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
-
     x0 = __initial_guess(fsmp)
 
     opt_args = {
         "func": __scipy_optimizer_function,
         "x0": x0,
-        "niter":100,
-        "T":1.0,
-        "stepsize":0.5,
         "minimizer_kwargs":{"args":(fsmp, False, discrete_penalizer, kwargs), "bounds": bounds},
-        "take_step":None,
-        "accept_test":None,
-        "callback":None,
-        "interval":50,
         "disp":True,
-        "niter_success":None,
-        "seed":None,
-        "target_accept_rate":0.5,
-        "stepwise_factor":0.9
     }
-    # Take all keys which are ment to go into the routine and put it in the corresponding dictionary
-    intersect = {key: kwargs.pop(key) for key in opt_args.keys() & kwargs.keys()}
-    opt_args.update(intersect)
 
+    # Check for intersecting arguments and update the default arguments in opt_args with arguments from kwargs.
+    opt_args, kwargs = __update_arguments(optimize.basinhopping, opt_args, kwargs)
+
+    # Actually call the optimization function
     res = optimize.basinhopping(**opt_args)
 
     return __scipy_optimizer_function(res.x, fsmp, full=True, discrete_penalizer=discrete_penalizer, kwargs_dict=kwargs)
+
+
+OPTIMIZATION_STRATEGIES = {
+    "scipy_differential_evolution": __scipy_differential_evolution,
+    "scipy_basinhopping": __scipy_basinhopping,
+    "scipy_brute": __scipy_brute,
+}
 
 
 def find_optimal(fsm: FisherModel, optimization_strategy: str="scipy_differential_evolution", discrete_penalizer=discrete_penalty_calculator_default, **kwargs):
@@ -405,12 +403,7 @@ def find_optimal(fsm: FisherModel, optimization_strategy: str="scipy_differentia
     """
     fsmp = FisherModelParametrized.init_from(fsm)
 
-    optimization_strategies = {
-        "scipy_differential_evolution": __scipy_differential_evolution,
-        "scipy_brute": __scipy_brute,
-        "scipy_basinhopping": __scipy_basinhopping
-    }
-    if optimization_strategy not in optimization_strategies.keys():
-        raise KeyError("Please specify one of the following optimization_strategies for optimization: " + str(optimization_strategies.keys()))
+    if optimization_strategy not in OPTIMIZATION_STRATEGIES.keys():
+        raise KeyError("Please specify one of the following optimization_strategies for optimization: " + str(OPTIMIZATION_STRATEGIES.keys()))
 
-    return optimization_strategies[optimization_strategy](fsmp, discrete_penalizer, **kwargs)
+    return OPTIMIZATION_STRATEGIES[optimization_strategy](fsmp, discrete_penalizer, **kwargs)
