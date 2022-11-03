@@ -49,8 +49,7 @@ def dgdx(t, x, inputs, parameters, ode_args):
 
 def dgdp(t, x, inputs, parameters, ode_args):
     return [
-        [0 ,0, 0],
-        [0 ,0, 0]
+        [0 ,0]
     ]
 
 def g_exact(t, x0, inputs, parameters, ode_args):
