@@ -94,8 +94,11 @@ def get_S_matrix(fsmp: FisherModelParametrized, covar=False, relative_sensitivit
         # Define initial values for ode
         x0_full = np.concatenate((x0, np.zeros(n_x0 * n_p)))
 
+        # Make sure that the t_span interval is actually not empty (only for python 3.7)
+        t_max = np.max(t) if np.max(t)>t0 else t0+1e-30
+
         # Actually solve the ODE for the selected parameter values
-        res = integrate.solve_ivp(fun=ode_rhs, t_span=(t0, np.max(t)), y0=x0_full, t_eval=t_red, args=(fsmp.ode_fun, fsmp.ode_dfdx, fsmp.ode_dfdp, Q, fsmp.parameters, fsmp.ode_args, n_x0, n_p), method="LSODA", rtol=1e-4)
+        res = integrate.solve_ivp(fun=ode_rhs, t_span=(t0, t_max), y0=x0_full, t_eval=t_red, args=(fsmp.ode_fun, fsmp.ode_dfdx, fsmp.ode_dfdp, Q, fsmp.parameters, fsmp.ode_args, n_x0, n_p), method="LSODA", rtol=1e-4)
         # Obtain sensitivities dg/dp from the last components of the ode
         # Check if t_red is made up of only initial values
 
