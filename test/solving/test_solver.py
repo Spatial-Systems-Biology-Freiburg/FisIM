@@ -2,7 +2,6 @@ import unittest
 import numpy as np
 import copy
 import scipy as sp
-import time
 
 from FisInMa.model import FisherModelParametrized
 from FisInMa.solving import *
