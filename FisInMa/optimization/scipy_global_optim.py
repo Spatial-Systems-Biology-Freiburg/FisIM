@@ -126,7 +126,7 @@ def _discrete_penalizer(fsmp, penalizer=discrete_penalty_calculator_default):
     return pen, ret
 
 
-def __scipy_optimizer_function(X, fsmp: FisherModelParametrized, full=False, relative_sensitivities=False, penalizer=discrete_penalty_calculator_default):
+def __scipy_optimizer_function(X, fsmp: FisherModelParametrized, full=False, discrete_penalizer=discrete_penalty_calculator_default, kwargs_dict={}):
     total = 0
     # Get values for ode_t0
     if fsmp.ode_t0_def is not None:
@@ -149,10 +149,11 @@ def __scipy_optimizer_function(X, fsmp: FisherModelParametrized, full=False, rel
             fsmp.inputs[i]=X[total:total+inp_def.n]
             total += inp_def.n
 
-    fsr = calculate_fisher_criterion(fsmp, relative_sensitivities=relative_sensitivities)
+    # Calculate the correct criterion
+    fsr = calculate_fisher_criterion(fsmp, **kwargs_dict)
 
     # Calculate the discretization penalty
-    penalty, penalty_summary = _discrete_penalizer(fsmp, penalizer)
+    penalty, penalty_summary = _discrete_penalizer(fsmp, discrete_penalizer)
     
     # Include information about the penalty
     fsr.penalty_discrete_summary = penalty_summary
@@ -263,7 +264,7 @@ def __initial_guess(fsmp: FisherModelParametrized):
     return x0
 
 
-def __scipy_differential_evolution(fsmp: FisherModelParametrized, relative_sensitivities=False, **args):
+def __scipy_differential_evolution(fsmp: FisherModelParametrized, discrete_penalizer=discrete_penalty_calculator_default, **kwargs):
     # Create constraints and bounds
     bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
 
@@ -272,40 +273,60 @@ def __scipy_differential_evolution(fsmp: FisherModelParametrized, relative_sensi
     opt_args = {
         "func": __scipy_optimizer_function,
         "bounds": bounds,
-        #"constraints":constraints,
-        "args":(fsmp, False, relative_sensitivities),
-        "polish":True,
+        "args":(fsmp, False, discrete_penalizer, kwargs),
+        "strategy": 'best1bin',
+        "maxiter": 1000,
+        "popsize": 15,
+        "tol": 0.01,
+        "mutation": (0.5, 1),
+        "recombination": 0.7,
+        "seed": None,
+        "callback": None,
         "disp": True,
-        "workers":-1,
-        "updating":'deferred',
-        "x0": x0
+        "polish": True,
+        "init": 'latinhypercube',
+        "atol": 0,
+        "updating": 'deferred',
+        "workers": -1,
+        "constraints": (),
+        #"constraints":constraints,
+        "x0": x0,
+        "integrality": None,
+        "vectorized": False
     }
-    opt_args.update(args)
+    # Take all keys which are ment to go into the routine and put it in the corresponding dictionary
+    intersect = {key: kwargs.pop(key) for key in opt_args.keys() & kwargs.keys()}
+    opt_args.update(intersect)
+
     res = optimize.differential_evolution(**opt_args)
 
-    return __scipy_optimizer_function(res.x, fsmp, full=True, relative_sensitivities=relative_sensitivities)
+    return __scipy_optimizer_function(res.x, fsmp, full=True, discrete_penalizer=discrete_penalizer, kwargs_dict=kwargs)
 
 
-def __scipy_brute(fsmp: FisherModelParametrized, relative_sensitivities=False, **args):
+def __scipy_brute(fsmp: FisherModelParametrized, discrete_penalizer=discrete_penalty_calculator_default, **kwargs):
     # Create constraints and bounds
     bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
 
     opt_args = {
         "func": __scipy_optimizer_function,
         "ranges": bounds,
-        "args":(fsmp, False, relative_sensitivities),
-        "finish":False,
-        "disp": True,
-        "workers":-1,
-        "Ns":5
+        "args":(fsmp, False, discrete_penalizer, kwargs),
+        "Ns":3,
+        "full_output":0,
+        "finish":optimize.fmin,
+        "disp":True,
+        "workers":-1
     }
-    opt_args.update(args)
+    # Take all keys which are ment to go into the routine and put it in the corresponding dictionary
+    intersect = {key: kwargs.pop(key) for key in opt_args.keys() & kwargs.keys()}
+    opt_args.update(intersect)
+
     res = optimize.brute(**opt_args)
 
-    return __scipy_optimizer_function(res, fsmp, full=True, relative_sensitivities=relative_sensitivities)
+    return __scipy_optimizer_function(res.x, fsmp, full=True, discrete_penalizer=discrete_penalizer, kwargs_dict=kwargs)
 
 
-def __scipy_basinhopping(fsmp: FisherModelParametrized, relative_sensitivities=False, **args):
+def __scipy_basinhopping(fsmp: FisherModelParametrized, discrete_penalizer=discrete_penalty_calculator_default, **kwargs):
     # Create constraints and bounds
     bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
 
@@ -314,16 +335,30 @@ def __scipy_basinhopping(fsmp: FisherModelParametrized, relative_sensitivities=F
     opt_args = {
         "func": __scipy_optimizer_function,
         "x0": x0,
-        "disp": True,
-        "minimizer_kwargs":{"args":(fsmp, False, relative_sensitivities), "bounds": bounds}
+        "niter":100,
+        "T":1.0,
+        "stepsize":0.5,
+        "minimizer_kwargs":{"args":(fsmp, False, discrete_penalizer, kwargs), "bounds": bounds},
+        "take_step":None,
+        "accept_test":None,
+        "callback":None,
+        "interval":50,
+        "disp":True,
+        "niter_success":None,
+        "seed":None,
+        "target_accept_rate":0.5,
+        "stepwise_factor":0.9
     }
-    opt_args.update(args)
+    # Take all keys which are ment to go into the routine and put it in the corresponding dictionary
+    intersect = {key: kwargs.pop(key) for key in opt_args.keys() & kwargs.keys()}
+    opt_args.update(intersect)
+
     res = optimize.basinhopping(**opt_args)
 
-    return __scipy_optimizer_function(res.x, fsmp, full=True, relative_sensitivities=relative_sensitivities)
+    return __scipy_optimizer_function(res.x, fsmp, full=True, discrete_penalizer=discrete_penalizer, kwargs_dict=kwargs)
 
 
-def find_optimal(fsm: FisherModel, optimization_strategy: str="scipy_differential_evolution", criterion=fisher_determinant, **args):
+def find_optimal(fsm: FisherModel, optimization_strategy: str="scipy_differential_evolution", discrete_penalizer=discrete_penalty_calculator_default, **kwargs):
     r"""Find the global optimum of the supplied FisherModel.
 
     :param fsm: The FisherModel object that defines the studied system with its all constraints.
@@ -360,19 +395,10 @@ def find_optimal(fsm: FisherModel, optimization_strategy: str="scipy_differentia
             It is a grid search algorithm calculating the objective function value at each point of a multidimensional grid in a chosen region.
             The technique is rather slow and inefficient but the global minimum can be guaranteed.
     
-    :param criterion: Choose the optimality criterion to determine the objective function and quantify the Experimental Design. The default is "fisher_determinant".
-
-        - fisher_determinant
-            Use the D-optimality criterion that maximizes the determinant of the Fisher Information matrix.
-        - fisher_mineigenval
-            Use the E-optimality criterion that maximizes the minimal eigenvalue of the Fisher Information matrix.
-        - fisher_sumeigenval
-            Use the A-optimality criterion that maximizes the sum of all eigenvalues of the Fisher Information matrix.
-        - fisher_ratioeigenval
-            Use the modified E-optimality criterion that maximizes the ratio of the minimal and maximal eigenvalues of the Fisher Information matrix.
-
-    :type criterion: callable
     :type optimization_strategy: str
+    :param discrete_penalizer: A function that takes two 1d arrays (values, discretization) and returns a float. It calculates the penalty (1=no penalty, 0=maximum penalty) for datapoints which do not sit on the desired discretization points.
+    :type discrete_penalizer: callable
+
     :raises KeyError: Raised if the chosen optimization strategy is not implemented.
     :return: The result of the optimization as an object *FisherResults*. Important attributes are the conditions of the Optimal Experimental Design *times*, *inputs*, the resultion value of the objective function *criterion*.
     :rtype: FisherResults
@@ -387,4 +413,4 @@ def find_optimal(fsm: FisherModel, optimization_strategy: str="scipy_differentia
     if optimization_strategy not in optimization_strategies.keys():
         raise KeyError("Please specify one of the following optimization_strategies for optimization: " + str(optimization_strategies.keys()))
 
-    return optimization_strategies[optimization_strategy](fsmp, **args)
+    return optimization_strategies[optimization_strategy](fsmp, discrete_penalizer, **kwargs)

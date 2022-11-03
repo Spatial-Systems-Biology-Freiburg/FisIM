@@ -44,7 +44,7 @@ def ode_rhs(t, x, ode_fun, ode_dfdx, ode_dfdp, inputs, parameters, ode_args, n_x
     return x_tot
 
 
-def get_S_matrix(fsmp: FisherModelParametrized, covar=False, relative_sensitivities=False):
+def get_S_matrix(fsmp: FisherModelParametrized, covar=False, relative_sensitivities=False, **kwargs):
     r"""Calculate the sensitivity matrix for a Fisher Model.
 
     :param fsmp: The parametrized FisherModel with a chosen values for the sampled variables.
@@ -235,6 +235,18 @@ def calculate_fisher_criterion(fsmp: FisherModelParametrized, criterion=fisher_d
     r"""Calculate the Fisher information optimality criterion for a chosen Fisher model.
 
     :param fsmp: The parametrized FisherModel with a chosen values for the sampled variables.
+    :param criterion: Choose the optimality criterion to determine the objective function and quantify the Experimental Design. The default is "fisher_determinant".
+
+        - fisher_determinant
+            Use the D-optimality criterion that maximizes the determinant of the Fisher Information matrix.
+        - fisher_mineigenval
+            Use the E-optimality criterion that maximizes the minimal eigenvalue of the Fisher Information matrix.
+        - fisher_sumeigenval
+            Use the A-optimality criterion that maximizes the sum of all eigenvalues of the Fisher Information matrix.
+        - fisher_ratioeigenval
+            Use the modified E-optimality criterion that maximizes the ratio of the minimal and maximal eigenvalues of the Fisher Information matrix.
+
+    :type criterion: callable
     :type fsmp: FisherModelParametrized
     :param covar: Use the covariance matrix of error measurements. Defaults to False.
     :type covar: bool, optional
@@ -249,14 +261,15 @@ def calculate_fisher_criterion(fsmp: FisherModelParametrized, criterion=fisher_d
         C = np.eye(S.shape[1])
     crit = criterion(fsmp, S, C)
 
-    args = {key:value for key, value in fsmp.__dict__.items() if not key.startswith('_')}
+    fsmp_args = {key:value for key, value in fsmp.__dict__.items() if not key.startswith('_')}
 
     fsr = FisherResults(
         criterion=crit,
         S=S,
         C=C,
         individual_results=solutions,
+        criterion_fun=criterion,
         relative_sensitivities=relative_sensitivities,
-        **args,
+        **fsmp_args,
     )
     return fsr
