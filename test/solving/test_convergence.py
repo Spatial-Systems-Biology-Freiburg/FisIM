@@ -52,7 +52,7 @@ def dgdp(t, x, inputs, parameters, ode_args):
         [0 ,0]
     ]
 
-def g_exact(t, x0, inputs, parameters, ode_args):
+def x_exact(t, x0, inputs, parameters, ode_args):
     (T,) = inputs
     (a, b) = parameters
     int_constant = [
@@ -64,7 +64,7 @@ def g_exact(t, x0, inputs, parameters, ode_args):
         b/(a*T) + int_constant[1] * np.exp(-a*T*t)
     ]
 
-def dgdp_exact(t, x0, inputs, parameters, ode_args):
+def dxdp_exact(t, x0, inputs, parameters, ode_args):
     (T,) = inputs
     (a, b) = parameters
     int_constant = [
@@ -119,30 +119,46 @@ class TestConvergence(Setup_Convergence):
 
         # Calculate observables of exact solution for all entries
         n_x0 = len(fsmp.ode_x0[0])
-        n_o = len(fsmp.ode_x0[0])
         n_p = len(fsmp.parameters)
         n_inputs = self.n_inputs
 
+        # Determine the number of components of the observable
+        n_obs = np.array(g(fsmp.ode_t0[0], fsmp.ode_x0[0], [q[0] for q in fsmp.inputs], fsmp.parameters, fsmp.ode_args)).size
+
         # The shape of the initial S matrix is given by
-        S_own = np.zeros((n_p, n_o, n_inputs, self.n_times))
+        S_own = np.zeros((n_p, n_obs, n_inputs, self.n_times))
         
         # Test that the ODE is solved correctly
         for sol in solutions:# , sol_ode_own, sol_sens_own in zip(solutions, solutions_ode_exact_own, solutions_sens_exact_own):
             sol_ode_calc = sol.ode_solution.y[:n_x0].T
-            sol_sens_calc = sol.ode_solution.y[n_x0:].T
+            sol_dxdp_calc = sol.ode_solution.y[n_x0:].T
 
-            sol_ode_own = np.array([g_exact(t, sol.ode_x0, sol.inputs, sol.parameters, sol.ode_args) for t in sol.times])
-            sol_sens_own = np.array([dgdp_exact(t, sol.ode_x0, sol.inputs, sol.parameters, sol.ode_args) for t in sol.times])
+            sol_ode_own = np.array([x_exact(t, sol.ode_x0, sol.inputs, sol.parameters, sol.ode_args) for t in sol.times])
+            sol_dxdp_own = np.array([dxdp_exact(t, sol.ode_x0, sol.inputs, sol.parameters, sol.ode_args) for t in sol.times])
+            sol_sens_own = np.array([
+                # Calculate the sensitivities via the chain rule from exact results
+                # (total derivative)   (partial derivative)
+                #       dgdp         =  dgdp + dgdx * dxdp
+                # Calculate first term
+                dgdp(t, x_exact(t, sol.ode_x0, sol.inputs, sol.parameters, sol.ode_args), sol.inputs, sol.parameters, sol.ode_args) +
+                # Calculte second term
+                np.array(dgdx(t, x_exact(t, sol.ode_x0, sol.inputs, sol.parameters, sol.ode_args), sol.inputs, sol.parameters, sol.ode_args)) @ np.array(dxdp_exact(t, sol.ode_x0, sol.inputs, sol.parameters, sol.ode_args))
+            for t in sol.times])
 
-            s = np.swapaxes(sol_sens_own.reshape((len(sol.times), n_o, n_p)), 0, 2)
+            s = sol_sens_own.reshape((-1, n_obs, n_p)).swapaxes(0, 2)
             i = np.where(fsmp.inputs[0] == sol.inputs)
             S_own[(slice(None), slice(None), i[0][0], slice(None))] = s
 
             np.testing.assert_almost_equal(sol_ode_calc, sol_ode_own, decimal=3)
-            np.testing.assert_almost_equal(sol_sens_calc, sol_sens_own.reshape((len(sol.times), -1)), decimal=3)
+            np.testing.assert_almost_equal(sol_dxdp_calc, sol_dxdp_own.reshape((len(sol.times), -1)), decimal=3)
         # Test that the resulting sensitivities are the same
         S_own = S_own.reshape((n_p, -1))
         F_own = np.matmul(S_own, S_own.T)
         F = np.matmul(S,S.T)
         np.testing.assert_almost_equal(S_own, S, decimal=3)
         np.testing.assert_almost_equal(F_own, F, decimal=2)
+
+    def test_ode_rhs_exact_solution_identical_times(self):
+        self.setUp(identical_times=True)
+        self.test_ode_rhs_exact_solution()
+        self.setUp()
