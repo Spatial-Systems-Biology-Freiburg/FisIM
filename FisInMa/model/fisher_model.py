@@ -338,6 +338,7 @@ class _FisherResultsBase(_FisherOdeFunctions):
     criterion: float
     S: np.ndarray
     C: np.ndarray
+    criterion_fun: Callable
     individual_results: list
     variable_definitions: FisherVariables
     relative_sensitivities: bool
