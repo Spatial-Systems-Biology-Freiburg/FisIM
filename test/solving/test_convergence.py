@@ -39,13 +39,12 @@ def ode_dfdp(t, x, inputs, parameters, ode_args):
 
 def g(t, x, inputs, parameters, ode_args):
     (A, B) = x
-    return [A, B]
+    return A**2
 
 def dgdx(t, x, inputs, parameters, ode_args):
     (A, B) = x
     return [
-        [1, 0],
-        [0, 1]
+        [2*A, 0]
     ]
 
 def dgdp(t, x, inputs, parameters, ode_args):
