@@ -3,7 +3,7 @@ import copy
 
 from FisInMa.optimization.scipy_global_optim import _scipy_calculate_bounds_constraints, _create_comparison_matrix, find_optimal, _discrete_penalizer
 from FisInMa.solving import calculate_fisher_criterion
-from FisInMa import FisherModelParametrized
+from FisInMa.model import FisherModelParametrized, FisherResults
 
 from test.setUp import Setup_Class
 
@@ -20,7 +20,37 @@ class Test_ScipyGlobalOptimAlgorithms(Setup_Class):
         fsm.times = (0.0, 10.0, 2)
         # Choose very small iteration and population numbers.
         # This is not about convergence, but about if the method will not fail.
-        fsr = find_optimal(fsm, "scipy_differential_evolution", workers=1, maxiter=2, popsize=3)
+        fsr = find_optimal(fsm, "scipy_differential_evolution", workers=1, maxiter=1, popsize=2)
+        self.assertEqual(type(fsr), FisherResults)
+
+    def test_scipy_basinhopping(self):
+        fsm = copy.deepcopy(self.fsm)
+        fsm.ode_t0 = 0.0
+        fsm.ode_x0 = [np.array([0.05, 0.001])]
+        fsm.inputs=[
+            np.arange(2, 2+2),
+            np.arange(5, 5+2)
+        ]
+        fsm.times = (0.0, 10.0, 2)
+        # Choose very small iteration and population numbers.
+        # This is not about convergence, but about if the method will not fail.
+        fsr = find_optimal(fsm, "scipy_basinhopping", niter=1, interval=2)
+        self.assertEqual(type(fsr), FisherResults)
+
+    def test_scipy_brute(self):
+        fsm = copy.deepcopy(self.fsm)
+        fsm.ode_t0 = 0.0
+        fsm.ode_x0 = [np.array([0.05, 0.001])]
+        fsm.inputs=[
+            np.arange(2, 2+2),
+            np.arange(5, 5+2)
+        ]
+        fsm.times = (0.0, 10.0, 2)
+
+        # Choose very small iteration and population numbers.
+        # This is not about convergence, but about if the method will not fail.
+        fsr = find_optimal(fsm, "scipy_brute", Ns=1)
+        self.assertEqual(type(fsr), FisherResults)
 
 
 class Test_ScipyCalculateConstraints(Setup_Class):
