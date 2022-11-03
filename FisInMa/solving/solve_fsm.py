@@ -210,7 +210,6 @@ def fisher_mineigenval(fsmp: FisherModelParametrized, S, C):
     mineigval = np.min(np.linalg.eigvals(F))
     return mineigval
 
-def fisher_ratioeigenval(fsmp: FisherModelParametrized, S, C):
     """Calculate the ratio of the minimal and maximal eigenvalues of the Fisher information matrix (the modified E-optimality criterion) using the sensitivity matrix.
 
     :param fsmp: The parametrized FisherModel with a chosen values for the sampled variables.
@@ -232,7 +231,7 @@ def fisher_ratioeigenval(fsmp: FisherModelParametrized, S, C):
     return ratioeigval
 
 
-def calculate_fisher_criterion(fsmp: FisherModelParametrized, criterion_fun=fisher_determinant, covar=False, relative_sensitivities=False):
+def calculate_fisher_criterion(fsmp: FisherModelParametrized, criterion=fisher_determinant, covar=False, relative_sensitivities=False):
     r"""Calculate the Fisher information optimality criterion for a chosen Fisher model.
 
     :param fsmp: The parametrized FisherModel with a chosen values for the sampled variables.
@@ -248,7 +247,7 @@ def calculate_fisher_criterion(fsmp: FisherModelParametrized, criterion_fun=fish
     S, C, solutions = get_S_matrix(fsmp, covar, relative_sensitivities)
     if covar == False:
         C = np.eye(S.shape[1])
-    crit = criterion_fun(fsmp, S, C)
+    crit = criterion(fsmp, S, C)
 
     args = {key:value for key, value in fsmp.__dict__.items() if not key.startswith('_')}
 
@@ -257,7 +256,6 @@ def calculate_fisher_criterion(fsmp: FisherModelParametrized, criterion_fun=fish
         S=S,
         C=C,
         individual_results=solutions,
-        criterion_fun=criterion_fun,
         relative_sensitivities=relative_sensitivities,
         **args,
     )
