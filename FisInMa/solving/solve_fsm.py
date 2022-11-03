@@ -210,6 +210,8 @@ def fisher_mineigenval(fsmp: FisherModelParametrized, S, C):
     mineigval = np.min(np.linalg.eigvals(F))
     return mineigval
 
+
+def fisher_ratioeigenval(fsmp: FisherModelParametrized, S, C):
     """Calculate the ratio of the minimal and maximal eigenvalues of the Fisher information matrix (the modified E-optimality criterion) using the sensitivity matrix.
 
     :param fsmp: The parametrized FisherModel with a chosen values for the sampled variables.
