@@ -93,4 +93,27 @@ class Test_SolvingMethods(Setup_Class):
 
 
 class Test_CriterionCalculationAutomation(Setup_Class):
-    pass
+    # These tests just check that the functions can be called properly
+    def test_calculate_fisher_all_criteria(self):
+        self.setUp(1, 1, 1, (1, 1))
+        fsmp = self.fsmp
+        fsr = calculate_fisher_criterion(fsmp, criterion=fisher_determinant)
+        self.assertEqual(type(fsr), FisherResults)
+
+    def test_calculate_fisher_criterion_mineigenval(self):
+        self.setUp(1, 1, 1, (1, 1))
+        fsmp = self.fsmp
+        fsr = calculate_fisher_criterion(fsmp, criterion=fisher_mineigenval)
+        self.assertEqual(type(fsr), FisherResults)
+
+    def test_calculate_fisher_criterion_ratioeigenval(self):
+        self.setUp(1, 1, 1, (1, 1))
+        fsmp = self.fsmp
+        fsr = calculate_fisher_criterion(fsmp, criterion=fisher_ratioeigenval)
+        self.assertEqual(type(fsr), FisherResults)
+
+    def test_calculate_fisher_criterion_sumeigenval(self):
+        self.setUp(1, 1, 1, (1, 1))
+        fsmp = self.fsmp
+        fsr = calculate_fisher_criterion(fsmp, criterion=fisher_sumeigenval)
+        self.assertEqual(type(fsr), FisherResults)
