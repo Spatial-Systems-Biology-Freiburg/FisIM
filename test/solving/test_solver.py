@@ -95,9 +95,6 @@ class Test_SolvingMethods(Setup_Class):
             np.testing.assert_almost_equal(res[:n_x], np.array(f_ty).flatten())
             np.testing.assert_almost_equal(res[n_x:], sensitivities.flatten())
 
-class TestCriterions(Setup_Class):
-    pass
-
 
 class Test_CriterionCalculationAutomation(Setup_Class):
     pass
