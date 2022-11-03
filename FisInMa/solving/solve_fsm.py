@@ -149,7 +149,7 @@ def get_S_matrix(fsmp: FisherModelParametrized, covar=False, relative_sensitivit
 
 
 def fisher_determinant(fsmp: FisherModelParametrized, S, C):
-    """Calculate the determinant of the Fisher information matrix using the sensitivity matrix.
+    """Calculate the determinant of the Fisher information matrix (the D-optimality criterion) using the sensitivity matrix.
 
     :param fsmp: The parametrized FisherModel with a chosen values for the sampled variables.
     :type fsmp: FisherModelParametrized
@@ -170,7 +170,7 @@ def fisher_determinant(fsmp: FisherModelParametrized, S, C):
 
 
 def fisher_sumeigenval(fsmp: FisherModelParametrized, S, C):
-    """Calculate the sum of the all eigenvalues of the Fisher information matrix using the sensitivity matrix.
+    """Calculate the sum of the all eigenvalues of the Fisher information matrix (the A-optimality criterion) using the sensitivity matrix.
 
     :param fsmp: The parametrized FisherModel with a chosen values for the sampled variables.
     :type fsmp: FisherModelParametrized
@@ -191,7 +191,7 @@ def fisher_sumeigenval(fsmp: FisherModelParametrized, S, C):
 
 
 def fisher_mineigenval(fsmp: FisherModelParametrized, S, C):
-    """Calculate the minimal eigenvalue of the Fisher information matrix using the sensitivity matrix.
+    """Calculate the minimal eigenvalue of the Fisher information matrix (the E-optimality criterion) using the sensitivity matrix.
 
     :param fsmp: The parametrized FisherModel with a chosen values for the sampled variables.
     :type fsmp: FisherModelParametrized
@@ -200,7 +200,7 @@ def fisher_mineigenval(fsmp: FisherModelParametrized, S, C):
     :param C: The covariance matrix of the measurement errors.
     :type C: np.ndarray
 
-    :return: The sum of the eigenvalues of the Fisher information matrix.
+    :return: The minimal eigenvalue of the Fisher information matrix.
     :rtype: float
     """
     # Calculate Fisher Matrix
