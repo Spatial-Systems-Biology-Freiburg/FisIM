@@ -239,6 +239,7 @@ class Test_DiscretizationPenalty(Setup_Class):
                 converge = True
             if converge == True:
                 self.assertLess(res_prev, res)
+            res_prev = res
         
         # Also test if we have reached 1.0 again
         np.testing.assert_almost_equal(res, 1.0)
@@ -284,6 +285,7 @@ class Test_DiscretizationPenalty(Setup_Class):
                 converge = True
             if converge == True:
                 self.assertLess(res_prev, res)
+            res_prev = res
 
         # Also test if we have reached 1.0 again
         np.testing.assert_almost_equal(res, 1.0)
@@ -321,6 +323,7 @@ class Test_DiscretizationPenalty(Setup_Class):
                 converge = True
             if converge == True:
                 self.assertLess(res_prev, res)
+            res_prev = res
         
         # Also test if we have reached 1.0 again
         np.testing.assert_almost_equal(res, 1.0)
