@@ -267,7 +267,7 @@ def fisher_ratioeigenval(fsmp: FisherModelParametrized, S, C):
 
 
 def calculate_fisher_criterion(fsmp: FisherModelParametrized, criterion=fisher_determinant, covar=False, relative_sensitivities=False):
-    r"""Calculate the Fisher information optimality criterion for a chosen Fisher model.
+    """Calculate the Fisher information optimality criterion for a chosen Fisher model.
 
     :param fsmp: The parametrized FisherModel with a chosen values for the sampled variables.
     :param criterion: Choose the optimality criterion to determine the objective function and quantify the Experimental Design. The default is "fisher_determinant".
