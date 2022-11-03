@@ -368,6 +368,8 @@ def find_optimal(fsm: FisherModel, optimization_strategy: str="scipy_differentia
             Use the E-optimality criterion that maximizes the minimal eigenvalue of the Fisher Information matrix.
         - fisher_sumeigenval
             Use the A-optimality criterion that maximizes the sum of all eigenvalues of the Fisher Information matrix.
+        - fisher_ratioeigenval
+            Use the modified E-optimality criterion that maximizes the ratio of the minimal and maximal eigenvalues of the Fisher Information matrix.
 
     :type criterion: callable
     :type optimization_strategy: str
