@@ -126,7 +126,7 @@ def _discrete_penalizer(fsmp, penalizer=discrete_penalty_calculator_default):
     return pen, ret
 
 
-def __scipy_optimizer_function(X, fsmp: FisherModelParametrized, full=False, relative_sensitivities=False, penalizer=discrete_penalty_calculator_default):
+def __scipy_optimizer_function(X, fsmp: FisherModelParametrized, full=False, criterion_fun=fisher_determinant, relative_sensitivities=False, penalizer=discrete_penalty_calculator_default):
     total = 0
     # Get values for ode_t0
     if fsmp.ode_t0_def is not None:
@@ -149,7 +149,7 @@ def __scipy_optimizer_function(X, fsmp: FisherModelParametrized, full=False, rel
             fsmp.inputs[i]=X[total:total+inp_def.n]
             total += inp_def.n
 
-    fsr = calculate_fisher_criterion(fsmp, relative_sensitivities=relative_sensitivities)
+    fsr = calculate_fisher_criterion(fsmp, criterion_fun=criterion_fun, relative_sensitivities=relative_sensitivities)
 
     # Calculate the discretization penalty
     penalty, penalty_summary = _discrete_penalizer(fsmp, penalizer)
@@ -263,7 +263,7 @@ def __initial_guess(fsmp: FisherModelParametrized):
     return x0
 
 
-def __scipy_differential_evolution(fsmp: FisherModelParametrized, relative_sensitivities=False, **args):
+def __scipy_differential_evolution(fsmp: FisherModelParametrized, criterion_fun=fisher_determinant, relative_sensitivities=False, **args):
     # Create constraints and bounds
     bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
 
@@ -273,7 +273,7 @@ def __scipy_differential_evolution(fsmp: FisherModelParametrized, relative_sensi
         "func": __scipy_optimizer_function,
         "bounds": bounds,
         #"constraints":constraints,
-        "args":(fsmp, False, relative_sensitivities),
+        "args":(fsmp, False, criterion_fun, relative_sensitivities),
         "polish":True,
         "disp": True,
         "workers":-1,
@@ -283,17 +283,17 @@ def __scipy_differential_evolution(fsmp: FisherModelParametrized, relative_sensi
     opt_args.update(args)
     res = optimize.differential_evolution(**opt_args)
 
-    return __scipy_optimizer_function(res.x, fsmp, full=True, relative_sensitivities=relative_sensitivities)
+    return __scipy_optimizer_function(res.x, fsmp, full=True, criterion_fun=criterion_fun, relative_sensitivities=relative_sensitivities)
 
 
-def __scipy_brute(fsmp: FisherModelParametrized, relative_sensitivities=False, **args):
+def __scipy_brute(fsmp: FisherModelParametrized, criterion_fun=fisher_determinant, relative_sensitivities=False, **args):
     # Create constraints and bounds
     bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
 
     opt_args = {
         "func": __scipy_optimizer_function,
         "ranges": bounds,
-        "args":(fsmp, False, relative_sensitivities),
+        "args":(fsmp, False, criterion_fun, relative_sensitivities),
         "finish":False,
         "disp": True,
         "workers":-1,
@@ -302,10 +302,10 @@ def __scipy_brute(fsmp: FisherModelParametrized, relative_sensitivities=False, *
     opt_args.update(args)
     res = optimize.brute(**opt_args)
 
-    return __scipy_optimizer_function(res, fsmp, full=True, relative_sensitivities=relative_sensitivities)
+    return __scipy_optimizer_function(res, fsmp, full=True, criterion_fun=criterion_fun, relative_sensitivities=relative_sensitivities)
 
 
-def __scipy_basinhopping(fsmp: FisherModelParametrized, relative_sensitivities=False, **args):
+def __scipy_basinhopping(fsmp: FisherModelParametrized, criterion_fun=fisher_determinant, relative_sensitivities=False, **args):
     # Create constraints and bounds
     bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
 
@@ -315,15 +315,15 @@ def __scipy_basinhopping(fsmp: FisherModelParametrized, relative_sensitivities=F
         "func": __scipy_optimizer_function,
         "x0": x0,
         "disp": True,
-        "minimizer_kwargs":{"args":(fsmp, False, relative_sensitivities), "bounds": bounds}
+        "minimizer_kwargs":{"args":(fsmp, False, criterion_fun, relative_sensitivities), "bounds": bounds}
     }
     opt_args.update(args)
     res = optimize.basinhopping(**opt_args)
 
-    return __scipy_optimizer_function(res.x, fsmp, full=True, relative_sensitivities=relative_sensitivities)
+    return __scipy_optimizer_function(res.x, fsmp, full=True, criterion=criterion_fun, relative_sensitivities=relative_sensitivities)
 
 
-def find_optimal(fsm: FisherModel, optimization_strategy: str="scipy_differential_evolution", criterion=fisher_determinant, **args):
+def find_optimal(fsm: FisherModel, optimization_strategy: str="scipy_differential_evolution", **args):
     r"""Find the global optimum of the supplied FisherModel.
 
     :param fsm: The FisherModel object that defines the studied system with its all constraints.
