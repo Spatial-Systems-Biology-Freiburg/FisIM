@@ -320,6 +320,7 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
 @dataclass(config=Config)
 class _FisherResultSingleBase(_FisherVariablesBase):
     ode_solution: Any#Union[list,np.ndarray]
+    sensitivities: np.ndarray
 
 
 @dataclass(config=Config)

@@ -44,6 +44,24 @@ def ode_rhs(t, x, ode_fun, ode_dfdx, ode_dfdp, inputs, parameters, ode_args, n_x
     return x_tot
 
 
+def _calculate_sensitivities_with_observable(fsmp: FisherModelParametrized, t: np.ndarray, x: np.ndarray, s: np.ndarray, Q: np.ndarray, n_obs: int, n_p: int, relative_sensitivities=False, **kwargs):
+    # Check that the functions are actually not None. We need all of them.
+    if callable(fsmp.obs_fun) and callable(fsmp.obs_dfdp) and callable(fsmp.obs_dfdx):
+        # Calculate the first term of the equation
+        term1 = np.array([fsmp.obs_dfdp(ti, x[:,i_t], Q, fsmp.parameters, fsmp.ode_args) for i_t, ti in enumerate(t)]).reshape((-1, n_obs, n_p)).swapaxes(0, 2)
+
+        # Calculate the second term of the equation and add them
+        term2 = np.array([np.array(fsmp.obs_dfdx(ti, x[:,i_t], Q, fsmp.parameters, fsmp.ode_args)).dot(s[:,:,i_t].T) for i_t, ti in enumerate(t)]).reshape((-1, n_obs, n_p)).swapaxes(0, 2)
+        term_shapes = [(np.array(fsmp.obs_dfdx(ti, x[:,i_t], Q, fsmp.parameters, fsmp.ode_args)).shape, s[:,:,i_t].T.shape) for i_t, ti in enumerate(t)]
+        s = term1 + term2
+
+        # Also calculate the results for the observable which can be used later for relative sensitivities
+        obs = np.array([fsmp.obs_fun(ti, x[:,i_t], Q, fsmp.parameters, fsmp.ode_args) for i_t, ti in enumerate(t)]).reshape((-1, n_obs)).T
+        return s, obs
+    else:
+        return s, x
+
+
 def get_S_matrix(fsmp: FisherModelParametrized, covar=False, relative_sensitivities=False, **kwargs):
     r"""Calculate the sensitivity matrix for a Fisher Model.
 
@@ -67,9 +85,15 @@ def get_S_matrix(fsmp: FisherModelParametrized, covar=False, relative_sensitivit
     # The lengths of the individual input variables stored as tuple
     inputs_shape = tuple(len(q) for q in fsmp.inputs)
 
+    # Determine the number of components the observable has by evaluating at
+    if callable(fsmp.obs_fun) and callable(fsmp.obs_dfdp) and callable(fsmp.obs_dfdx):
+        n_obs = np.array(fsmp.obs_fun(fsmp.ode_t0[0], fsmp.ode_x0[0], [q[0] for q in fsmp.inputs], fsmp.parameters, fsmp.ode_args)).size
+    else:
+        n_obs = n_x0
+
     # The shape of the initial S matrix is given by
     # (n_p, n_t0, n_x0, n_q0, ..., n_ql, n_times)
-    S = np.zeros((n_p, n_t0, N_x0, n_x0) + inputs_shape + (fsmp.times.shape[-1],))
+    S = np.zeros((n_p, n_t0, N_x0, n_obs) + inputs_shape + (fsmp.times.shape[-1],))
     error_n = np.zeros((fsmp.times.shape[-1],) + tuple(len(x) for x in fsmp.inputs))
 
     # Iterate over all combinations of input-Values and initial values
@@ -113,6 +137,11 @@ def get_S_matrix(fsmp: FisherModelParametrized, covar=False, relative_sensitivit
             # Multiply the values again to obtain desired shape for sensitivity matrix
             s = np.repeat(s, counts, axis=2)
 
+        # If the observable was specified we will transform the result with
+        # dgdp = dgdp + dxdp * dgdx
+        x = res.y[:n_x0].reshape((n_x0, -1))
+        s, obs = _calculate_sensitivities_with_observable(fsmp, t_red, x, s, Q, n_obs, n_p, relative_sensitivities, **kwargs)
+
         # Calculate the S-Matrix from the sensitivities
         # Depending on if we want to calculate the relative sensitivities
         if relative_sensitivities==True:
@@ -121,7 +150,7 @@ def get_S_matrix(fsmp: FisherModelParametrized, covar=False, relative_sensitivit
                 s[i] *= p
 
             # Divide by observable
-            for i, o in enumerate(res.y[:n_x0]):
+            for i, o in enumerate(obs):
                 s[(slice(None), i)] /= np.repeat(o, counts, axis=0)
             
             # Fill S-Matrix
@@ -139,7 +168,8 @@ def get_S_matrix(fsmp: FisherModelParametrized, covar=False, relative_sensitivit
             parameters=fsmp.parameters,
             ode_args=fsmp.ode_args,
             ode_solution=res,
-            identical_times=fsmp.identical_times
+            sensitivities=s,
+            identical_times=fsmp.identical_times,
         )
         solutions.append(fsrs)
     
