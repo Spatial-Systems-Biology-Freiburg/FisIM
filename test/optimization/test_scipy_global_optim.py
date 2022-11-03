@@ -1,5 +1,4 @@
 import numpy as np
-import copy
 
 from FisInMa.optimization.scipy_global_optim import _scipy_calculate_bounds_constraints, _create_comparison_matrix, find_optimal, _discrete_penalizer
 from FisInMa.solving import calculate_fisher_criterion
@@ -10,7 +9,7 @@ from test.setUp import Setup_Class
 
 class Test_ScipyGlobalOptimAlgorithms(Setup_Class):
     def test_scipy_differential_evolution(self):
-        fsm = copy.deepcopy(self.fsm)
+        fsm = self.fsm
         fsm.ode_t0 = 0.0
         fsm.ode_x0 = [np.array([0.05, 0.001])]
         fsm.inputs=[
@@ -24,7 +23,7 @@ class Test_ScipyGlobalOptimAlgorithms(Setup_Class):
         self.assertEqual(type(fsr), FisherResults)
 
     def test_scipy_basinhopping(self):
-        fsm = copy.deepcopy(self.fsm)
+        fsm = self.fsm
         fsm.ode_t0 = 0.0
         fsm.ode_x0 = [np.array([0.05, 0.001])]
         fsm.inputs=[
@@ -38,7 +37,7 @@ class Test_ScipyGlobalOptimAlgorithms(Setup_Class):
         self.assertEqual(type(fsr), FisherResults)
 
     def test_scipy_brute(self):
-        fsm = copy.deepcopy(self.fsm)
+        fsm = self.fsm
         fsm.ode_t0 = 0.0
         fsm.ode_x0 = [np.array([0.05, 0.001])]
         fsm.inputs=[
@@ -97,7 +96,7 @@ class Test_ScipyCalculateConstraints(Setup_Class):
                 np.testing.assert_equal(np.sum(A!=0.0), 2*(k-1))
 
     def test_scipy_calculate_bounds_constraints_sample_none(self):
-        fsm = copy.deepcopy(self.fsm)
+        fsm = self.fsm
         fsm.ode_x0 = [0.0, 0.0]
         fsm.ode_t0 = 0.0
         fsm.times = [1.0, 2.0, 3.0, 4.0]
@@ -113,7 +112,7 @@ class Test_ScipyCalculateConstraints(Setup_Class):
         np.testing.assert_almost_equal(constraints.A, np.eye(0))
 
     def test_scipy_calculate_bounds_constraints_sample_ode_t0(self):
-        fsm = copy.deepcopy(self.fsm)
+        fsm = self.fsm
         fsm.ode_t0 = (0.00, 0.001, 3)
         fsmp = FisherModelParametrized.init_from(fsm)
         bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
@@ -123,7 +122,7 @@ class Test_ScipyCalculateConstraints(Setup_Class):
         np.testing.assert_almost_equal(constraints.A, _create_comparison_matrix(fsm.ode_t0[2]))
     
     def test_scipy_calculate_bounds_constraints_sample_ode_x0(self):
-        fsm = copy.deepcopy(self.fsm)
+        fsm = self.fsm
         fsm.ode_x0 = [[0.0,0.0],[0.1,0.05]]
         fsmp = FisherModelParametrized.init_from(fsm)
         bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
@@ -133,7 +132,7 @@ class Test_ScipyCalculateConstraints(Setup_Class):
         np.testing.assert_almost_equal(constraints.A, _create_comparison_matrix(0))
     
     def test_scipy_calculate_bounds_constraints_sample_times(self):
-        fsm = copy.deepcopy(self.fsm)
+        fsm = self.fsm
         fsm.identical_times=True
         fsm.times = (0.0, 10.0, 5)
         fsmp = FisherModelParametrized.init_from(fsm)
@@ -149,7 +148,7 @@ class Test_ScipyCalculateConstraints(Setup_Class):
         np.testing.assert_almost_equal(constraints.A, A)
     
     def test_scipy_calculate_bounds_constraints_sample_inputs(self):
-        fsm = copy.deepcopy(self.fsm)
+        fsm = self.fsm
         fsm.inputs = [
             (1.0, 2.0, 3),
             (3.0, 44.0, 6)
@@ -207,8 +206,8 @@ class Test_ScipyCalculateConstraints(Setup_Class):
 
 class Test_DiscretizationPenalty(Setup_Class):
     def test_ode_t0_discr_penalty_default(self):
-        self.setUpClass(N_x0=2, n_t0=2, n_times=2, n_inputs=(2, 3), identical_times=False)
-        fsm = copy.deepcopy(self.fsm)
+        self.setUp(N_x0=2, n_t0=2, n_times=2, n_inputs=(2, 3), identical_times=False)
+        fsm = self.fsm
         fsm.ode_t0 = (0.00, 0.001, 3, 0.0002)
         # Initialize model with initial guess
         fsmp = FisherModelParametrized.init_from(fsm)
@@ -245,8 +244,8 @@ class Test_DiscretizationPenalty(Setup_Class):
         np.testing.assert_almost_equal(res, 1.0)
 
     def test_times_discr_penalty_default(self):
-        self.setUpClass(N_x0=2, n_t0=2, n_times=2, n_inputs=(2, 3), identical_times=False)
-        fsm = copy.deepcopy(self.fsm)
+        self.setUp(N_x0=2, n_t0=2, n_times=2, n_inputs=(2, 3), identical_times=False)
+        fsm = self.fsm
         fsm.times = (0.00, 10.0, 5, 0.5)
         # Initialize model with initial guess
         fsmp = FisherModelParametrized.init_from(fsm)
@@ -291,8 +290,8 @@ class Test_DiscretizationPenalty(Setup_Class):
         np.testing.assert_almost_equal(res, 1.0)
 
     def test_inputs_discr_penalty_default(self):
-        self.setUpClass(N_x0=2, n_t0=2, n_times=2, n_inputs=(2, 3), identical_times=False)
-        fsm = copy.deepcopy(self.fsm)
+        self.setUp(N_x0=2, n_t0=2, n_times=2, n_inputs=(2, 3), identical_times=False)
+        fsm = self.fsm
         fsm.inputs[0] = (5.0, 8.0, 3, 0.25)
         # Initialize model with initial guess
         fsmp = FisherModelParametrized.init_from(fsm)

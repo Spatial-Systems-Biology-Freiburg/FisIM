@@ -1,6 +1,5 @@
 import unittest
 import numpy as np
-import copy
 
 from FisInMa import FisherModel, FisherModelParametrized
 
@@ -54,7 +53,7 @@ def dgdp(t, x, inputs, params, consts):
 
 class Setup_Class(unittest.TestCase):
     @classmethod
-    def setUpClass(self, N_x0=2, n_t0=13, n_times=5, n_inputs=(7, 11), identical_times=False):
+    def setUp(self, N_x0=2, n_t0=13, n_times=5, n_inputs=(7, 11), identical_times=False):
         # Use prime numbers for sampled parameters to 
         # show errors in code where reshaping is done
         self.x0=[np.array([0.05 / i, 0.001 / i]) for i in range(1, N_x0+1)]
@@ -84,3 +83,7 @@ class Setup_Class(unittest.TestCase):
             identical_times=identical_times,
         )
         self.fsmp = FisherModelParametrized.init_from(self.fsm)
+
+    @classmethod
+    def setUpClass(self):
+        self.setUp()

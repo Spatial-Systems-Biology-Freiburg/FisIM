@@ -1,6 +1,5 @@
 import unittest
 import numpy as np
-import copy
 
 from FisInMa.model import FisherModelParametrized
 from FisInMa.solving import *

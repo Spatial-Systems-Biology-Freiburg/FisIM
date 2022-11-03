@@ -1,6 +1,5 @@
 import unittest
 import numpy as np
-import copy
 import scipy as sp
 import time
 
@@ -109,11 +108,14 @@ class Setup_Convergence(unittest.TestCase):
         )
         self.fsmp = FisherModelParametrized.init_from(self.fsm)
 
+    @classmethod
+    def setUpClass(self):
+        self.setUp()
 
 class TestConvergence(Setup_Convergence):
     def test_ode_rhs_exact_solution(self):
         # Obtain the Sensitivity Matrix from our method
-        fsmp = copy.deepcopy(self.fsmp)
+        fsmp = self.fsmp
         S, C, solutions = get_S_matrix(fsmp)
         # Manually create the Fisher matrix as it should be with exact result of ODE
 
