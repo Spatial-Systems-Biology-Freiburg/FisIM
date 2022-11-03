@@ -10,6 +10,7 @@ def _get_encoder(fsr: FisherResults):
         np.ndarray: lambda x: x.tolist(),
         np.int32: lambda x: str(x),
         fsr.ode_fun.__class__.__mro__[-2]: lambda x: x.__name__,
+        fsr.criterion_fun.__class__.__mro__[-2]: lambda x: x.__name__,
     }
 
     # Define the encoder as a modification of the pydantic encoder
