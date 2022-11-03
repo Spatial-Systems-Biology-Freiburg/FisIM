@@ -49,7 +49,7 @@ class Test_ScipyGlobalOptimAlgorithms(Setup_Class):
 
         # Choose very small iteration and population numbers.
         # This is not about convergence, but about if the method will not fail.
-        fsr = find_optimal(fsm, "scipy_brute", Ns=1)
+        fsr = find_optimal(fsm, "scipy_brute", Ns=1, workers=1)
         self.assertEqual(type(fsr), FisherResults)
 
 
