@@ -313,7 +313,7 @@ def __scipy_brute(fsmp: FisherModelParametrized, discrete_penalizer=discrete_pen
         "args":(fsmp, False, discrete_penalizer, kwargs),
         "Ns":3,
         "full_output":0,
-        "finish":optimize.fmin,
+        "finish": None,
         "disp":True,
         "workers":-1
     }
@@ -323,7 +323,7 @@ def __scipy_brute(fsmp: FisherModelParametrized, discrete_penalizer=discrete_pen
 
     res = optimize.brute(**opt_args)
 
-    return __scipy_optimizer_function(res.x, fsmp, full=True, discrete_penalizer=discrete_penalizer, kwargs_dict=kwargs)
+    return __scipy_optimizer_function(res, fsmp, full=True, discrete_penalizer=discrete_penalizer, kwargs_dict=kwargs)
 
 
 def __scipy_basinhopping(fsmp: FisherModelParametrized, discrete_penalizer=discrete_penalty_calculator_default, **kwargs):
