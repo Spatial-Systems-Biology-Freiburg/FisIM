@@ -49,6 +49,30 @@ class PenaltyInformation:
     penalty_summary: dict
 
 
+def penalty_structure_zigzag(v, dv):
+    return np.abs(1 - 2 * v / dv)
+
+
+def penalty_structure_cos(v, dv):
+    return 0.5 * (1 + np.cos(2*np.pi * v / dv))
+
+
+def penalty_structure_gauss(v, dv):
+    sigma = dv / 10
+    return np.exp(- 0.5 * v**2 / sigma**2) +  np.exp(- 0.5 * (v - dv)**2 / sigma**2)
+
+
+def discrete_penalty_individual_template(vals, vals_discr, pen_structure):
+    prod = []
+    for v in vals:
+        for i in range (len(vals_discr)-1):
+            if vals_discr[i] <= v <= vals_discr[i+1]:
+                dx = vals_discr[i+1] - vals_discr[i]
+                prod.append(pen_structure(v - vals_discr[i], dx))
+    pen = np.product(prod)
+    return pen, prod
+
+
 def discrete_penalty_calculator_default(vals, vals_discr):
     # TODO - document this function
     # TODO - should be specifiable as parameter in optimization routine
@@ -61,6 +85,9 @@ def discrete_penalty_calculator_default(vals, vals_discr):
 
 DISCRETE_PENALTY_FUNCTIONS = {
     "product_difference": discrete_penalty_calculator_default,
+    "individual_zigzag": lambda vals, vals_discr: discrete_penalty_individual_template(vals, vals_discr, penalty_structure_zigzag),
+    "individual_cos": lambda vals, vals_discr: discrete_penalty_individual_template(vals, vals_discr, penalty_structure_cos),
+    "individual_gauss": lambda vals, vals_discr: discrete_penalty_individual_template(vals, vals_discr, penalty_structure_gauss),
 }
 
 
