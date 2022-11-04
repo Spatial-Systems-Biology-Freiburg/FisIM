@@ -59,7 +59,13 @@ def discrete_penalty_calculator_default(vals, vals_discr):
     return pen, prod
 
 
-def _discrete_penalizer(fsmp, penalizer=discrete_penalty_calculator_default):
+DISCRETE_PENALTY_FUNCTIONS = {
+    "product_difference": discrete_penalty_calculator_default,
+}
+
+
+def _discrete_penalizer(fsmp, penalizer_name="product_difference"):
+    penalizer = DISCRETE_PENALTY_FUNCTIONS[penalizer_name]
     # Penalty contribution from initial times
     pen_ode_t0 = 1
     pen_ode_t0_full = []
