@@ -49,6 +49,30 @@ class PenaltyInformation:
     penalty_summary: dict
 
 
+def penalty_structure_zigzag(v, dv):
+    return np.abs(1 - 2 * v / dv)
+
+
+def penalty_structure_cos(v, dv):
+    return 0.5 * (1 + np.cos(2*np.pi * v / dv))
+
+
+def penalty_structure_gauss(v, dv):
+    sigma = dv / 10
+    return np.exp(- 0.5 * v**2 / sigma**2) +  np.exp(- 0.5 * (v - dv)**2 / sigma**2)
+
+
+def discrete_penalty_individual_template(vals, vals_discr, pen_structure):
+    prod = []
+    for v in vals:
+        for i in range (len(vals_discr)-1):
+            if vals_discr[i] <= v <= vals_discr[i+1]:
+                dx = vals_discr[i+1] - vals_discr[i]
+                prod.append(pen_structure(v - vals_discr[i], dx))
+    pen = np.product(prod)
+    return pen, prod
+
+
 def discrete_penalty_calculator_default(vals, vals_discr):
     # TODO - document this function
     # TODO - should be specifiable as parameter in optimization routine
@@ -59,7 +83,17 @@ def discrete_penalty_calculator_default(vals, vals_discr):
     return pen, prod
 
 
-def _discrete_penalizer(fsmp, penalizer=discrete_penalty_calculator_default):
+DISCRETE_PENALTY_FUNCTIONS = {
+    "default": discrete_penalty_calculator_default,
+    "product_difference": discrete_penalty_calculator_default,
+    "individual_zigzag": lambda vals, vals_discr: discrete_penalty_individual_template(vals, vals_discr, penalty_structure_zigzag),
+    "individual_cos": lambda vals, vals_discr: discrete_penalty_individual_template(vals, vals_discr, penalty_structure_cos),
+    "individual_gauss": lambda vals, vals_discr: discrete_penalty_individual_template(vals, vals_discr, penalty_structure_gauss),
+}
+
+
+def _discrete_penalizer(fsmp, penalizer_name="product_difference"):
+    penalizer = DISCRETE_PENALTY_FUNCTIONS[penalizer_name]
     # Penalty contribution from initial times
     pen_ode_t0 = 1
     pen_ode_t0_full = []
@@ -126,7 +160,7 @@ def _discrete_penalizer(fsmp, penalizer=discrete_penalty_calculator_default):
     return pen, ret
 
 
-def __scipy_optimizer_function(X, fsmp: FisherModelParametrized, full=False, discrete_penalizer=discrete_penalty_calculator_default, kwargs_dict={}):
+def __scipy_optimizer_function(X, fsmp: FisherModelParametrized, full=False, discrete_penalizer="default", kwargs_dict={}):
     total = 0
     # Get values for ode_t0
     if fsmp.ode_t0_def is not None:
@@ -277,7 +311,7 @@ def __update_arguments(optim_func, optim_args, kwargs):
     return optim_args, kwargs
 
 
-def __scipy_differential_evolution(fsmp: FisherModelParametrized, discrete_penalizer=discrete_penalty_calculator_default, **kwargs):
+def __scipy_differential_evolution(fsmp: FisherModelParametrized, discrete_penalizer="default", **kwargs):
     # Create bounds, constraints and initial guess
     bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
     x0 = __initial_guess(fsmp)
@@ -304,7 +338,7 @@ def __scipy_differential_evolution(fsmp: FisherModelParametrized, discrete_penal
     return __scipy_optimizer_function(res.x, fsmp, full=True, discrete_penalizer=discrete_penalizer, kwargs_dict=kwargs)
 
 
-def __scipy_brute(fsmp: FisherModelParametrized, discrete_penalizer=discrete_penalty_calculator_default, **kwargs):
+def __scipy_brute(fsmp: FisherModelParametrized, discrete_penalizer="default", **kwargs):
     # Create bounds and constraints
     bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
 
@@ -328,7 +362,7 @@ def __scipy_brute(fsmp: FisherModelParametrized, discrete_penalizer=discrete_pen
     return __scipy_optimizer_function(res, fsmp, full=True, discrete_penalizer=discrete_penalizer, kwargs_dict=kwargs)
 
 
-def __scipy_basinhopping(fsmp: FisherModelParametrized, discrete_penalizer=discrete_penalty_calculator_default, **kwargs):
+def __scipy_basinhopping(fsmp: FisherModelParametrized, discrete_penalizer="default", **kwargs):
     # Create bounds, constraints and initial guess
     bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
     x0 = __initial_guess(fsmp)
@@ -356,7 +390,7 @@ OPTIMIZATION_STRATEGIES = {
 }
 
 
-def find_optimal(fsm: FisherModel, optimization_strategy: str="scipy_differential_evolution", discrete_penalizer=discrete_penalty_calculator_default, **kwargs):
+def find_optimal(fsm: FisherModel, optimization_strategy: str="scipy_differential_evolution", discrete_penalizer="default", **kwargs):
     r"""Find the global optimum of the supplied FisherModel.
 
     :param fsm: The FisherModel object that defines the studied system with its all constraints.
