@@ -29,12 +29,11 @@ extensions = [
 ]
 
 autosummary_generate = True
+add_module_names = False
+autodoc_typehints_format = 'short'
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', '_templates', 'Thumbs.db', '.DS_Store']
-
-# Do not include documentation of these imports
-autodoc_mock_imports =  ["scipy", "dataclass"]
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
