@@ -285,7 +285,7 @@ def calculate_fisher_criterion(fsmp: FisherModelParametrized, criterion=fisher_d
     :type fsmp: FisherModelParametrized
     :param covar: Use the covariance matrix of error measurements. Defaults to False.
     :type covar: bool, optional
-    :param relative_sensitivities: Use relative local sensitivities :math:`s_{ij} = \frac{\partial y_i}{\partial p_j} \frac{p_j}{y_i}` instead of absolute. Defaults to False.
+    :param relative_sensitivities: Use relative local sensitivities :math:`s_{ij} = \dfrac{\partial y_i}{\partial p_j} \dfrac{p_j}{y_i}` instead of absolute. Defaults to False.
     :type relative_sensitivities: bool, optional
 
     :return: The result of the Fisher information optimality criterion represented as a FisherResults object.

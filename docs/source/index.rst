@@ -3,10 +3,18 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to FisInMa's documentation!
-===================================
+FisInMa
+=======
 
-FisInMa** is a Python library for finding the optimal experimental design for the systems described by the ordinary differential equations (ODEs).
+`FisInMa <https://spatial-systems-biology-freiburg.github.io/FisInMa/>`_ is a Python library for designing optimal experimental conditions to estimate parameters of a system described by an ordinary differential equation (ODE) as defined in equation :eq:`overview_ode_def`.
+
+.. math::
+   \begin{alignat}{3}
+      &\dot{x}(t) &&= f(t, x, u, p)\\
+      &x(t_0) &&= x_0
+   \end{alignat}
+   :label: overview_ode_def
+
 
 .. note::
 
