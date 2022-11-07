@@ -6,7 +6,6 @@ import pytest
 from FisInMa.model import FisherModel, FisherModelParametrized
 from FisInMa.solving import *
 
-from test.setUp import Setup_Class
 
 # Define a RHS of ODE where exact result is known
 def ode_fun(t, x, inputs, parameters, ode_args):
