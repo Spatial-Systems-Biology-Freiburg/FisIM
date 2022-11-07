@@ -296,7 +296,7 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
         else:
             self.variable_values.ode_t0 = t0
         if self.variable_definitions.ode_t0 is None:
-            raise AttributeError("Variable ode_x0 is not mutable!")
+            raise AttributeError("Variable ode_t0 is not mutable!")
     
     @times.setter
     def times(self, times) -> None:
