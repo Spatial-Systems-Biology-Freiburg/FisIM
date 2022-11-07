@@ -2,6 +2,7 @@ import numpy as np
 # from dataclasses import dataclass
 from copy import deepcopy
 from pydantic.dataclasses import dataclass
+from pydantic import root_validator
 try:
     from collections.abc import Callable
 except:
@@ -78,7 +79,23 @@ class _FisherModelOptions(_FisherVariablesOptions, _FisherObservableFunctionsOpt
 @dataclass(config=Config)
 class FisherModel(_FisherModelOptions, _FisherModelBase):
     # TODO - Documentation Fisher Model
-    pass
+    @root_validator
+    def all_observables_defined(cls, values):
+        obs_names = ['obs_fun', 'obs_dgdx', 'obs_dgdp']
+        c_obs = np.sum([n in values.keys() and callable(values[n]) for n in obs_names])
+        if 1 < c_obs < 3:
+            raise ValueError("Specify all of \'obs_fun\', \'obs_dgdx\' and \'obs_dgdp\' or none.")
+        return values
+
+    @root_validator
+    def all_derivatives_x0_defined(cls, values):
+        fun_names = ['ode_fun', 'ode_dfdx', 'ode_dfdp', 'ode_dfdx0']
+        obs_names = ['obs_fun', 'obs_dgdx', 'obs_dgdp', 'obs_dgdx0']
+        c_fun = np.sum([n in values.keys() and callable(values[n]) for n in fun_names])
+        c_obs = np.sum([n in values.keys() and callable(values[n]) for n in obs_names])
+        if c_obs > 0 and c_fun != c_obs:
+            raise ValueError("Specify both \'ode_dfdx0\' and \'obs_dgdx0' when using observables.")
+        return values
 
 
 @dataclass(config=Config)
