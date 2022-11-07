@@ -1,7 +1,7 @@
-import unittest
 import numpy as np
 import scipy as sp
 import time
+import pytest
 
 from FisInMa.model import FisherModel, FisherModelParametrized
 from FisInMa.solving import *
@@ -76,9 +76,8 @@ def dxdp_exact(t, x0, inputs, parameters, ode_args):
     ]
 
 
-class Setup_Convergence(unittest.TestCase):
-    @classmethod
-    def setUp(self, n_times=4, n_inputs=3, identical_times=False):
+class Setup_Convergence:
+    def __init__(self, n_times=4, n_inputs=3, identical_times=False):
         self.x0=[1.0, 0.5]
         self.t0=0.0
         self.times=np.linspace(0.0, 10.0, n_times)
@@ -108,27 +107,30 @@ class Setup_Convergence(unittest.TestCase):
         )
         self.fsmp = FisherModelParametrized.init_from(self.fsm)
 
-    @classmethod
-    def setUpClass(self):
-        self.setUp()
 
-class TestConvergence(Setup_Convergence):
-    def test_ode_rhs_exact_solution(self):
+@pytest.fixture()
+def convergence_model(identical_times):
+    return Setup_Convergence(identical_times=identical_times)
+
+
+class TestConvergence:
+    @pytest.mark.parametrize("identical_times", [True, False])
+    def test_ode_rhs_exact_solution(self, convergence_model):
         # Obtain the Sensitivity Matrix from our method
-        fsmp = self.fsmp
+        fsmp = convergence_model.fsmp
         S, C, solutions = get_S_matrix(fsmp)
         # Manually create the Fisher matrix as it should be with exact result of ODE
 
         # Calculate observables of exact solution for all entries
         n_x0 = len(fsmp.ode_x0[0])
         n_p = len(fsmp.parameters)
-        n_inputs = self.n_inputs
+        n_inputs = convergence_model.n_inputs
 
         # Determine the number of components of the observable
         n_obs = np.array(g(fsmp.ode_t0[0], fsmp.ode_x0[0], [q[0] for q in fsmp.inputs], fsmp.parameters, fsmp.ode_args)).size
 
         # The shape of the initial S matrix is given by
-        S_own = np.zeros((n_p, n_obs, n_inputs, self.n_times))
+        S_own = np.zeros((n_p, n_obs, n_inputs, convergence_model.n_times))
         
         # Test that the ODE is solved correctly
         for sol in solutions:# , sol_ode_own, sol_sens_own in zip(solutions, solutions_ode_exact_own, solutions_sens_exact_own):
@@ -159,8 +161,3 @@ class TestConvergence(Setup_Convergence):
         F = np.matmul(S,S.T)
         np.testing.assert_almost_equal(S_own, S, decimal=3)
         np.testing.assert_almost_equal(F_own, F, decimal=2)
-
-    def test_ode_rhs_exact_solution_identical_times(self):
-        self.setUp(identical_times=True)
-        self.test_ode_rhs_exact_solution()
-        self.setUp()
