@@ -92,7 +92,7 @@ DISCRETE_PENALTY_FUNCTIONS = {
 }
 
 
-def _discrete_penalizer(fsmp, penalizer_name="product_difference"):
+def _discrete_penalizer(fsmp, penalizer_name="default"):
     penalizer = DISCRETE_PENALTY_FUNCTIONS[penalizer_name]
     # Penalty contribution from initial times
     pen_ode_t0 = 1
