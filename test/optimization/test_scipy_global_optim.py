@@ -221,7 +221,7 @@ class Test_DiscretizationPenalty(Setup_Class):
         np.testing.assert_almost_equal(res, 1.0)
         
         # Now set the values to a non-discrete conforming value
-        fsmp.ode_t0 = [0.000, 0.0011, 0.0012]
+        fsmp.ode_t0 = [0.000, 0.0006, 0.0005]
 
         # Test if the penalty is now below 1.0
         res, _ = _discrete_penalizer(fsmp)
