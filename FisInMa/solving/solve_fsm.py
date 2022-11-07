@@ -268,7 +268,10 @@ def fisher_mineigenval(fsmp: FisherModelParametrized, S, C):
     F = S.dot(C).dot(S.T)
 
     # Calculate sum eigenvals
-    mineigval = np.min(np.linalg.eigvals(F))
+    try:
+        mineigval = np.min(np.linalg.eigvals(F))
+    except:
+        mineigval = 0.0
     return mineigval
 
 
@@ -289,8 +292,11 @@ def fisher_ratioeigenval(fsmp: FisherModelParametrized, S, C):
     F = S.dot(C).dot(S.T)
 
     # Calculate sum eigenvals
-    eigvals = np.linalg.eigvals(F)
-    ratioeigval = np.min(eigvals) / np.max(eigvals)
+    try:
+        eigvals = np.linalg.eigvals(F)
+        ratioeigval = np.min(eigvals) / np.max(eigvals)
+    except:
+        ratioeigval = 0.0
     return ratioeigval
 
 
