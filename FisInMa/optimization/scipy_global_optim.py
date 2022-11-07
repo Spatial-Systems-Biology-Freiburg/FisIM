@@ -50,19 +50,86 @@ class PenaltyInformation:
 
 
 def penalty_structure_zigzag(v, dv):
+    """Define the zigzag structure of the penalty potential between two allowed discrete values. 
+    Used in function :py:meth:`discrete_penalty_individual_template`.
+
+    :param v: The distance between the optimized value and the smaller neighboring discrete value.
+    :type v: float
+    :param dv: The distance between smaller and larger neighboring discrete values.
+    :type dv: float
+
+    :return: The value of the penalty potential.
+    :rtype: float
+    """
     return np.abs(1 - 2 * v / dv)
 
 
 def penalty_structure_cos(v, dv):
+    """Define the cosine structure of the penalty potential between two allowed discrete values. 
+    Used in function :py:meth:`discrete_penalty_individual_template`.
+
+    :param v: The distance between the optimized value and the smaller neighboring discrete value.
+    :type v: float
+    :param dv: The distance between smaller and larger neighboring discrete values.
+    :type dv: float
+
+    :return: The value of the penalty potential.
+    :rtype: float
+    """
     return 0.5 * (1 + np.cos(2*np.pi * v / dv))
 
 
 def penalty_structure_gauss(v, dv):
+    """Define the two-Gaussian-functions structure of the penalty potential between two allowed discrete values. 
+    Used in function :py:meth:`discrete_penalty_individual_template`.
+
+    :param v: The distance between the optimized value and the smaller neighboring discrete value.
+    :type v: float
+    :param dv: The distance between smaller and larger neighboring discrete values.
+    :type dv: float
+
+    :return: The value of the penalty potential.
+    :rtype: float
+    """
     sigma = dv / 10
     return np.exp(- 0.5 * v**2 / sigma**2) +  np.exp(- 0.5 * (v - dv)**2 / sigma**2)
 
 
 def discrete_penalty_individual_template(vals, vals_discr, pen_structure):
+    r"""The discretization penalty function template.
+    If there is no penalty, a function gives 1 and 0 in case of the maximum penalty for data points that do not sit on the desired discretization points.
+
+    The resulting contribution of the penalty function is calculated as a product of all penalty values  for each value :math:`v`.
+    
+    .. math::
+
+      U = \prod_{i=1} U_1(v_i).
+
+
+    :param vals: The array of values to optimize :math:`v`.
+    :type vals: np.ndarary
+    :param vals_discr: The array of allowed discrete values :math:`v^{\text{discr}}`.
+    :type vals_discr: np.ndarary
+    :param pen_structure: Define the structure of the template.
+
+        - penalty_structure_zigzag
+            ...
+        - penalty_structure_cos
+            ...
+        - penalty_structure_gauss
+            ...
+
+    .. figure:: discretization_template.png
+      :align: center
+      :width: 450
+
+      The discretization penalty function for discrete values :math:`v^{\text{discr}} = [1, 2, 3, 6, 8, 9]` for different penalty structures.
+
+    :type pen_structure: Callable
+    
+    :return: The array of the penalty potential values for *vals*. The resulting contribution (product) of the penalty function.
+    :rtype: np.ndarary, float
+    """
     prod = []
     for v in vals:
         for i in range (len(vals_discr)-1):
@@ -74,6 +141,37 @@ def discrete_penalty_individual_template(vals, vals_discr, pen_structure):
 
 
 def discrete_penalty_calculator_default(vals, vals_discr):
+    r"""The discretization penalty function taken as a product of all differences between the optimized value :math:`v` and all possible discrete values allowed :math:`v^{\text{discr}}`.
+    If there is no penalty, a function gives 1 and 0 in case of the maximum penalty for data points that do not sit on the desired discretization points.
+    
+    .. math::
+
+      U_1(v) = 1 - \sqrt[N]{\prod_{k=1}^N (v - v^{\text{discr}}_{k})} \frac{1}{\max(v^{\text{discr}}) - \min(v^{\text{discr}})},
+
+    where :math:`N` is the size of the vector of the allowed discrete values :math:`v^{\text{discr}}`. 
+    The resulting contribution of the penalty function is a product of the potential values for each value :math:`v`.
+    
+    .. figure:: discretization_product.png
+      :align: center
+      :width: 400
+
+      The discretization penalty function for discrete values :math:`v^{\text{discr}} = [1, 2, 3, 6, 8, 9]`.
+
+    The resulting contribution of the penalty function is calculated as a product of all penalty values for each value :math:`v`.
+    
+    .. math::
+
+      U = \prod_{i=1} U_1(v_i).
+
+
+    :param vals: The array of values to optimize :math:`v`.
+    :type vals: np.ndarary
+    :param vals_discr: The array of allowed discrete values :math:`v^{\text{discr}}`.
+    :type vals_discr: np.ndarary
+
+    :return: The array of the penalty potential values for *vals*. The resulting contribution (product) of the penalty function.
+    :rtype: np.ndarary, float
+    """
     # TODO - document this function
     # TODO - should be specifiable as parameter in optimization routine
     # Calculate the penalty for provided values
@@ -429,7 +527,21 @@ def find_optimal(fsm: FisherModel, optimization_strategy: str="scipy_differentia
     
     :type optimization_strategy: str
     :param discrete_penalizer: A function that takes two 1d arrays (values, discretization) and returns a float. It calculates the penalty (1=no penalty, 0=maximum penalty) for datapoints which do not sit on the desired discretization points.
-    :type discrete_penalizer: callable
+        
+        - "default"
+            Uses the default penalty function that is described by the function :py:meth:`discrete_penalty_calculator_default`.
+
+        - "product_difference"
+            Uses the discretization penalty function described by the function :py:meth:`discrete_penalty_calculator_default`.
+
+        - "individual_zigzag"
+            Uses the discretization penalty function described by the function :py:meth:`discrete_penalty_individual_template` with the penalty structure *pen_structure=penalty_structure_zigzag*.
+        - "individual_cos"
+            Uses the discretization penalty function described by the function :py:meth:`discrete_penalty_individual_template` with the penalty structure *pen_structure=penalty_structure_cos*.
+
+        - "individual_gauss"
+            Uses the discretization penalty function described by the function :py:meth:`discrete_penalty_individual_template` with the penalty structure *pen_structure=penalty_structure_gauss*.
+    :type discrete_penalizer: str
 
     :raises KeyError: Raised if the chosen optimization strategy is not implemented.
     :return: The result of the optimization as an object *FisherResults*. Important attributes are the conditions of the Optimal Experimental Design *times*, *inputs*, the resultion value of the objective function *criterion*.
