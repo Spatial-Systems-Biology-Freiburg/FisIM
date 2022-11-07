@@ -3,7 +3,7 @@
 import pytest
 import numpy as np
 
-from test.setUp import default_model
+from test.setUp import default_model, model_init_params
 
 from FisInMa import FisherModelParametrized
 
@@ -18,8 +18,15 @@ class Test_fmsp_init_from_fsm:
         for p, q in zip(x0, fsmp.ode_x0):
             np.testing.assert_almost_equal(p, q)
 
-    def test_fixed_ode_x0_explicit_single_vector(self, default_model):
-        fsm = default_model.fsm
+    def test_sample_ode_x0_and_param(self, model_init_params):
+        fsm = model_init_params.fsm
+        x0 = [[0.02, 0.0005], [0.015, 0.001]]
+        fsm.ode_x0 = x0
+        with pytest.raises(ValueError):
+            fsmp = FisherModelParametrized.init_from(fsm)
+
+    def test_fixed_ode_x0_explicit_single_vector(self, model_init_params):
+        fsm = model_init_params.fsm
         x0 = np.array([0.02, 0.0005])
         fsm.ode_x0 = x0
         fsmp = FisherModelParametrized.init_from(fsm)
@@ -79,6 +86,14 @@ class Test_fmsp_init_from_fsm:
 
     def test_fixed_ode_t0_np_array(self, default_model):
         fsm = default_model.fsm
+        t0 = np.array([0.0, 0.1])
+        fsm.ode_t0 = t0
+        fsm.identical_times = True
+        fsmp = FisherModelParametrized.init_from(fsm)
+        np.testing.assert_almost_equal(fsmp.ode_t0, t0)
+
+    def test_fixed_ode_t0_np_array_2(self, model_init_params):
+        fsm = model_init_params.fsm
         t0 = np.array([0.0, 0.1])
         fsm.ode_t0 = t0
         fsm.identical_times = True
