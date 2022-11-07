@@ -3,3 +3,4 @@ numpy>=1.2.0
 pymongo>=4.0
 scipy>=1.7.0
 pydantic>=1.0
+pytest>=7.0

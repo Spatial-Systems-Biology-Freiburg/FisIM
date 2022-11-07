@@ -1,5 +1,6 @@
 import unittest
 import numpy as np
+import pytest
 
 from FisInMa import FisherModel, FisherModelParametrized
 
@@ -51,17 +52,16 @@ def dgdp(t, x, inputs, params, consts):
     return [0 ,0, 0]
 
 
-class Setup_Class(unittest.TestCase):
-    @classmethod
-    def setUp(self, N_x0=2, n_t0=13, n_times=5, n_inputs=(7, 11), identical_times=False):
+class Setup_Class:
+    def __init__(self, N_x0=2, n_t0=13, n_times=5, n_inputs_0=7, n_inputs_1=11, identical_times=False):
         # Use prime numbers for sampled parameters to 
         # show errors in code where reshaping is done
         self.x0=[np.array([0.05 / i, 0.001 / i]) for i in range(1, N_x0+1)]
         self.t0=np.linspace(0.0, 0.01, n_t0)
         self.times=np.linspace(0.1, 10.0, n_times)
         self.inputs=[
-            np.arange(2, n_inputs[0]+2),
-            np.arange(5, n_inputs[1]+5)
+            np.arange(2, n_inputs_0 + 2),
+            np.arange(5, n_inputs_1 + 5)
         ]
         
         self.parameters=(2.95, 8.4768, 0.001)
@@ -84,6 +84,15 @@ class Setup_Class(unittest.TestCase):
         )
         self.fsmp = FisherModelParametrized.init_from(self.fsm)
 
-    @classmethod
-    def setUpClass(self):
-        self.setUp()
+
+@pytest.fixture()
+def default_model():
+    return Setup_Class()
+
+@pytest.fixture()
+def default_model_parametrized(N_x0, n_t0, n_times, n_inputs_0, n_inputs_1, identical_times):
+    return Setup_Class(N_x0, n_t0, n_times, n_inputs_0, n_inputs_1, identical_times)
+
+@pytest.fixture()
+def default_model_small(identical_times):
+    return Setup_Class(N_x0=1, n_t0=1, n_times=1, n_inputs_0=1, n_inputs_1=1, identical_times=identical_times)

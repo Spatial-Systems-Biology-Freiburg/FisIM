@@ -1,12 +1,9 @@
-import unittest
 import numpy as np
 
 from FisInMa.model import FisherModelParametrized
 from FisInMa.solving import *
 
-from test.setUp import Setup_Class
-
-class Test_Criteria(Setup_Class):
+class Test_Criteria:
     @classmethod
     def define_matrices(self):
         S = np.array([

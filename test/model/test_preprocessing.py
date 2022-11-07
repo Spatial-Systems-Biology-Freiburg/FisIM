@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
-import unittest
+import pytest
 import numpy as np
 
 from FisInMa import VariableDefinition
 
 
-class TestVariableDefinition(unittest.TestCase):
+class TestVariableDefinition:
     def test_init_no_discretization(self):
         lb = 2.0
         ub = 4.0
@@ -28,5 +28,5 @@ class TestVariableDefinition(unittest.TestCase):
         n = 10
         dx = 0.5
         unique = True
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             VariableDefinition(lb, ub, n, dx, unique=unique)
