@@ -286,7 +286,7 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
     def ode_x0(self, x0) -> None:
         for i, y in enumerate(x0):
             self.variable_values.ode_x0[i] = y
-            if self.variable_definitions.ode_x0[i] is None:
+            if self.variable_definitions.ode_x0 is None:
                 raise AttributeError("Variable ode_x0 is not mutable!")
     
     @ode_t0.setter
