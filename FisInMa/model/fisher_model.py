@@ -40,8 +40,8 @@ class _FisherOdeFunctions:
 @dataclass(config=Config)
 class _FisherObservableFunctionsOptional:
     obs_fun: Optional[Callable] = None
-    obs_dfdx: Optional[Callable] = None
-    obs_dfdp: Optional[Callable] = None
+    obs_dgdx: Optional[Callable] = None
+    obs_dgdp: Optional[Callable] = None
 
 
 @dataclass(config=Config)
@@ -198,8 +198,8 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
             ode_dfdx=fsm.ode_dfdx,
             ode_dfdp=fsm.ode_dfdp,
             obs_fun=fsm.obs_fun,
-            obs_dfdx=fsm.obs_dfdx,
-            obs_dfdp=fsm.obs_dfdp,
+            obs_dgdx=fsm.obs_dgdx,
+            obs_dgdp=fsm.obs_dgdp,
             identical_times=fsm.identical_times,
             ode_args=fsm.ode_args,
         )

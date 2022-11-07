@@ -101,8 +101,8 @@ class Setup_Convergence:
             parameters=self.parameters,
             ode_args=self.ode_args,
             obs_fun=g,
-            obs_dfdx=dgdx,
-            obs_dfdp=dgdp,
+            obs_dgdx=dgdx,
+            obs_dgdp=dgdp,
             identical_times=identical_times,
         )
         self.fsmp = FisherModelParametrized.init_from(self.fsm)

@@ -46,13 +46,12 @@ def ode_rhs(t, x, ode_fun, ode_dfdx, ode_dfdp, inputs, parameters, ode_args, n_x
 
 def _calculate_sensitivities_with_observable(fsmp: FisherModelParametrized, t: np.ndarray, x: np.ndarray, s: np.ndarray, Q: np.ndarray, n_obs: int, n_p: int, relative_sensitivities=False, **kwargs):
     # Check that the functions are actually not None. We need all of them.
-    if callable(fsmp.obs_fun) and callable(fsmp.obs_dfdp) and callable(fsmp.obs_dfdx):
+    if callable(fsmp.obs_fun) and callable(fsmp.obs_dgdp) and callable(fsmp.obs_dgdx):
         # Calculate the first term of the equation
-        term1 = np.array([fsmp.obs_dfdp(ti, x[:,i_t], Q, fsmp.parameters, fsmp.ode_args) for i_t, ti in enumerate(t)]).reshape((-1, n_obs, n_p)).swapaxes(0, 2)
+        term1 = np.array([fsmp.obs_dgdp(ti, x[:,i_t], Q, fsmp.parameters, fsmp.ode_args) for i_t, ti in enumerate(t)]).reshape((-1, n_obs, n_p)).swapaxes(0, 2)
 
         # Calculate the second term of the equation and add them
-        term2 = np.array([np.array(fsmp.obs_dfdx(ti, x[:,i_t], Q, fsmp.parameters, fsmp.ode_args)).dot(s[:,:,i_t].T) for i_t, ti in enumerate(t)]).reshape((-1, n_obs, n_p)).swapaxes(0, 2)
-        term_shapes = [(np.array(fsmp.obs_dfdx(ti, x[:,i_t], Q, fsmp.parameters, fsmp.ode_args)).shape, s[:,:,i_t].T.shape) for i_t, ti in enumerate(t)]
+        term2 = np.array([np.array(fsmp.obs_dgdx(ti, x[:,i_t], Q, fsmp.parameters, fsmp.ode_args)).dot(s[:,:,i_t].T) for i_t, ti in enumerate(t)]).reshape((-1, n_obs, n_p)).swapaxes(0, 2)
         s = term1 + term2
 
         # Also calculate the results for the observable which can be used later for relative sensitivities
@@ -86,7 +85,7 @@ def get_S_matrix(fsmp: FisherModelParametrized, covar=False, relative_sensitivit
     inputs_shape = tuple(len(q) for q in fsmp.inputs)
 
     # Determine the number of components the observable has by evaluating at
-    if callable(fsmp.obs_fun) and callable(fsmp.obs_dfdp) and callable(fsmp.obs_dfdx):
+    if callable(fsmp.obs_fun) and callable(fsmp.obs_dgdp) and callable(fsmp.obs_dgdx):
         n_obs = np.array(fsmp.obs_fun(fsmp.ode_t0[0], fsmp.ode_x0[0], [q[0] for q in fsmp.inputs], fsmp.parameters, fsmp.ode_args)).size
     else:
         n_obs = n_x0
