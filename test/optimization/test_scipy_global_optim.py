@@ -1,15 +1,18 @@
 import numpy as np
+import pytest
+import itertools
 
-from FisInMa.optimization.scipy_global_optim import _scipy_calculate_bounds_constraints, _create_comparison_matrix, find_optimal, _discrete_penalizer
+from FisInMa.optimization.scipy_global_optim import _scipy_calculate_bounds_constraints, _create_comparison_matrix, find_optimal, _discrete_penalizer, DISCRETE_PENALTY_FUNCTIONS
 from FisInMa.solving import calculate_fisher_criterion
 from FisInMa.model import FisherModelParametrized, FisherResults
 
-from test.setUp import Setup_Class
+from test.setUp import default_model, default_model_parametrized, default_model_small
 
 
-class Test_ScipyGlobalOptimAlgorithms(Setup_Class):
-    def test_scipy_differential_evolution(self):
-        fsm = self.fsm
+class Test_Algorithms:
+    @pytest.mark.parametrize("identical_times", [True, False])
+    def test_differential_evolution(self, default_model_small):
+        fsm = default_model_small.fsm
         fsm.ode_t0 = 0.0
         fsm.ode_x0 = [np.array([0.05, 0.001])]
         fsm.inputs=[
@@ -20,10 +23,11 @@ class Test_ScipyGlobalOptimAlgorithms(Setup_Class):
         # Choose very small iteration and population numbers.
         # This is not about convergence, but about if the method will not fail.
         fsr = find_optimal(fsm, "scipy_differential_evolution", workers=1, maxiter=1, popsize=2)
-        self.assertEqual(type(fsr), FisherResults)
+        assert type(fsr) == FisherResults
 
-    def test_scipy_basinhopping(self):
-        fsm = self.fsm
+    @pytest.mark.parametrize("identical_times", [True, False])
+    def test_basinhopping(self, default_model_small):
+        fsm = default_model_small.fsm
         fsm.ode_t0 = 0.0
         fsm.ode_x0 = [np.array([0.05, 0.001])]
         fsm.inputs=[
@@ -34,10 +38,11 @@ class Test_ScipyGlobalOptimAlgorithms(Setup_Class):
         # Choose very small iteration and population numbers.
         # This is not about convergence, but about if the method will not fail.
         fsr = find_optimal(fsm, "scipy_basinhopping", niter=1, interval=2)
-        self.assertEqual(type(fsr), FisherResults)
+        assert type(fsr) == FisherResults
 
-    def test_scipy_brute(self):
-        fsm = self.fsm
+    @pytest.mark.parametrize("identical_times", [True, False])
+    def test_brute(self, default_model_small):
+        fsm = default_model_small.fsm
         fsm.ode_t0 = 0.0
         fsm.ode_x0 = [np.array([0.05, 0.001])]
         fsm.inputs=[
@@ -49,11 +54,11 @@ class Test_ScipyGlobalOptimAlgorithms(Setup_Class):
         # Choose very small iteration and population numbers.
         # This is not about convergence, but about if the method will not fail.
         fsr = find_optimal(fsm, "scipy_brute", Ns=1, workers=1)
-        self.assertEqual(type(fsr), FisherResults)
+        assert type(fsr) == FisherResults
 
 
-class Test_ScipyCalculateConstraints(Setup_Class):
-    def test_create_comparison_matrix(self):
+class Test_BoundsConstraints:
+    def test_comp_matrix(self):
         # Explicit testing
         test_matrices = [
             np.array([
@@ -95,8 +100,8 @@ class Test_ScipyCalculateConstraints(Setup_Class):
                 # Test how many non-zero entries the matrix has. If the count matches, the matrix is correct
                 np.testing.assert_equal(np.sum(A!=0.0), 2*(k-1))
 
-    def test_scipy_calculate_bounds_constraints_sample_none(self):
-        fsm = self.fsm
+    def test_bounds_constraints_sample_none(self, default_model):
+        fsm = default_model.fsm
         fsm.ode_x0 = [0.0, 0.0]
         fsm.ode_t0 = 0.0
         fsm.times = [1.0, 2.0, 3.0, 4.0]
@@ -111,8 +116,8 @@ class Test_ScipyCalculateConstraints(Setup_Class):
         np.testing.assert_almost_equal(constraints.lb, [])
         np.testing.assert_almost_equal(constraints.A, np.eye(0))
 
-    def test_scipy_calculate_bounds_constraints_sample_ode_t0(self):
-        fsm = self.fsm
+    def test_bounds_constraints_sample_ode_t0(self, default_model):
+        fsm = default_model.fsm
         fsm.ode_t0 = (0.00, 0.001, 3)
         fsmp = FisherModelParametrized.init_from(fsm)
         bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
@@ -121,8 +126,8 @@ class Test_ScipyCalculateConstraints(Setup_Class):
         np.testing.assert_almost_equal(constraints.ub, [np.inf]*(fsm.ode_t0[2]-1))
         np.testing.assert_almost_equal(constraints.A, _create_comparison_matrix(fsm.ode_t0[2]))
     
-    def test_scipy_calculate_bounds_constraints_sample_ode_x0(self):
-        fsm = self.fsm
+    def test_bounds_constraints_sample_ode_x0(self, default_model):
+        fsm = default_model.fsm
         fsm.ode_x0 = [[0.0,0.0],[0.1,0.05]]
         fsmp = FisherModelParametrized.init_from(fsm)
         bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
@@ -131,8 +136,8 @@ class Test_ScipyCalculateConstraints(Setup_Class):
         np.testing.assert_almost_equal(constraints.ub, [])
         np.testing.assert_almost_equal(constraints.A, _create_comparison_matrix(0))
     
-    def test_scipy_calculate_bounds_constraints_sample_times(self):
-        fsm = self.fsm
+    def test_constraints_sample_times(self, default_model):
+        fsm = default_model.fsm
         fsm.identical_times=True
         fsm.times = (0.0, 10.0, 5)
         fsmp = FisherModelParametrized.init_from(fsm)
@@ -147,8 +152,8 @@ class Test_ScipyCalculateConstraints(Setup_Class):
         A = _create_comparison_matrix(fsm.times[2])
         np.testing.assert_almost_equal(constraints.A, A)
     
-    def test_scipy_calculate_bounds_constraints_sample_inputs(self):
-        fsm = self.fsm
+    def test_constraints_sample_inputs(self, default_model):
+        fsm = default_model.fsm
         fsm.inputs = [
             (1.0, 2.0, 3),
             (3.0, 44.0, 6)
@@ -168,46 +173,55 @@ class Test_ScipyCalculateConstraints(Setup_Class):
 
     # Combinations (2)
     """
-    def test_scipy_calculate_bounds_constraints_sample_ode_t0_ode_x0(self):
+    def test_scipy_calculate_bounds_constraints_sample_ode_t0_ode_x0(self, default_model):
         pass
 
-    def test_scipy_calculate_bounds_constraints_sample_ode_t0_times(self):
+    def test_scipy_calculate_bounds_constraints_sample_ode_t0_times(self, default_model):
         pass
 
-    def test_scipy_calculate_bounds_constraints_sample_ode_t0_inputs(self):
+    def test_scipy_calculate_bounds_constraints_sample_ode_t0_inputs(self, default_model):
         pass
 
-    def test_scipy_calculate_bounds_constraints_sample_ode_x0_times(self):
+    def test_scipy_calculate_bounds_constraints_sample_ode_x0_times(self, default_model):
         pass
 
-    def test_scipy_calculate_bounds_constraints_sample_ode_x0_inputs(self):
+    def test_scipy_calculate_bounds_constraints_sample_ode_x0_inputs(self, default_model):
         pass
 
-    def test_scipy_calculate_bounds_constraints_sample_times_inputs(self):
+    def test_scipy_calculate_bounds_constraints_sample_times_inputs(self, default_model):
         pass
 
     # Combinations (3)
-    def test_scipy_calculate_bounds_constraints_sample_ode_t0_ode_x0_times(self):
+    def test_scipy_calculate_bounds_constraints_sample_ode_t0_ode_x0_times(self, default_model):
         pass
 
-    def test_scipy_calculate_bounds_constraints_sample_ode_t0_ode_x0_inputs(self):
+    def test_scipy_calculate_bounds_constraints_sample_ode_t0_ode_x0_inputs(self, default_model):
         pass
 
-    def test_scipy_calculate_bounds_constraints_sample_ode_t0_times_inputs(self):
+    def test_scipy_calculate_bounds_constraints_sample_ode_t0_times_inputs(self, default_model):
         pass
 
-    def test_scipy_calculate_bounds_constraints_sample_ode_x0_times_inputs(self):
+    def test_scipy_calculate_bounds_constraints_sample_ode_x0_times_inputs(self, default_model):
         pass
 
     # Combination (4)
-    def test_scipy_calculate_bounds_constraints_sample_ode_t0_ode_x0_times_inputs(self):
+    def test_scipy_calculate_bounds_constraints_sample_ode_t0_ode_x0_times_inputs(self, default_model):
         pass
     """
 
-class Test_DiscretizationPenalty(Setup_Class):
-    def test_ode_t0_discr_penalty_default(self):
-        self.setUp(N_x0=2, n_t0=2, n_times=2, n_inputs=(2, 3), identical_times=False)
-        fsm = self.fsm
+def generate_penalty_combs():
+    params = []
+    return [[2, 2, 2, 2, 3, False, key] for key in DISCRETE_PENALTY_FUNCTIONS.keys()]
+
+    # for penalty_name in DISCRETE_PENALTY_FUNCTIONS.keys():
+    #     params.append([2, 2, 2, 2, 3, False, penalty_name])
+    # return params
+
+
+class Test_DiscrPenalty:
+    @pytest.mark.parametrize("N_x0,n_t0,n_times,n_inputs_0,n_inputs_1,identical_times,penalty_name", generate_penalty_combs())
+    def test_ode_t0(self, default_model_parametrized, penalty_name):
+        fsm = default_model_parametrized.fsm
         fsm.ode_t0 = (0.00, 0.001, 3, 0.0002)
         # Initialize model with initial guess
         fsmp = FisherModelParametrized.init_from(fsm)
@@ -217,15 +231,15 @@ class Test_DiscretizationPenalty(Setup_Class):
         
         # Calculate penalty for initial_guess = discretization
         # The penalty should be non-effective (ie. = 1.0)
-        res, _ = _discrete_penalizer(fsmp)
+        res, _ = _discrete_penalizer(fsmp, penalizer_name=penalty_name)
         np.testing.assert_almost_equal(res, 1.0)
         
         # Now set the values to a non-discrete conforming value
         fsmp.ode_t0 = [0.000, 0.0006, 0.0005]
 
         # Test if the penalty is now below 1.0
-        res, _ = _discrete_penalizer(fsmp)
-        self.assertLess(res, 1.0)
+        res, _ = _discrete_penalizer(fsmp, penalizer_name=penalty_name)
+        assert res < 1.0
 
         # Now see if after some time the penalty returns to 1 when going near specified discretization value
         n_runs = 100
@@ -233,19 +247,19 @@ class Test_DiscretizationPenalty(Setup_Class):
         converge = False
         for i in (n_runs - np.arange(n_runs+1)):
             fsmp.ode_t0 = [0.000, 0.001 + 0.0001*i/n_runs, 0.001 + 0.0002*i/n_runs]
-            res, _ = _discrete_penalizer(fsmp)
+            res, _ = _discrete_penalizer(fsmp, penalizer_name=penalty_name)
             if res_prev !=None and res > res_prev:
                 converge = True
             if converge == True:
-                self.assertLess(res_prev, res)
+                assert res_prev < res
             res_prev = res
         
         # Also test if we have reached 1.0 again
         np.testing.assert_almost_equal(res, 1.0)
 
-    def test_times_discr_penalty_default(self):
-        self.setUp(N_x0=2, n_t0=2, n_times=2, n_inputs=(2, 3), identical_times=False)
-        fsm = self.fsm
+    @pytest.mark.parametrize("N_x0,n_t0,n_times,n_inputs_0,n_inputs_1,identical_times,penalty_name", generate_penalty_combs())
+    def test_times(self, default_model_parametrized, penalty_name):
+        fsm = default_model_parametrized.fsm
         fsm.times = (0.00, 10.0, 5, 0.5)
         # Initialize model with initial guess
         fsmp = FisherModelParametrized.init_from(fsm)
@@ -255,7 +269,7 @@ class Test_DiscretizationPenalty(Setup_Class):
         
         # Calculate penalty for initial_guess = discretization
         # The penalty should be non-effective (ie. = 1.0)
-        res, _ = _discrete_penalizer(fsmp)
+        res, _ = _discrete_penalizer(fsmp, penalizer_name=penalty_name)
         np.testing.assert_almost_equal(res, 1.0)
         
         # Now set the values to a non-discrete conforming value
@@ -266,8 +280,8 @@ class Test_DiscretizationPenalty(Setup_Class):
         ]))
 
         # Test if the penalty is now below 1.0
-        res, _ = _discrete_penalizer(fsmp)
-        self.assertLess(res, 1.0)
+        res, _ = _discrete_penalizer(fsmp, penalizer_name=penalty_name)
+        assert res < 1.0
 
         # Now see if after some time the penalty returns to 1 when going near specified discretization value
         n_runs = 100
@@ -279,19 +293,19 @@ class Test_DiscretizationPenalty(Setup_Class):
                 [0.0, 2.0 + 0.1*i/n_runs, 2.5 - 0.1*i/n_runs, 6.5, 9.5],
                 [0.0, 2.0 + 0.2*i/n_runs, 2.5 + 0.1*i/n_runs, 6.0, 10.0]
             ]))
-            res, _ = _discrete_penalizer(fsmp)
+            res, _ = _discrete_penalizer(fsmp, penalizer_name=penalty_name)
             if res_prev !=None and res > res_prev:
                 converge = True
             if converge == True:
-                self.assertLess(res_prev, res)
+                assert res_prev < res
             res_prev = res
 
         # Also test if we have reached 1.0 again
         np.testing.assert_almost_equal(res, 1.0)
-
-    def test_inputs_discr_penalty_default(self):
-        self.setUp(N_x0=2, n_t0=2, n_times=2, n_inputs=(2, 3), identical_times=False)
-        fsm = self.fsm
+    
+    @pytest.mark.parametrize("N_x0,n_t0,n_times,n_inputs_0,n_inputs_1,identical_times,penalty_name", generate_penalty_combs())
+    def test_inputs(self, default_model_parametrized, penalty_name):
+        fsm = default_model_parametrized.fsm
         fsm.inputs[0] = (5.0, 8.0, 3, 0.25)
         # Initialize model with initial guess
         fsmp = FisherModelParametrized.init_from(fsm)
@@ -301,15 +315,15 @@ class Test_DiscretizationPenalty(Setup_Class):
 
         # Calculate penalty for initial_guess = discretization
         # The penalty should be non-effective (ie. = 1.0)
-        res, _ = _discrete_penalizer(fsmp)
+        res, _ = _discrete_penalizer(fsmp, penalizer_name=penalty_name)
         np.testing.assert_almost_equal(res, 1.0)
 
         # Now set the values to a non-discrete conforming value
         fsmp.inputs[0] = np.array([5.0, 5.2, 6.3])
 
         # Test if the penalty is now below 1.0
-        res, _ = _discrete_penalizer(fsmp)
-        self.assertLess(res, 1.0)
+        res, _ = _discrete_penalizer(fsmp, penalizer_name=penalty_name)
+        assert res < 1.0
 
         # Now see if after some time the penalty returns to 1 when going near specified discretization value
         n_runs = 100
@@ -317,15 +331,15 @@ class Test_DiscretizationPenalty(Setup_Class):
         converge = False
         for i in (n_runs - np.arange(n_runs+1)):
             fsmp.inputs[0] = np.array([5.0, 5.0 + 0.2*i/n_runs, 6.5 - 0.2*i/n_runs])
-            res, _ = _discrete_penalizer(fsmp)
+            res, _ = _discrete_penalizer(fsmp, penalizer_name=penalty_name)
             if res_prev !=None and res > res_prev:
                 converge = True
             if converge == True:
-                self.assertLess(res_prev, res)
+                assert res_prev < res
             res_prev = res
         
         # Also test if we have reached 1.0 again
         np.testing.assert_almost_equal(res, 1.0)
 
     # TODO - but needs sampling over x0 first!
-    # def test_ode_x0_discr_penalty(self):
+    # def test_ode_x0_discr_penalty(self, default_model):
