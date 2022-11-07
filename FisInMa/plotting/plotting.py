@@ -67,14 +67,24 @@ def plot_all_sensitivities(fsr: FisherResults, outdir=Path("."), additional_name
 
         # Plot solution to sensitivities
         t_values = np.linspace(times_low, times_high)
+
+        # Helper variables
         n_x = len(sol.ode_x0)
         n_p = len(sol.parameters)
-        x0_full = np.concatenate((sol.ode_x0, np.zeros(n_x * n_p)))
-        res = sp.integrate.solve_ivp(ode_rhs, (times_low, times_high), x0_full, t_eval=t_values, args=(fsr.ode_fun, fsr.ode_dfdx, fsr.ode_dfdp, sol.inputs, sol.parameters, sol.ode_args, n_x, n_p))
+        n_p_full = n_p + (n_x if callable(fsr.ode_dfdx0) else 0)
+
+        # Define initial values for sensitivities
+        if callable(fsr.ode_dfdx0):
+            x0_full = np.concatenate((sol.ode_x0, np.zeros(n_x * n_p), np.ones(n_x)))
+        else:
+            x0_full = np.concatenate((sol.ode_x0, np.zeros(n_x * n_p)))
+
+        # Solve the ODEs
+        res = sp.integrate.solve_ivp(ode_rhs, (times_low, times_high), x0_full, t_eval=t_values, args=(fsr.ode_fun, fsr.ode_dfdx, fsr.ode_dfdp, fsr.ode_dfdx0, sol.inputs, sol.parameters, sol.ode_args, n_x, n_p))
         t = np.array(res.t)
 
         # Iterate over all possible sensitivities
-        for j, k in itertools.product(range(n_x), range(n_p)):
+        for j, k in itertools.product(range(n_x), range(n_p_full)):
             # Get ODE solutions
             if fsr.relative_sensitivities==False:
                 norm1 = 1.0
@@ -83,12 +93,11 @@ def plot_all_sensitivities(fsr: FisherResults, outdir=Path("."), additional_name
                 norm1 = sol.ode_solution.y[:n_x].reshape((n_x, -1))[j]
                 norm2 = np.array(res.y[:n_x].reshape((n_x, -1))[j])
 
-            r = sol.ode_solution.y[n_x:].reshape((n_x, n_p, -1))[j, k] / norm1
-            
+            r = sol.ode_solution.y[n_x:].reshape((n_x, n_p_full, -1))[j, k] / norm1
 
             # Create figure and axis
             fig, ax = plt.subplots(figsize=(10, 6))
-            y = np.array(res.y[n_x:].reshape((n_x, n_p, -1))[j, k]) / norm2
+            y = np.array(res.y[n_x:].reshape((n_x, n_p_full, -1))[j, k]) / norm2
             ax.plot(t, y, color="#21918c", label="Sensitivities Solution")
 
             # Plot sampled time points

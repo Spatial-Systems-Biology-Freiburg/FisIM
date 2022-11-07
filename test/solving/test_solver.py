@@ -45,7 +45,7 @@ def test_ode_rhs(default_model):
 
         # Test for initial values (initial values for sensitivities are 0 by default)
         x0_full = np.concatenate((x0, np.zeros(n_x * n_p)))
-        res = ode_rhs(t0, x0_full, fsmp.ode_fun, fsmp.ode_dfdx, fsmp.ode_dfdp, Q, fsmp.parameters, fsmp.ode_args, n_x, n_p)
+        res = ode_rhs(t0, x0_full, fsmp.ode_fun, fsmp.ode_dfdx, fsmp.ode_dfdp, fsmp.ode_dfdx0, Q, fsmp.parameters, fsmp.ode_args, n_x, n_p)
         
         np.testing.assert_almost_equal(res[:n_x], fsmp.ode_fun(t0, x0, Q, fsmp.parameters, fsmp.ode_args))
         np.testing.assert_almost_equal(res[n_x:], np.array(fsmp.ode_dfdp(t0, x0, Q, fsmp.parameters, fsmp.ode_args)).flatten())
@@ -53,7 +53,7 @@ def test_ode_rhs(default_model):
         # Test for non-zero sensitivity values
         s0 = (np.zeros(n_x * n_p) + 1.0).reshape((n_x, n_p))
         x0_full = np.concatenate((x0, s0.flatten()))
-        res = ode_rhs(t0, x0_full, fsmp.ode_fun, fsmp.ode_dfdx, fsmp.ode_dfdp, Q, fsmp.parameters, fsmp.ode_args, n_x, n_p)
+        res = ode_rhs(t0, x0_full, fsmp.ode_fun, fsmp.ode_dfdx, fsmp.ode_dfdp, fsmp.ode_dfdx0, Q, fsmp.parameters, fsmp.ode_args, n_x, n_p)
         
         # Mimic calculation of sensitivities
         f_ty = fsmp.ode_fun(t0, x0, Q, fsmp.parameters, fsmp.ode_args)

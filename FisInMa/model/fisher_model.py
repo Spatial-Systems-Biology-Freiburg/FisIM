@@ -42,6 +42,8 @@ class _FisherObservableFunctionsOptional:
     obs_fun: Optional[Callable] = None
     obs_dgdx: Optional[Callable] = None
     obs_dgdp: Optional[Callable] = None
+    ode_dfdx0: Callable = None
+    obs_dgdx0: Callable = None
 
 
 @dataclass(config=Config)
@@ -190,6 +192,15 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
             variable_definitions.ode_t0 = None
             variable_values.ode_t0 = np.array(fsm.ode_t0)
 
+        # Check if we treat the initial values as a parameter
+        if callable(fsm.ode_dfdx0):
+            if callable(fsm.obs_fun) or callable(fsm.obs_dgdp) or callable(fsm.obs_dgdx):
+                if not callable(fsm.obs_dgdx0):
+                    raise ValueError("ode_dfdx0 was specified and observable is probably used but obs_dgx0 was not given!")
+
+            if len(variable_values.ode_x0) > 1:
+                raise ValueError("Specify a single initial value to use it as a parameter. Sampling and treating x0 as parameter are complementary.")
+
         # Construct parametrized model class and return it
         fsmp = FisherModelParametrized(
             variable_definitions=variable_definitions,
@@ -200,6 +211,8 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
             obs_fun=fsm.obs_fun,
             obs_dgdx=fsm.obs_dgdx,
             obs_dgdp=fsm.obs_dgdp,
+            ode_dfdx0=fsm.ode_dfdx0,
+            obs_dgdx0=fsm.obs_dgdx0,
             identical_times=fsm.identical_times,
             ode_args=fsm.ode_args,
         )
