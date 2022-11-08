@@ -192,14 +192,7 @@ def get_S_matrix(fsmp: FisherModelParametrized, covar=False, relative_sensitivit
 
         # Multiply the values again to obtain desired shape for sensitivity matrix
         s = np.repeat(s, counts, axis=2)
-        # if np.sum(counts > 1) > 0:
-        #     print("WARNING!")
-        #     print(obs.shape)
-        #     print(counts)
-        #     print(t.shape)
-        #     print(t)
         obs = np.repeat(obs, counts, axis=1)
-
 
         # Calculate the S-Matrix from the sensitivities
         # Depending on if we want to calculate the relative sensitivities
