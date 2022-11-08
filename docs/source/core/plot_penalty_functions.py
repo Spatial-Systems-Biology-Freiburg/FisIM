@@ -22,7 +22,7 @@ def plot_discretization_product(outdir):
     ax.set_ylabel(r'$U_1 (v)$', fontsize=17)
     #plt.xlim(4, 12)
     plt.legend([l1, l2], [r"Penalty", r"$v^\text{discr}$"], fontsize=15, handlelength=1.3, framealpha=0)
-    plt.savefig(outdir / "discretization_product.png")
+    plt.savefig(outdir / "discretization_product.png", transparent=True, bbox_inches='tight')
     plt.close(fig) 
 
 def plot_discrete_penalty_individual_template(outdir):
@@ -49,6 +49,6 @@ def plot_discrete_penalty_individual_template(outdir):
     
     #plt.xlim(4, 12)
     ax[0].legend([l1, l4], ["Penalty", r"$v^\text{discr}$"], fontsize=13, handlelength=1.3, framealpha=0)
-    plt.savefig(outdir / "discretization_template.png", bbox_inches='tight')
+    plt.savefig(outdir / "discretization_template.png", bbox_inches='tight', transparent=True)
     plt.close(fig) 
 
