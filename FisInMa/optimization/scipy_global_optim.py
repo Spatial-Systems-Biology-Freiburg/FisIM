@@ -50,12 +50,18 @@ class PenaltyInformation:
 
 
 def penalty_structure_zigzag(v, dv):
-    """Define the zigzag structure of the penalty potential between two allowed discrete values. 
-    Used in function :py:meth:`discrete_penalty_individual_template`.
+    r"""Define the zigzag structure of the penalty potential between two allowed discrete values described by equation 
 
-    :param v: The distance between the optimized value and the smaller neighboring discrete value.
+    .. math::
+
+        U_1(v) = \bigg|1 - \frac{2 v}{dv}\bigg|,
+
+    where :math:`v` is the distance between the optimized value and the smaller neighboring discrete value and :math:`dv` is the distance between smaller and larger neighboring discrete values.    
+    The function is used as an argument in function :py:meth:`discrete_penalty_individual_template` and dtermines the shape of it.
+
+    :param v: The distance between the optimized value and the smaller neighboring discrete value :math:`v`.
     :type v: float
-    :param dv: The distance between smaller and larger neighboring discrete values.
+    :param dv: The distance between smaller and larger neighboring discrete values :math:`dv`.
     :type dv: float
 
     :return: The value of the penalty potential.
@@ -65,12 +71,18 @@ def penalty_structure_zigzag(v, dv):
 
 
 def penalty_structure_cos(v, dv):
-    """Define the cosine structure of the penalty potential between two allowed discrete values. 
-    Used in function :py:meth:`discrete_penalty_individual_template`.
+    r"""Define the cosine structure of the penalty potential between two allowed discrete values described by equation 
 
-    :param v: The distance between the optimized value and the smaller neighboring discrete value.
+    .. math::
+
+        U_1(v) = \frac{1}{2} (1 + \cos{2 \pi v}),
+
+    where :math:`v` is the distance between the optimized value and the smaller neighboring discrete value and :math:`dv` is the distance between smaller and larger neighboring discrete values.    
+    The function is used as an argument in function :py:meth:`discrete_penalty_individual_template` and dtermines the shape of it.
+
+    :param v: The distance between the optimized value and the smaller neighboring discrete value :math:`v`.
     :type v: float
-    :param dv: The distance between smaller and larger neighboring discrete values.
+    :param dv: The distance between smaller and larger neighboring discrete values :math:`dv`.
     :type dv: float
 
     :return: The value of the penalty potential.
@@ -80,12 +92,19 @@ def penalty_structure_cos(v, dv):
 
 
 def penalty_structure_gauss(v, dv):
-    """Define the two-Gaussian-functions structure of the penalty potential between two allowed discrete values. 
-    Used in function :py:meth:`discrete_penalty_individual_template`.
+    r"""Define the gaussian structure of the penalty potential between two allowed discrete values described by equation 
 
-    :param v: The distance between the optimized value and the smaller neighboring discrete value.
+    .. math::
+
+        U_1(v) = e^{-\frac{v^2}{2\sigma^2}} + e^{-\frac{(v-dv)^2}{2\sigma^2}}
+
+    where :math:`v` is the distance between the optimized value and the smaller neighboring discrete value, :math:`dv` is the distance between smaller and larger neighboring discrete values
+    and the variance is :math:`\sigma = 0.1dv`.    
+    The function is used as an argument in function :py:meth:`discrete_penalty_individual_template` and dtermines the shape of it.
+
+    :param v: The distance between the optimized value and the smaller neighboring discrete value :math:`v`.
     :type v: float
-    :param dv: The distance between smaller and larger neighboring discrete values.
+    :param dv: The distance between smaller and larger neighboring discrete values :math:`dv`.
     :type dv: float
 
     :return: The value of the penalty potential.
@@ -112,12 +131,14 @@ def discrete_penalty_individual_template(vals, vals_discr, pen_structure):
     :type vals_discr: np.ndarary
     :param pen_structure: Define the structure of the template.
 
-        - penalty_structure_zigzag
-            ...
-        - penalty_structure_cos
-            ...
-        - penalty_structure_gauss
-            ...
+        - :py:meth:`penalty_structure_zigzag`
+            Use zigzag structure.
+
+        - :py:meth:`penalty_structure_cos`
+            Use cosine function for potential.
+            
+        - :py:meth:`penalty_structure_gauss`
+            Use two Gaussian functions.
 
     .. figure:: discretization_template.png
       :align: center
