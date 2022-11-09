@@ -188,7 +188,6 @@ def plot_all_sensitivities2(fsr: FisherResults, outdir=Path("."), additional_nam
                 params = sol.parameters + (*sol.ode_x0,)
             else:
                 params = sol.parameters
-            print(params)
             for ii, p in enumerate(params):
                 s[ii] *= p
 
