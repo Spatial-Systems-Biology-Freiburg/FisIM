@@ -1,5 +1,6 @@
 from FisInMa.model import FisherModel, FisherModelParametrized
 from .scipy_global_optim import __scipy_differential_evolution, __scipy_basinhopping, __scipy_brute
+from .display import display_optimization_start, display_optimization_end
 
 
 OPTIMIZATION_STRATEGIES = {
@@ -9,7 +10,7 @@ OPTIMIZATION_STRATEGIES = {
 }
 
 
-def find_optimal(fsm: FisherModel, optimization_strategy: str="scipy_differential_evolution", discrete_penalizer="default", **kwargs):
+def find_optimal(fsm: FisherModel, optimization_strategy: str="scipy_differential_evolution", discrete_penalizer="default", verbose=True, **kwargs):
     r"""Find the global optimum of the supplied FisherModel.
 
     :param fsm: The FisherModel object that defines the studied system with its all constraints.
@@ -70,7 +71,15 @@ def find_optimal(fsm: FisherModel, optimization_strategy: str="scipy_differentia
     """
     fsmp = FisherModelParametrized.init_from(fsm)
 
+    if verbose==True:
+        display_optimization_start(fsmp)
+
     if optimization_strategy not in OPTIMIZATION_STRATEGIES.keys():
         raise KeyError("Please specify one of the following optimization_strategies for optimization: " + str(OPTIMIZATION_STRATEGIES.keys()))
 
-    return OPTIMIZATION_STRATEGIES[optimization_strategy](fsmp, discrete_penalizer, **kwargs)
+    fsr = OPTIMIZATION_STRATEGIES[optimization_strategy](fsmp, discrete_penalizer, **kwargs)
+
+    if verbose==True:
+        display_optimization_end(fsr)
+
+    return fsr
