@@ -137,6 +137,7 @@ if __name__ == "__main__":
             obs_dgdx=dgdx,
             obs_dgdp=dgdp,
             obs_dgdx0=dgdx0,
+            covariance=("abs", 0.1),
     )
 
     ###############################
