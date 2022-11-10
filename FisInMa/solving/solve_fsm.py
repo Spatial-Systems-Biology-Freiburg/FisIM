@@ -227,6 +227,7 @@ def get_S_matrix(fsmp: FisherModelParametrized, covar=False, relative_sensitivit
             ode_solution=res,
             sensitivities=s,
             identical_times=fsmp.identical_times,
+            observables = obs
         )
         solutions.append(fsrs)
     
