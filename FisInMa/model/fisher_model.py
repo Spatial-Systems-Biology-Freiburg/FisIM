@@ -7,9 +7,9 @@ try:
     from collections.abc import Callable
 except:
     from typing import Callable
-from typing import Optional, Union, Any, List
+from typing import Optional, Union, Any, List, Tuple
 
-from .preprocessing import VariableDefinition
+from .preprocessing import VariableDefinition, CovarianceDefinition
 
 
 class Config:
@@ -29,6 +29,7 @@ class _FisherVariablesBase:
 class _FisherVariablesOptions:
     ode_args: Any = None
     identical_times: bool = False
+    covariance: Union[float, Tuple[float, float], List[float], Tuple[str, float], Tuple[List[float], List[float]], Tuple[str, List[float]], CovarianceDefinition] = None
 
 
 @dataclass(config=Config)
@@ -132,6 +133,7 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
             fsm.parameters,
             fsm.ode_args,
             fsm.identical_times,
+            fsm.covariance,
         )
         variable_values = deepcopy(variable_definitions)
 
@@ -218,6 +220,41 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
             if len(variable_values.ode_x0) > 1:
                 raise ValueError("Specify a single initial value to use it as a parameter. Sampling and treating x0 as parameter are complementary.")
 
+        # Check if covariance was specified for our system
+        n_x = len(x0_vals[0])
+        n_obs = n_x if callable(fsm.obs_fun)==False else np.array(fsm.obs_fun(variable_values.times[0], x0_vals[0], [v[0] for v in variable_values.inputs], fsm.parameters, fsm.ode_args)).size
+
+        if fsm.covariance is not None:
+            if type(fsm.covariance) == tuple and len(fsm.covariance) == 2:
+                c0 = fsm.covariance[0]
+                c1 = fsm.covariance[1]
+
+                if type(c0)==str and type(c1)==float:
+                    if "rel" in c0:
+                        covariance = CovarianceDefinition(relative=np.array(c1))
+                    elif "abs" in c0:
+                        covariance = CovarianceDefinition(absolute=np.array(c1))
+                    else:
+                        raise ValueError("Cannot read input of covariance {}".format(fsm.covariance))
+                if type(c0)==type(c1)==list:
+                    if len(c0)!=n_x or len(c1)!=n_x:
+                        raise ValueError("Length of covariance list should be equal to number of observables")
+                    covariance = CovarianceDefinition(absolute=np.array(c0), relative=np.array(c1))
+                elif type(c0)==type(c1)==float:
+                    covariance = CovarianceDefinition(absolute=np.full((n_obs,), c0), relative=np.full((n_obs,), c1))
+            elif type(fsm.covariance) == float:
+                covariance = CovarianceDefinition(absolute=np.full((n_obs,), [fsm.covariance]))
+            elif type(fsm.covariance) == list:
+                if len(fsm.covariance)!=n_x:
+                    raise ValueError("Length of covariance list should be equal to number of observables")
+                covariance = CovarianceDefinition(absolute=np.array(fsm.covariance))
+            elif type(fsm.covariance) == CovarianceDefinition:
+                covariance = fsm.covariance
+            else:
+                raise ValueError("Cannot read input of covariance {}".format(fsm.covariance))
+        else:
+            covariance = CovarianceDefinition(absolute=None, relative=None)
+
         # Construct parametrized model class and return it
         fsmp = FisherModelParametrized(
             variable_definitions=variable_definitions,
@@ -232,6 +269,7 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
             obs_dgdx0=fsm.obs_dgdx0,
             identical_times=fsm.identical_times,
             ode_args=fsm.ode_args,
+            covariance=covariance,
         )
         return fsmp
 

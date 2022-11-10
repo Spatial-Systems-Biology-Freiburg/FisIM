@@ -3,7 +3,7 @@
 import pytest
 import numpy as np
 
-from test.setUp import default_model, model_init_params
+from test.setUp import default_model, model_init_params, pool_model
 
 from FisInMa import FisherModelParametrized
 
@@ -53,8 +53,8 @@ class Test_fmsp_init_from_fsm:
         fsmp = FisherModelParametrized.init_from(fsm)
         np.testing.assert_almost_equal(x0, fsmp.ode_x0)
     
-    def test_fixed_ode_x0_explicit_single_float(self, default_model):
-        fsm = default_model.fsm
+    def test_fixed_ode_x0_explicit_single_float(self, pool_model):
+        fsm = pool_model.fsm
         x0 = 0.2
         fsm.ode_x0 = x0
         fsmp = FisherModelParametrized.init_from(fsm)

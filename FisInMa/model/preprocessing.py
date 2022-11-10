@@ -51,3 +51,9 @@ class VariableDefinition():
         elif type(self.initial_guess)!=np.ndarray:
             raise ValueError("Unknown input {}: Either specify list of values, numpy ndarray or method to obtain initial guess.".format(self.initial_guess))
         self.bounds = (self.lb, self.ub)
+
+
+@dataclass(config=Config)
+class CovarianceDefinition():
+    relative: Union[np.ndarray, List[float]] = None
+    absolute: Union[np.ndarray, List[float]] = None

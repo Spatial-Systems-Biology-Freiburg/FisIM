@@ -13,20 +13,20 @@ def comb_gen_solving():
     # We do not want to do stress testing but need to verify for a certain amount of combinatorics
     # This tries to find a middle ground in testing
     # params = []
-    for identical_times, covar, relative_sensitivities in itertools.product(*([[True, False]]*3)):
-        print(identical_times, covar, relative_sensitivities)
+    for identical_times, relative_sensitivities in itertools.product(*([[True, False]]*2)):
+        print(identical_times, relative_sensitivities)
     
-        yield [2,3,5,2,1,identical_times,covar,relative_sensitivities]
-        yield [1,2,3,5,2,identical_times,covar,relative_sensitivities]
-        yield [2,1,2,3,5,identical_times,covar,relative_sensitivities]
-        yield [5,2,1,2,3,identical_times,covar,relative_sensitivities]
-        yield [3,5,2,1,2,identical_times,covar,relative_sensitivities]
+        yield [2,3,5,2,1,identical_times,relative_sensitivities]
+        yield [1,2,3,5,2,identical_times,relative_sensitivities]
+        yield [2,1,2,3,5,identical_times,relative_sensitivities]
+        yield [5,2,1,2,3,identical_times,relative_sensitivities]
+        yield [3,5,2,1,2,identical_times,relative_sensitivities]
 
 
-@pytest.mark.parametrize("N_x0,n_t0,n_times,n_inputs_0,n_inputs_1,identical_times,covar,relative_sensitivities", comb_gen_solving())
-def test_get_S_matrix(default_model_parametrized, covar, relative_sensitivities):
+@pytest.mark.parametrize("N_x0,n_t0,n_times,n_inputs_0,n_inputs_1,identical_times,relative_sensitivities", comb_gen_solving())
+def test_get_S_matrix(default_model_parametrized, relative_sensitivities):
     fsmp = default_model_parametrized.fsmp
-    S, C, solutions = get_S_matrix(fsmp)#, covar=covar, relative_sensitivities=relative_sensitivities)
+    S, C, solutions = get_S_matrix(fsmp)#, relative_sensitivities=relative_sensitivities)
 
 
 def test_ode_rhs(default_model):
@@ -74,17 +74,17 @@ def comb_gen_automation():
         fisher_ratioeigenval,
         fisher_sumeigenval
     ]
-    return list(itertools.product([True, False], criteria, *([[True,False]])*2))
+    return list(itertools.product([True, False], criteria, *([[True,False]])))
 
 
 # These tests just check that the functions can be called properly
-@pytest.mark.parametrize("identical_times,criterion,covar,relative_sensitivities", comb_gen_automation())
-def test_calculate_criterion(default_model_small, criterion, covar, relative_sensitivities):
+@pytest.mark.parametrize("identical_times,criterion,relative_sensitivities", comb_gen_automation())
+def test_calculate_criterion(default_model_small, criterion, relative_sensitivities):
     fsmp = default_model_small.fsmp
-    fsr = calculate_fisher_criterion(fsmp, criterion=criterion, covar=covar, relative_sensitivities=relative_sensitivities)
+    fsr = calculate_fisher_criterion(fsmp, criterion=criterion, relative_sensitivities=relative_sensitivities)
 
 
-@pytest.mark.parametrize("identical_times,criterion,covar,relative_sensitivities", comb_gen_automation())
-def test_use_initial_value_as_parameter(pool_model_small, criterion, covar, relative_sensitivities):
+@pytest.mark.parametrize("identical_times,criterion,relative_sensitivities", comb_gen_automation())
+def test_use_initial_value_as_parameter(pool_model_small, criterion, relative_sensitivities):
     fsmp = pool_model_small.fsmp
-    fsr = calculate_fisher_criterion(fsmp, criterion=criterion, covar=covar, relative_sensitivities=relative_sensitivities)
+    fsr = calculate_fisher_criterion(fsmp, criterion=criterion, relative_sensitivities=relative_sensitivities)

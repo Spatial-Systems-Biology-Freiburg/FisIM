@@ -110,7 +110,7 @@ def _calculate_sensitivities_with_observable(fsmp: FisherModelParametrized, t: n
         return s, x
 
 
-def get_S_matrix(fsmp: FisherModelParametrized, covar=False, relative_sensitivities=False, **kwargs):
+def get_S_matrix(fsmp: FisherModelParametrized, relative_sensitivities=False, **kwargs):
     r"""Calculate the sensitivity matrix for a Fisher Model.
 
     :param fsmp: The parametrized FisherModel with a chosen values for the sampled variables.
@@ -143,7 +143,11 @@ def get_S_matrix(fsmp: FisherModelParametrized, covar=False, relative_sensitivit
     # The shape of the initial S matrix is given by
     # (n_p, n_t0, n_x0, n_q0, ..., n_ql, n_times)
     S = np.zeros((n_p_full, n_t0, N_x0, n_obs) + inputs_shape + (fsmp.times.shape[-1],))
-    error_n = np.zeros((fsmp.times.shape[-1],) + tuple(len(x) for x in fsmp.inputs))
+
+    # Do not calculate the covariance any further if both are None
+    calculate_covar = fsmp.covariance.absolute is not None or fsmp.covariance.relative is not None
+    if calculate_covar:
+        uncertainty = np.zeros((n_t0, N_x0, n_obs) + inputs_shape + (fsmp.times.shape[-1],))
 
     # Iterate over all combinations of input-Values and initial values
     solutions = []
@@ -195,6 +199,11 @@ def get_S_matrix(fsmp: FisherModelParametrized, covar=False, relative_sensitivit
         s = np.repeat(s, counts, axis=2)
         obs = np.repeat(obs, counts, axis=1)
 
+        # Define constants for covariance calculation
+        if calculate_covar:
+            c_abs = np.full(n_obs, 0) if fsmp.covariance.absolute is None else fsmp.covariance.absolute
+            c_rel = np.full(n_obs, 0) if fsmp.covariance.relative is None else fsmp.covariance.relative
+
         # Calculate the S-Matrix from the sensitivities
         # Depending on if we want to calculate the relative sensitivities
         if relative_sensitivities==True:
@@ -212,8 +221,16 @@ def get_S_matrix(fsmp: FisherModelParametrized, covar=False, relative_sensitivit
 
             # Fill S-Matrix
             S[(slice(None), i_t0, i_x0, slice(None)) + index] = s
+
+            # Calculate the uncertainty
+            if calculate_covar:
+                uncertainty[(i_t0, i_x0, slice(None)) + index] = c_rel + c_abs/obs
         else:
             S[(slice(None), i_t0, i_x0, slice(None)) + index] = s
+
+            # Calculate the uncertainty
+            if calculate_covar:
+                uncertainty[(i_t0, i_x0, slice(None)) + index] = c_rel*obs + c_abs
 
         # Assume that the error of the measurement is 25% from the measured value r[0] n 
         # (use for covariance matrix calculation)
@@ -231,15 +248,25 @@ def get_S_matrix(fsmp: FisherModelParametrized, covar=False, relative_sensitivit
         )
         solutions.append(fsrs)
     
+    # Calculate the covariance matrix
+    if calculate_covar==True:
+        uncertainty = uncertainty.flatten()
+        cov_matrix = np.eye(len(uncertainty), len(uncertainty)) * uncertainty**2
+        try:
+            C = np.linalg.inv(cov_matrix)
+        except:
+            C = np.full((len(uncertainty), len(uncertainty)), np.nan)
+    else:
+        n_datapoints = np.product(S.shape[1:])
+        C = np.eye(n_datapoints)
+
     # Reshape to 2D Form (len(P),:)
     S = S.reshape((n_p_full,-1))
     
-    # We have turned off the covariance calculation at this point
-    C = np.eye(S.shape[1])
     return S, C, solutions
 
 
-def calculate_fisher_criterion(fsmp: FisherModelParametrized, criterion=fisher_determinant, covar=False, relative_sensitivities=False, verbose=False):
+def calculate_fisher_criterion(fsmp: FisherModelParametrized, criterion=fisher_determinant, relative_sensitivities=False, verbose=False):
     """Calculate the Fisher information optimality criterion for a chosen Fisher model.
 
     :param fsmp: The parametrized FisherModel with a chosen values for the sampled variables.
@@ -256,17 +283,13 @@ def calculate_fisher_criterion(fsmp: FisherModelParametrized, criterion=fisher_d
 
     :type criterion: callable
     :type fsmp: FisherModelParametrized
-    :param covar: Use the covariance matrix of error measurements. Defaults to False.
-    :type covar: bool, optional
     :param relative_sensitivities: Use relative local sensitivities :math:`s_{ij} = \dfrac{\partial y_i}{\partial p_j} \dfrac{p_j}{y_i}` instead of absolute. Defaults to False.
     :type relative_sensitivities: bool, optional
 
     :return: The result of the Fisher information optimality criterion represented as a FisherResults object.
     :rtype: FisherResults
     """
-    S, C, solutions = get_S_matrix(fsmp, covar, relative_sensitivities)
-    if covar == False:
-        C = np.eye(S.shape[1])
+    S, C, solutions = get_S_matrix(fsmp, relative_sensitivities)
     crit = criterion(fsmp, S, C)
 
     fsmp_args = {key:value for key, value in fsmp.__dict__.items() if not key.startswith('_')}
