@@ -26,6 +26,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.mathjax',
+    'sphinxcontrib.bibtex',
 ]
 
 autosummary_generate = True
@@ -40,3 +41,4 @@ exclude_patterns = ['_build', '_templates', 'Thumbs.db', '.DS_Store']
 
 html_theme = 'pydata_sphinx_theme'
 html_static_path = ['_static']
+bibtex_bibfiles = ['references.bib']
