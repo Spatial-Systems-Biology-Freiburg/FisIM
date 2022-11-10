@@ -2,59 +2,10 @@ import numpy as np
 import pytest
 import itertools
 
-from FisInMa.optimization.scipy_global_optim import _scipy_calculate_bounds_constraints, _create_comparison_matrix, find_optimal, _discrete_penalizer, DISCRETE_PENALTY_FUNCTIONS
-from FisInMa.solving import calculate_fisher_criterion
+from FisInMa.optimization.scipy_global_optim import _scipy_calculate_bounds_constraints, _create_comparison_matrix, _discrete_penalizer, DISCRETE_PENALTY_FUNCTIONS
 from FisInMa.model import FisherModelParametrized, FisherResults
 
 from test.setUp import default_model, default_model_parametrized, default_model_small
-
-
-class Test_Algorithms:
-    @pytest.mark.parametrize("identical_times", [True, False])
-    def test_differential_evolution(self, default_model_small):
-        fsm = default_model_small.fsm
-        fsm.ode_t0 = 0.0
-        fsm.ode_x0 = [np.array([0.05, 0.001])]
-        fsm.inputs=[
-            np.arange(2, 2+2),
-            np.arange(5, 2+5)
-        ]
-        fsm.times = (0.0, 10.0, 2)
-        # Choose very small iteration and population numbers.
-        # This is not about convergence, but about if the method will not fail.
-        fsr = find_optimal(fsm, "scipy_differential_evolution", workers=1, maxiter=1, popsize=2)
-        assert type(fsr) == FisherResults
-
-    @pytest.mark.parametrize("identical_times", [True, False])
-    def test_basinhopping(self, default_model_small):
-        fsm = default_model_small.fsm
-        fsm.ode_t0 = 0.0
-        fsm.ode_x0 = [np.array([0.05, 0.001])]
-        fsm.inputs=[
-            np.arange(2, 2+2),
-            np.arange(5, 5+2)
-        ]
-        fsm.times = (0.0, 10.0, 2)
-        # Choose very small iteration and population numbers.
-        # This is not about convergence, but about if the method will not fail.
-        fsr = find_optimal(fsm, "scipy_basinhopping", niter=1, interval=2)
-        assert type(fsr) == FisherResults
-
-    @pytest.mark.parametrize("identical_times", [True, False])
-    def test_brute(self, default_model_small):
-        fsm = default_model_small.fsm
-        fsm.ode_t0 = 0.0
-        fsm.ode_x0 = [np.array([0.05, 0.001])]
-        fsm.inputs=[
-            np.arange(2, 2+2),
-            np.arange(5, 5+2)
-        ]
-        fsm.times = (0.0, 10.0, 2)
-
-        # Choose very small iteration and population numbers.
-        # This is not about convergence, but about if the method will not fail.
-        fsr = find_optimal(fsm, "scipy_brute", Ns=1, workers=1)
-        assert type(fsr) == FisherResults
 
 
 class Test_BoundsConstraints:
