@@ -75,7 +75,7 @@ def display_fsmp_details(fsmp: FisherModelParametrized, pp=pprint.PrettyPrinter(
 
 def _generate_matrix_cols(M, name, terminal_size=shutil.get_terminal_size((80, 20))):
     M_strings = np.array2string(M, max_line_width=terminal_size[0]).split("\n")
-    M_total = [("sensitivity matrix", M_strings[0])]
+    M_total = [(name, M_strings[0])]
     M_total += list(zip(itertools.repeat(""), M_strings[1:]))
     return M_total
 
