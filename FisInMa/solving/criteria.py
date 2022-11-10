@@ -17,7 +17,7 @@ def fisher_determinant(fsmp: FisherModelParametrized, S, C):
     :rtype: float
     """
     # Calculate Fisher Matrix
-    F = (S.dot(C)).dot(S.T)
+    F = S @ C @ S.T
 
     # Calculate Determinant
     det = np.linalg.det(F)
@@ -38,7 +38,7 @@ def fisher_sumeigenval(fsmp: FisherModelParametrized, S, C):
     :rtype: float
     """
     # Calculate Fisher Matrix
-    F = S.dot(C).dot(S.T)
+    F = S @ C @ S.T
 
     # Calculate sum eigenvals
     sumeigval = np.sum(np.linalg.eigvals(F))
@@ -59,7 +59,7 @@ def fisher_mineigenval(fsmp: FisherModelParametrized, S, C):
     :rtype: float
     """
     # Calculate Fisher Matrix
-    F = S.dot(C).dot(S.T)
+    F = S @ C @ S.T
 
     # Calculate sum eigenvals
     try:
@@ -83,7 +83,7 @@ def fisher_ratioeigenval(fsmp: FisherModelParametrized, S, C):
     :rtype: float
     """
     # Calculate Fisher Matrix
-    F = S.dot(C).dot(S.T)
+    F = S @ C @ S.T
 
     # Calculate sum eigenvals
     try:
