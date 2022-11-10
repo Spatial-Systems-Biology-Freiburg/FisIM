@@ -50,7 +50,40 @@ def plot_all_odes(fsr: FisherResults, outdir=Path("."), additional_name=""):
             # Remove figure to free space
             plt.close(fig)
 
-# New (corrected) sensitivities plotting
+def plot_all_observables(fsr: FisherResults, outdir=Path("."), additional_name=""):
+    for i, sol in enumerate(fsr.individual_results):
+        # Get ODE solutions
+        if callable(fsr.obs_fun) and callable(fsr.obs_dgdp) and callable(fsr.obs_dgdx):
+            n_obs = np.array(fsr.obs_fun(sol.ode_t0, sol.ode_x0, sol.inputs, sol.parameters, sol.ode_args)).size
+        else:
+            n_obs = len(sol.ode_x0)
+
+        # Get time interval over which to plot
+        times_low = sol.ode_t0
+        times_high = fsr.variable_definitions.times.ub if fsr.variable_definitions.times is not None else np.max(sol.times)
+        
+        # Solve the ODE on a sufficiently filled interval
+        t_values = np.linspace(times_low, times_high)
+        res = sp.integrate.solve_ivp(fsr.ode_fun, (times_low, times_high), sol.ode_x0, t_eval=t_values, args=(sol.inputs, sol.parameters, sol.ode_args))
+        t = np.array(res.t)
+        y = np.array(res.y)
+        obs = np.array([fsr.obs_fun(ti, y[:,i_t], sol.inputs, sol.parameters, sol.ode_args) for i_t, ti in enumerate(t)]).reshape((-1, n_obs)).T
+
+        # Plot the solution and store in individual files
+        for j in range(n_obs):
+            # Create figures and axis
+            fig, ax = plt.subplots(n_obs, 1, figsize=(10, 6))
+            # Plot the continuous ODE solution
+            ax.plot(t, obs[j], color="#21918c", label="Ode Solution")
+            # Determine where multiple time points overlap by rounding
+            ax.scatter(sol.times, sol.observables[j], s=160, alpha=0.5, color="#440154", label="Design " + str(sol.inputs))
+            ax.legend()
+            # TODO - add table with parameters, inputs, ode_t0, ode_y0, etc.
+            fig.savefig(outdir / Path("Observables_Result_{}_{}_{}_{:03.0f}_x_{:02.0f}.svg".format(fsr.ode_fun.__name__, fsr.criterion_fun.__name__ , additional_name, i, j)))
+            # Remove figure to free space
+            plt.close(fig)
+
+
 def plot_all_sensitivities(fsr: FisherResults, outdir=Path("."), additional_name=""):
     r"""Plots results of the sensitivities :math:`s_{ij} = \frac{\partial y_i}{\partial p_j}` or , in case of relative sensitivities, :math:`s_{ij} = \frac{\partial y_i}{\partial p_j} \frac{p_j}{y_i}` with time points at which the ODE is evaluated
     for every input combination.
@@ -146,15 +179,14 @@ def plot_all_sensitivities(fsr: FisherResults, outdir=Path("."), additional_name
         for j, k in itertools.product(range(n_obs), range(n_p_full)):
             r = sol.sensitivities[k, j]
             y = s[k, j]
-
             # Create figure and axis
             fig, ax = plt.subplots(figsize=(10, 6))
             ax.plot(t, y, color="#21918c", label="Sensitivities Solution")
 
             # Plot sampled time points
-            ax.scatter(sol.ode_solution.t, r, s=160, alpha=0.5, color="#440154", label="Design" + str(sol.inputs))
+            ax.scatter(sol.times, r, s=160, alpha=0.5, color="#440154", label="Design" + str(sol.inputs))
             ax.legend()
-            fig.savefig(outdir / Path("Sensitivities_Results2_{}_{}_{}_{:03.0f}_x_{:02.0f}_p_{:02.0f}.svg".format(fsr.ode_fun.__name__, fsr.criterion_fun.__name__ , additional_name, i, j, k)))
+            fig.savefig(outdir / Path("Sensitivities_Results_{}_{}_{}_{:03.0f}_x_{:02.0f}_p_{:02.0f}.svg".format(fsr.ode_fun.__name__, fsr.criterion_fun.__name__ , additional_name, i, j, k)))
 
             # Remove figure to free space
             plt.close(fig)
