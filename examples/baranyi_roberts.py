@@ -126,22 +126,14 @@ if __name__ == "__main__":
         relative_sensitivities=True,
         recombination=0.7,
         mutation=(0.1, 0.8),
-        workers=1,
-        popsize=10
-        )
-
-    # Print the result for the criterion (default=determinant)
-    print(fsr.criterion)
-    
-    # Print time points which were chosen by optimization routine
-    for sol in fsr.individual_results:
-        print("Times for inputs", sol.inputs)
-        print(" >> ", sol.times)
-
+        workers=-1,
+        popsize=10,
+        polish=False,
+    )
 
     end_time = time.time()
-    diff = (end_time-start_time)/60
-    print(f"\n Optimization time: {diff:.2f} min")
+    diff = (end_time-start_time)
+    print(f"\n Optimization time: {diff:.2f} s")
 
     # Plot all ODE results with chosen time points
     # for different data points
