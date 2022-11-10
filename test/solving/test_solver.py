@@ -6,7 +6,7 @@ import itertools
 from FisInMa.model import FisherModelParametrized
 from FisInMa.solving import *
 
-from test.setUp import default_model, default_model_parametrized, default_model_small
+from test.setUp import default_model, default_model_parametrized, default_model_small, pool_model_small
 
 
 def comb_gen_solving():
@@ -81,4 +81,10 @@ def comb_gen_automation():
 @pytest.mark.parametrize("identical_times,criterion,covar,relative_sensitivities", comb_gen_automation())
 def test_calculate_criterion(default_model_small, criterion, covar, relative_sensitivities):
     fsmp = default_model_small.fsmp
+    fsr = calculate_fisher_criterion(fsmp, criterion=criterion, covar=covar, relative_sensitivities=relative_sensitivities)
+
+
+@pytest.mark.parametrize("identical_times,criterion,covar,relative_sensitivities", comb_gen_automation())
+def test_use_initial_value_as_parameter(pool_model_small, criterion, covar, relative_sensitivities):
+    fsmp = pool_model_small.fsmp
     fsr = calculate_fisher_criterion(fsmp, criterion=criterion, covar=covar, relative_sensitivities=relative_sensitivities)
