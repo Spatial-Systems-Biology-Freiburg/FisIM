@@ -351,6 +351,7 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
 class _FisherResultSingleBase(_FisherVariablesBase):
     ode_solution: Any#Union[list,np.ndarray]
     sensitivities: np.ndarray
+    observables: np.ndarray
 
 
 @dataclass(config=Config)
