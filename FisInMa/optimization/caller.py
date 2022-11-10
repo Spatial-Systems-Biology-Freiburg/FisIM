@@ -9,7 +9,7 @@ OPTIMIZATION_STRATEGIES = {
 }
 
 
-def find_optimal(fsm: FisherModel, optimization_strategy: str="scipy_differential_evolution", discrete_penalizer="default", verbose=False, **kwargs):
+def find_optimal(fsm: FisherModel, optimization_strategy: str="scipy_differential_evolution", discrete_penalizer="default", **kwargs):
     r"""Find the global optimum of the supplied FisherModel.
 
     :param fsm: The FisherModel object that defines the studied system with its all constraints.
@@ -68,9 +68,6 @@ def find_optimal(fsm: FisherModel, optimization_strategy: str="scipy_differentia
     :return: The result of the optimization as an object *FisherResults*. Important attributes are the conditions of the Optimal Experimental Design *times*, *inputs*, the resultion value of the objective function *criterion*.
     :rtype: FisherResults
     """
-    if verbose:
-        display_optimization_start
-
     fsmp = FisherModelParametrized.init_from(fsm)
 
     if optimization_strategy not in OPTIMIZATION_STRATEGIES.keys():
