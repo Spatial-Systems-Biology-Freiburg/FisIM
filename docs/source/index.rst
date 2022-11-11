@@ -26,10 +26,8 @@ FisInMa
    :caption: Contents:
    :hidden:
 
-   Introduction <introduction/index>
-   User Interface <user_interface/index>
-   Examples <examples/index>
-   Core <core/index>
+   Theoretical Overview <theoretical_overview/index>
+   Getting Started <getting_started/index>
 
 
 Indices and tables

@@ -1,5 +1,12 @@
-Introduction
-============
+Theoretical Overview
+====================
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+   :hidden:
+
+   Theoretical Background <theoretical_background/index>
 
 Mathematical modeling is a widely used tool to describe, understand and predict further behavior of living systems.
 In particular, in the field of Predictive Biology, one can find a large variety of works that dwell on building models of different levels of complexity controlled by model parameters, e.g., to describe bacteria growth :cite:p:`bernaertsConceptsToolsPredictive2004`.
