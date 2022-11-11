@@ -115,8 +115,6 @@ class MultiVariableDefinition():
 
 
     def __post_init__(self):
-        print(self.n)
-        exit()
         # If we only have a float that was specified, then make it a list
         if type(self.lb) == float:
             self.lb = [self.lb]
@@ -145,8 +143,6 @@ class MultiVariableDefinition():
                 # If we sample more points than we have discrete values,
                 # we simply iterate over all of them and fill the
                 # initial values this way. Afterwards we will sort them.
-                print(self.n)
-                print(self.discrete)
                 if self.n >= len(self.discrete):
                     self.initial_guess = []
                     for i in range(self.n):
