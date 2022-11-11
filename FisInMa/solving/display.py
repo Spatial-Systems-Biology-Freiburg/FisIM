@@ -99,7 +99,7 @@ def display_fsr_details(fsr: FisherResults, pp=pprint.PrettyPrinter(indent=2, wi
         (fsr.criterion_fun.__name__, fsr.criterion),
     ]
     cols += _generate_matrix_cols(fsr.S.T, "sensitivity matrix", terminal_size)
-    cols += _generate_matrix_cols(fsr.C.T, "covariance matrix", terminal_size)
+    cols += _generate_matrix_cols(fsr.C.T, "inverse covariance matrix", terminal_size)
     display_entries(cols, terminal_size)
 
     display_heading("INDIVIDUAL RESULTS")
