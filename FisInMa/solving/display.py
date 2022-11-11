@@ -83,8 +83,11 @@ def _generate_matrix_cols(M, name, terminal_size=shutil.get_terminal_size((80, 2
 def _generate_fsrs_cols(fsrs: FisherResultSingle, terminal_size=shutil.get_terminal_size((80, 20))):
     cols = [
         ("ode_x0", fsrs.ode_x0),
-        ("ode_t0", fsrs.ode_t0),
-        ("times", fsrs.times),
+        ("ode_t0", fsrs.ode_t0)
+    ]
+    cols += _generate_matrix_cols(fsrs.times, "times", terminal_size)
+
+    cols+= [
         ("inputs", fsrs.inputs),
         ("parameters", fsrs.parameters),
     ]
@@ -99,7 +102,7 @@ def display_fsr_details(fsr: FisherResults, pp=pprint.PrettyPrinter(indent=2, wi
         (fsr.criterion_fun.__name__, fsr.criterion),
     ]
     cols += _generate_matrix_cols(fsr.S.T, "sensitivity matrix", terminal_size)
-    cols += _generate_matrix_cols(fsr.C.T, "covariance matrix", terminal_size)
+    cols += _generate_matrix_cols(fsr.C.T, "inverse covariance matrix", terminal_size)
     display_entries(cols, terminal_size)
 
     display_heading("INDIVIDUAL RESULTS")

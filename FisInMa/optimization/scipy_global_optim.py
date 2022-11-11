@@ -3,7 +3,7 @@ import scipy as sp
 import scipy.optimize as optimize
 import itertools
 
-from FisInMa.model import FisherModel, FisherModelParametrized, VariableDefinition
+from FisInMa.model import FisherModel, FisherModelParametrized, VariableDefinition, MultiVariableDefinition
 from FisInMa.solving import calculate_fisher_criterion, fisher_determinant
 from .penalty import _discrete_penalizer
 
@@ -43,8 +43,10 @@ def __scipy_optimizer_function(X, fsmp: FisherModelParametrized, full=False, dis
     
     # Get values for ode_x0
     if fsmp.ode_x0_def is not None:
-        fsmp.ode_x0 = X[total:total + fsmp.ode_x0_def.n * fsmp.ode_x0.size]
-        total += fsmp.ode_x0_def.n
+        n_x = len(fsmp.ode_x0[0])
+        temp = X[total:total + fsmp.ode_x0_def.n * n_x].reshape(fsmp.ode_x0_def.n, n_x)
+        fsmp.ode_x0 = [t for t in temp]
+        total += fsmp.ode_x0_def.n * n_x
 
     # Get values for times
     if fsmp.times_def is not None:
@@ -109,10 +111,11 @@ def _scipy_calculate_bounds_constraints(fsmp: FisherModelParametrized):
         B = np.block([[B,np.zeros((B.shape[0],A.shape[1]))],[np.zeros((A.shape[0],B.shape[1])),A]])
 
     # Check if initial values are sampled over
-    if type(fsmp.ode_x0_def)==VariableDefinition:
+    if type(fsmp.ode_x0_def)==MultiVariableDefinition:
         # Bounds for value
-        lb.append(fsmp.ode_x0_def.lb)
-        ub.append(fsmp.ode_x0_def.ub)
+        for lb_i, ub_i in zip(fsmp.ode_x0_def.lb, fsmp.ode_x0_def.ub):
+            lb += [lb_i] * fsmp.ode_x0_def.n
+            ub += [ub_i] * fsmp.ode_x0_def.n
         
         # Constraints on variables
         lc += []
