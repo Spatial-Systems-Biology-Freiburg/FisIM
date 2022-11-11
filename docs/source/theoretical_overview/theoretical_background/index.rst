@@ -1,4 +1,4 @@
-Theoretical Bachground
+Theoretical Background
 ======================
 
 
