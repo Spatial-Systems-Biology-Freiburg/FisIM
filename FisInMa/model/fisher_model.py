@@ -14,6 +14,7 @@ from .preprocessing import VariableDefinition, MultiVariableDefinition, Covarian
 
 class Config:
     arbitrary_types_allowed = True
+    smart_union = True
 
 
 VARIABLE_DEF_TUPLE = Tuple[float, float, int, Optional[Any], Optional[Any], Optional[Any], Optional[Any]]
@@ -22,10 +23,10 @@ MULTIVARIABLE_DEF_TUPLE = Tuple[List[float], List[float], int, Optional[Any], Op
 
 @dataclass(config=Config)
 class _FisherVariablesBase:
-    ode_x0: Union[MULTIVARIABLE_DEF_TUPLE, np.ndarray, List[float], List[List[float]], float, List[np.ndarray], MultiVariableDefinition]
+    ode_x0: Union[MultiVariableDefinition, MULTIVARIABLE_DEF_TUPLE, np.ndarray, List[float], List[List[float]], float, List[np.ndarray]]
     ode_t0: Union[VARIABLE_DEF_TUPLE, float, np.ndarray, List]
-    times: Union[VARIABLE_DEF_TUPLE, List[float], List[List[float]], np.ndarray]
-    inputs: List[Union[List[float], np.ndarray, float, VARIABLE_DEF_TUPLE]]# list[Union[list[float],np.ndarray]]
+    times: Union[tuple, List[float], List[List[float]], np.ndarray]
+    inputs: List# list[Union[list[float],np.ndarray]]
     parameters: Union[Tuple[float, ...]]
 
 
@@ -179,6 +180,9 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
         elif type(fsm.ode_x0) is list and len(fsm.ode_x0) > 0 and type(fsm.ode_x0[0]==float):
             x0_def = None
             x0_vals = [np.array(fsm.ode_x0)]
+        elif type(fsm.ode_x0) == MultiVariableDefinition:
+            x0_def = fsm.ode_x0
+            x0_vals = fsm.ode_x0.initial_guess
         else:
             x0_def = None
             x0_vals = np.array(fsm.ode_x0)

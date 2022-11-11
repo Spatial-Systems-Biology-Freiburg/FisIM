@@ -7,6 +7,7 @@ import itertools
 
 class Config:
     arbitrary_types_allowed = True
+    smart_union = True
 
 
 @dataclass(config=Config)
