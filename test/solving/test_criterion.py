@@ -12,7 +12,7 @@ class Test_Criteria:
             [0,0,1]
         ])
         C = np.eye(3)
-        F = S.T.dot(C).dot(S)
+        F = S @ C @ S.T
         return S, C, F
 
     def test_fisher_determinant(self):
