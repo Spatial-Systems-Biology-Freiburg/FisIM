@@ -79,14 +79,36 @@ def plot_all_observables(fsr: FisherResults, outdir=Path("."), additional_name="
         # Plot the solution and store in individual files
         for j in range(n_obs):
             # Create figures and axis
-            fig, ax = plt.subplots(n_obs, 1, figsize=(10, 6))
+            fig = plt.figure(figsize=(9, 7))
+            ax = plt.axes([0.12, 0.3, 0.8, 0.6])
+
             # Plot the continuous ODE solution
-            ax.plot(t, obs[j], color="#21918c", label="Ode Solution")
+            ax.plot(t, obs[j], color="#21918c", label="Model Solution", linewidth=2)
+
             # Determine where multiple time points overlap by rounding
-            ax.scatter(sol.times, sol.observables[j], s=160, alpha=0.5, color="#440154", label="Design " + str(sol.inputs))
-            ax.legend()
+            ax.scatter(sol.times, sol.observables[j], s=160, alpha=0.5, color="#440154", label="Optimal Design")
+            ax.set_xlabel("Time", fontsize=15)
+            ax.set_ylabel(f"Observable {j}", fontsize=15)
+            ax.tick_params(axis="y", labelsize=12)
+            ax.tick_params(axis="x", labelsize=12)
+            ax.legend(fontsize=16, framealpha=0.5)
+
+            # Add table with resulting values (inputs and times)
+            rows = ['Inputs', 'Time points']
+            cell_text = [
+                [[round(inp,1) for inp in sol.inputs]], 
+                [[round(t, 1) for t in sol.times]],
+                ]
+            table = ax.table(cellText=cell_text,
+                      rowLabels=rows,
+                      loc='bottom',
+                      colLoc='center',
+                      bbox = [0.15, -0.4, 0.85, 0.2]
+                      )
+            table.set_fontsize(11)
+            table.scale(0.7, 1.2)
             # TODO - add table with parameters, inputs, ode_t0, ode_y0, etc.
-            fig.savefig(outdir / Path("Observables_Result_{}_{}_{}_{:03.0f}_x_{:02.0f}.svg".format(fsr.ode_fun.__name__, fsr.criterion_fun.__name__ , additional_name, i, j)))
+            fig.savefig(outdir / Path("Observables_Result_{}_{}_{}_{:03.0f}_x_{:02.0f}.pdf".format(fsr.ode_fun.__name__, fsr.criterion_fun.__name__ , additional_name, i, j)), bbox_inches='tight')
             # Remove figure to free space
             plt.close(fig)
 
@@ -187,13 +209,18 @@ def plot_all_sensitivities(fsr: FisherResults, outdir=Path("."), additional_name
             r = sol.sensitivities[k, j]
             y = s[k, j]
             # Create figure and axis
-            fig, ax = plt.subplots(figsize=(10, 6))
-            ax.plot(t, y, color="#21918c", label="Sensitivities Solution")
+            fig, ax = plt.subplots(figsize=(7, 6))
+            ax.plot(t, y, color="#21918c", label="Sensitivities Solution", linewidth=2)
 
             # Plot sampled time points
-            ax.scatter(sol.times, r, s=160, alpha=0.5, color="#440154", label="Design" + str(sol.inputs))
-            ax.legend()
-            fig.savefig(outdir / Path("Sensitivities_Results_{}_{}_{}_{:03.0f}_x_{:02.0f}_p_{:02.0f}.svg".format(fsr.ode_fun.__name__, fsr.criterion_fun.__name__ , additional_name, i, j, k)))
+            ax.scatter(sol.times, r, s=160, alpha=0.5, color="#440154", label="Optimal Design")
+            ax.set_xlabel("Time", fontsize=15)
+            ax.set_ylabel("Sensitivity", fontsize=15)
+            ax.tick_params(axis="y", labelsize=12)
+            ax.tick_params(axis="x", labelsize=12)
+            ax.legend(fontsize=15, framealpha=0.5)
+            ax.set_title(f"Observable number: {j},  Inputs: {[round(inp, 1) for inp in sol.inputs]}", fontsize=14)
+            fig.savefig(outdir / Path("Sensitivities_Results_{}_{}_{}_{:03.0f}_x_{:02.0f}_p_{:02.0f}.pdf".format(fsr.ode_fun.__name__, fsr.criterion_fun.__name__ , additional_name, i, j, k)), bbox_inches='tight')
 
             # Remove figure to free space
             plt.close(fig)
