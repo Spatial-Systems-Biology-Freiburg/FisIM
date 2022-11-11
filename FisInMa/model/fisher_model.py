@@ -9,20 +9,24 @@ except:
     from typing import Callable
 from typing import Optional, Union, Any, List, Tuple
 
-from .preprocessing import VariableDefinition, CovarianceDefinition
+from .preprocessing import VariableDefinition, MultiVariableDefinition, CovarianceDefinition
 
 
 class Config:
     arbitrary_types_allowed = True
 
 
+VARIABLE_DEF_TUPLE = Tuple[float, float, int, Optional[Any], Optional[Any], Optional[Any], Optional[Any]]
+MULTIVARIABLE_DEF_TUPLE = Tuple[List[float], List[float], int, Optional[Any], Optional[Any], Optional[Any], Optional[Any]]
+
+
 @dataclass(config=Config)
 class _FisherVariablesBase:
-    ode_x0: Union[np.ndarray, List[float], List[List[float]], float, List[np.ndarray]]
-    ode_t0: Union[tuple, float, np.ndarray, List]
-    times: Union[tuple, List[float], List[List[float]], np.ndarray]
-    inputs: List# list[Union[list[float],np.ndarray]]
-    parameters: Union[tuple,list]
+    ode_x0: Union[MULTIVARIABLE_DEF_TUPLE, np.ndarray, List[float], List[List[float]], float, List[np.ndarray], MultiVariableDefinition]
+    ode_t0: Union[VARIABLE_DEF_TUPLE, float, np.ndarray, List]
+    times: Union[VARIABLE_DEF_TUPLE, List[float], List[List[float]], np.ndarray]
+    inputs: List[Union[List[float], np.ndarray, float, VARIABLE_DEF_TUPLE]]# list[Union[list[float],np.ndarray]]
+    parameters: Union[Tuple[float, ...]]
 
 
 @dataclass(config=Config)
@@ -162,12 +166,10 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
             x0_vals = [fsm.ode_x0]
         elif type(fsm.ode_x0) is np.ndarray and fsm.ode_x0.ndim > 1:
             raise TypeError("Variable ode_x0 should be list of arrays with dimension 1 respectively!")
-        # TODO - ode_x0 sampling currently not working
         elif type(fsm.ode_x0) is tuple and len(fsm.ode_x0) >= 3:
-            x0 = VariableDefinition(*fsm.ode_x0)
+            x0 = MultiVariableDefinition(*fsm.ode_x0)
             x0_def = x0
-            x0_vals = [x0.initial_guess]
-            raise TypeError("Warning! Specifying initial values as tuple enables sampling over initial values. This is currently not implemented!")
+            x0_vals = x0.initial_guess
         elif type(fsm.ode_x0) is list and len(fsm.ode_x0) > 0 and type(fsm.ode_x0[0]) is list and len(fsm.ode_x0[0]) > 0 and type(fsm.ode_x0[0][0]) is float:
             x0_def = None
             x0_vals = [np.array(xi) for xi in fsm.ode_x0]
