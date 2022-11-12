@@ -3,7 +3,8 @@ Examples
 
 .. toctree::
    :maxdepth: 32
-   :caption: Contents:
    :hidden:
 
-   Core <core/index>
+   Baranyi Roberts Model <baranyi_roberts>
+   Pool Model <pool_model>
+   Damped Oscillator <damped_oscillator>

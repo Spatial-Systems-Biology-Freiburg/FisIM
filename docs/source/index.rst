@@ -23,11 +23,13 @@ FisInMa
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
    :hidden:
 
-   Theoretical Overview <theoretical_overview/index>
    Getting Started <getting_started/index>
+   Concepts and Background <theoretical_overview/index>
+   Documentation <documentation/index>
+   Contributing <contributing>
+   
 
 
 Indices and tables

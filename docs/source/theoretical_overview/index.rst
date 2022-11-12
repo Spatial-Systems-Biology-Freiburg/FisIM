@@ -3,7 +3,6 @@ Theoretical Overview
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
    :hidden:
 
    Theoretical Background <theoretical_background/index>

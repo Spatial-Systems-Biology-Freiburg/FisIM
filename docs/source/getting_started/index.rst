@@ -4,8 +4,7 @@ Getting Started
 This package can be used as follows ...
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
-   :hidden:
+   :maxdepth: 3
 
+   Installation <installation>
    Examples <examples/index>
