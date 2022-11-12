@@ -59,12 +59,6 @@ def plot_all_observables(fsr: FisherResults, outdir=Path("."), additional_name="
     :type outdir: Path, optional
     """
     for i, sol in enumerate(fsr.individual_results):
-        # Get ODE solutions
-        if callable(fsr.obs_fun) and callable(fsr.obs_dgdp) and callable(fsr.obs_dgdx):
-            n_obs = np.array(fsr.obs_fun(sol.ode_t0, sol.ode_x0, sol.inputs, sol.parameters, sol.ode_args)).size
-        else:
-            n_obs = len(sol.ode_x0)
-
         # Get time interval over which to plot
         times_low = sol.ode_t0
         times_high = fsr.variable_definitions.times.ub if fsr.variable_definitions.times is not None else np.max(sol.times)
@@ -74,7 +68,14 @@ def plot_all_observables(fsr: FisherResults, outdir=Path("."), additional_name="
         res = sp.integrate.solve_ivp(fsr.ode_fun, (times_low, times_high), sol.ode_x0, t_eval=t_values, args=(sol.inputs, sol.parameters, sol.ode_args))
         t = np.array(res.t)
         y = np.array(res.y)
-        obs = np.array([fsr.obs_fun(ti, y[:,i_t], sol.inputs, sol.parameters, sol.ode_args) for i_t, ti in enumerate(t)]).reshape((-1, n_obs)).T
+
+        # Get ODE solutions
+        if callable(fsr.obs_fun) and callable(fsr.obs_dgdp) and callable(fsr.obs_dgdx):
+            n_obs = np.array(fsr.obs_fun(sol.ode_t0, sol.ode_x0, sol.inputs, sol.parameters, sol.ode_args)).size
+            obs = np.array([fsr.obs_fun(ti, y[:,i_t], sol.inputs, sol.parameters, sol.ode_args) for i_t, ti in enumerate(t)]).reshape((-1, n_obs)).T
+        else:
+            n_obs = len(sol.ode_x0)
+            obs = y
 
         # Plot the solution and store in individual files
         for j in range(n_obs):
@@ -85,7 +86,7 @@ def plot_all_observables(fsr: FisherResults, outdir=Path("."), additional_name="
             # Plot the continuous ODE solution
             ax.plot(t, obs[j], color="#21918c", label="Model Solution", linewidth=2)
 
-            # Determine where multiple time points overlap by rounding
+            # Plot the solutions
             ax.scatter(sol.times, sol.observables[j], s=160, alpha=0.5, color="#440154", label="Optimal Design")
             ax.set_xlabel("Time", fontsize=15)
             ax.set_ylabel(f"Observable {j}", fontsize=15)
@@ -108,7 +109,7 @@ def plot_all_observables(fsr: FisherResults, outdir=Path("."), additional_name="
             table.set_fontsize(11)
             table.scale(0.7, 1.2)
             # TODO - add table with parameters, inputs, ode_t0, ode_y0, etc.
-            fig.savefig(outdir / Path("Observables_Result_{}_{}_{}_{:03.0f}_x_{:02.0f}.pdf".format(fsr.ode_fun.__name__, fsr.criterion_fun.__name__ , additional_name, i, j)), bbox_inches='tight')
+            fig.savefig(outdir / Path("Observables_Result_{}_{}_{}_{:03.0f}_x_{:02.0f}.svg".format(fsr.ode_fun.__name__, fsr.criterion_fun.__name__ , additional_name, i, j)), bbox_inches='tight')
             # Remove figure to free space
             plt.close(fig)
 
@@ -220,7 +221,7 @@ def plot_all_sensitivities(fsr: FisherResults, outdir=Path("."), additional_name
             ax.tick_params(axis="x", labelsize=12)
             ax.legend(fontsize=15, framealpha=0.5)
             ax.set_title(f"Observable number: {j},  Inputs: {[round(inp, 1) for inp in sol.inputs]}", fontsize=14)
-            fig.savefig(outdir / Path("Sensitivities_Results_{}_{}_{}_{:03.0f}_x_{:02.0f}_p_{:02.0f}.pdf".format(fsr.ode_fun.__name__, fsr.criterion_fun.__name__ , additional_name, i, j, k)), bbox_inches='tight')
+            fig.savefig(outdir / Path("Sensitivities_Results_{}_{}_{}_{:03.0f}_x_{:02.0f}_p_{:02.0f}.svg".format(fsr.ode_fun.__name__, fsr.criterion_fun.__name__ , additional_name, i, j, k)), bbox_inches='tight')
 
             # Remove figure to free space
             plt.close(fig)
