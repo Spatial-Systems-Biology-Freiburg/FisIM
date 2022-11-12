@@ -3,7 +3,7 @@ FisInMa
 
 FisInMa is designed to analyze the informational content of systems of Ordinary
 Differential Equations (see :doc:`Concepts and Background <../theoretical_overview/index>`).
-Naturally, the first step is to chose one such system and define it with a function.
+Naturally, the first step is to chose one such system and define it via a function.
 
 .. code-block:: python
 
