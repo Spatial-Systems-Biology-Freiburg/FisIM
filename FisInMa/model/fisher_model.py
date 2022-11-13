@@ -27,7 +27,7 @@ class _FisherVariablesBase:
     ode_t0: Union[VARIABLE_DEF_TUPLE, float, np.ndarray, List]
     times: Union[tuple, List[float], List[List[float]], np.ndarray]
     inputs: List# list[Union[list[float],np.ndarray]]
-    parameters: Union[Tuple[float, ...]]
+    parameters: Tuple[float, ...]
 
 
 @dataclass(config=Config)
