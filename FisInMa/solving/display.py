@@ -63,7 +63,11 @@ def display_fsmp_details(fsmp: FisherModelParametrized, pp=pprint.PrettyPrinter(
 
 
     display_heading("VARIABLE DEFINITIONS", terminal_size)
-    cols = [(field.name, getattr(fsmp.variable_values, field.name)) for field in fields(fsmp.variable_definitions)]
+    cols = [(field.name, getattr(fsmp.variable_definitions, field.name)) for field in fields(fsmp.variable_definitions)]
+    display_entries(cols, terminal_size)
+
+    display_heading("VARIABLE VALUES", terminal_size)
+    cols = [(field.name, getattr(fsmp.variable_values, field.name)) for field in fields(fsmp.variable_values)]
     display_entries(cols, terminal_size)
 
     display_heading("OTHER OPTIONS", terminal_size)
