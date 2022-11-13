@@ -109,6 +109,117 @@ class _FisherModelParametrizedBase(_FisherOdeFunctions):
     variable_definitions: FisherVariables
     variable_values: FisherVariables
 
+    # Define properties of class such that it can be used as a parametrized FisherModel
+    # Get every possible numeric quantity that is stored in the model
+    @property
+    def ode_x0(self) -> np.ndarray:
+        return self.variable_values.ode_x0
+
+    @property
+    def ode_t0(self) -> float:
+        return self.variable_values.ode_t0
+
+    @property
+    def times(self) -> np.ndarray:
+        return self.variable_values.times
+
+    @property
+    def inputs(self) -> list:
+        return self.variable_values.inputs
+
+    @property
+    def parameters(self) -> tuple:
+        return self.variable_values.parameters
+
+    @property
+    def ode_args(self) -> tuple:
+        return self.variable_values.ode_args
+
+    # These methods obtain only mutable quantities.
+    # Return None or a list of None and values depending on which quantity is mutable
+    @property
+    def ode_x0_mut(self):
+        if self.variable_definitions.ode_x0 is None:
+            return None
+        else:
+            return self.variable_values.ode_x0
+
+    @property
+    def ode_t0_mut(self):
+        if self.variable_definitions.ode_t0 is None:
+            return None
+        else:
+            return self.variable_values.ode_t0
+
+    @property
+    def times_mut(self):
+        if self.variable_definitions.times is None:
+            return None
+        else:
+            return self.variable_values.times
+
+    @property
+    def inputs_mut(self):
+        ret = []
+        for q_val, q in zip(self.variable_values.inputs, self.variable_definitions.inputs):
+            if q is None:
+                ret.append(None)
+            else:
+                ret.append(q_val)
+        return ret
+
+    # These methods return the definition or None if the values were picked by hand
+    @property
+    def ode_x0_def(self):
+        return self.variable_definitions.ode_x0
+
+    @property
+    def ode_t0_def(self):
+        return self.variable_definitions.ode_t0
+
+    @property
+    def times_def(self):
+        return self.variable_definitions.times
+
+    @property
+    def inputs_def(self):
+        return self.variable_definitions.inputs
+
+    # These methods modify mutable quantities
+    @ode_x0.setter
+    def ode_x0(self, x0) -> None:
+        for i, y in enumerate(x0):
+            self.variable_values.ode_x0[i] = y
+            if self.variable_definitions.ode_x0 is None:
+                raise AttributeError("Variable ode_x0 is not mutable!")
+
+    @ode_t0.setter
+    def ode_t0(self, t0) -> None:
+        if type(t0) == float:
+            self.variable_values.ode_t0 = np.array([t0])
+        else:
+            self.variable_values.ode_t0 = t0
+        if self.variable_definitions.ode_t0 is None:
+            raise AttributeError("Variable ode_t0 is not mutable!")
+
+    @times.setter
+    def times(self, times) -> None:
+        self.variable_values.times = times
+        if self.variable_definitions.times is None:
+            raise AttributeError("Variable times is not mutable!")
+
+    @inputs.setter
+    def inputs(self, inputs) -> None:
+        for i, q in enumerate(inputs):
+            if q is not None:
+                self.variable_values.inputs[i] = q
+                if self.variable_definitions.inputs[i] is None:
+                    raise AttributeError("Variable inputs at index {} is not mutable!".format(i))
+
+    @ode_args.setter
+    def ode_args(self, ode_args) -> None:
+        self.variable_values.ode_args = ode_args
+
 
 @dataclass(config=Config)
 class _FisherModelParametrizedOptions(_FisherModelOptions):
@@ -279,117 +390,6 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
         )
         return fsmp
 
-    # Define properties of class such that it can be used as a parametrized FisherModel
-    # Get every possible numeric quantity that is stored in the model
-    @property
-    def ode_x0(self) -> np.ndarray:
-        return self.variable_values.ode_x0
-    
-    @property
-    def ode_t0(self) -> float:
-        return self.variable_values.ode_t0
-    
-    @property
-    def times(self) -> np.ndarray:
-        return self.variable_values.times
-
-    @property
-    def inputs(self) -> list:
-        return self.variable_values.inputs
-
-    @property
-    def parameters(self) -> tuple:
-        return self.variable_values.parameters
-
-    @property
-    def ode_args(self) -> tuple:
-        return self.variable_values.ode_args
-    
-    # These methods obtain only mutable quantities.
-    # Return None or a list of None and values depending on which quantity is mutable
-    @property
-    def ode_x0_mut(self):
-        if self.variable_definitions.ode_x0 is None:
-            return None
-        else:
-            return self.variable_values.ode_x0
-    
-    @property
-    def ode_t0_mut(self):
-        if self.variable_definitions.ode_t0 is None:
-            return None
-        else:
-            return self.variable_values.ode_t0
-    
-    @property
-    def times_mut(self):
-        if self.variable_definitions.times is None:
-            return None
-        else:
-            return self.variable_values.times
-    
-    @property
-    def inputs_mut(self):
-        ret = []
-        for q_val, q in zip(self.variable_values.inputs, self.variable_definitions.inputs):
-            if q is None:
-                ret.append(None)
-            else:
-                ret.append(q_val)
-        return ret
-
-    # These methods return the definition or None if the values were picked by hand
-    @property
-    def ode_x0_def(self):
-        return self.variable_definitions.ode_x0
-    
-    @property
-    def ode_t0_def(self):
-        return self.variable_definitions.ode_t0
-    
-    @property
-    def times_def(self):
-        return self.variable_definitions.times
-
-    @property
-    def inputs_def(self):
-        return self.variable_definitions.inputs
-
-    # These methods modify mutable quantities
-    @ode_x0.setter
-    def ode_x0(self, x0) -> None:
-        for i, y in enumerate(x0):
-            self.variable_values.ode_x0[i] = y
-            if self.variable_definitions.ode_x0 is None:
-                raise AttributeError("Variable ode_x0 is not mutable!")
-    
-    @ode_t0.setter
-    def ode_t0(self, t0) -> None:
-        if type(t0) == float:
-            self.variable_values.ode_t0 = np.array([t0])
-        else:
-            self.variable_values.ode_t0 = t0
-        if self.variable_definitions.ode_t0 is None:
-            raise AttributeError("Variable ode_t0 is not mutable!")
-    
-    @times.setter
-    def times(self, times) -> None:
-        self.variable_values.times = times
-        if self.variable_definitions.times is None:
-            raise AttributeError("Variable times is not mutable!")
-
-    @inputs.setter
-    def inputs(self, inputs) -> None:
-        for i, q in enumerate(inputs):
-            if q is not None:
-                self.variable_values.inputs[i] = q
-                if self.variable_definitions.inputs[i] is None:
-                    raise AttributeError("Variable inputs at index {} is not mutable!".format(i))
-
-    @ode_args.setter
-    def ode_args(self, ode_args) -> None:
-        self.variable_values.ode_args = ode_args
-
 
 @dataclass(config=Config)
 class _FisherResultSingleBase(_FisherVariablesBase):
@@ -410,18 +410,17 @@ class FisherResultSingle(_FisherResultSingleOptions, _FisherResultSingleBase):
 
 
 @dataclass(config=Config)
-class _FisherResultsBase(_FisherOdeFunctions):
+class _FisherResultsBase(_FisherModelParametrizedBase):
     criterion: float
     S: np.ndarray
     C: np.ndarray
     criterion_fun: Callable
     individual_results: list
-    variable_definitions: FisherVariables
     relative_sensitivities: bool
     
 
 @dataclass(config=Config)
-class _FisherResultsOptions(_FisherModelOptions):
+class _FisherResultsOptions(_FisherModelParametrizedOptions):
     penalty_discrete_summary: dict = None
 
 
