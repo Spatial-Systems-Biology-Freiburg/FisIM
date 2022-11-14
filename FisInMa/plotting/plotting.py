@@ -154,7 +154,7 @@ def plot_all_sensitivities(fsr: FisherResults, outdir=Path("."), additional_name
             ax.tick_params(axis="y", labelsize=12)
             ax.tick_params(axis="x", labelsize=12)
             ax.legend(fontsize=15, framealpha=0.5)
-            ax.set_title(f"Observable number: {j},  Inputs: {[round(inp, 1) for inp in sol.inputs]}", fontsize=14)
+            ax.set_title(f"Observable {j},  Inputs {[round(inp, 1) for inp in sol.inputs]}, Parameter {k}", fontsize=14)
             fig.savefig(outdir / Path("Sensitivities_Results_{}_{}_{}_{:03.0f}_x_{:02.0f}_p_{:02.0f}.svg".format(fsr.ode_fun.__name__, fsr.criterion_fun.__name__ , additional_name, i, j, k)), bbox_inches='tight')
 
             # Remove figure to free space
