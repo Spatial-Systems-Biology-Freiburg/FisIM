@@ -41,14 +41,14 @@ def ode_rhs(t, x, ode_fun, ode_dfdx, ode_dfdp, ode_dfdx0, inputs, parameters, od
     x_fun, s, s_x0, rest = np.split(x, [n_x, n_x + n_x*n_p, n_x + n_x*n_p + n_s_x0])
     s = s.reshape((n_x, n_p))
     s_x0 = s_x0.reshape((n_s_x0, n_s_x0))
-    dx_f = ode_fun(t, x_fun, inputs, parameters, ode_args)
-    dfdx = ode_dfdx(t, x_fun, inputs, parameters, ode_args)
-    dfdp = ode_dfdp(t, x_fun, inputs, parameters, ode_args)
+    dx_f = np.asarray(ode_fun(t, x_fun, inputs, parameters, ode_args), dtype=float).reshape((n_x))
+    dfdx = np.asarray(ode_dfdx(t, x_fun, inputs, parameters, ode_args), dtype=float).reshape((n_x, n_x))
+    dfdp = np.asarray(ode_dfdp(t, x_fun, inputs, parameters, ode_args), dtype=float).reshape((n_x, n_p))
 
     # Calculate the rhs of the sensitivities
     ds = np.dot(dfdx, s) + dfdp
     if callable(ode_dfdx0):
-        dfdx0 = ode_dfdx0(t, x_fun, inputs, parameters, ode_args)
+        dfdx0 = np.asarray(ode_dfdx0(t, x_fun, inputs, parameters, ode_args)).reshape((n_x, n_x))
         ds_x0 = np.dot(dfdx, s_x0) + dfdx0
         x_tot = np.concatenate((dx_f, *ds, *ds_x0))
     else:
