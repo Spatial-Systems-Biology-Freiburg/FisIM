@@ -25,10 +25,12 @@ class VariableDefinition():
         if type(self.discrete) == float:
             self.discrete = np.arange(self.lb, self.ub + self.discrete/2, self.discrete)
         elif type(self.discrete) == list:
+            # TODO test this statement
             self.discrete = np.array(self.discrete)
         
         # Check if we want to specify more values than possible given the range with discretization)
         if self.unique==True and self.discrete!=None:
+            # TODO test this statement
             if self.n > len(self.discrete):
                 raise ValueError("Too many steps ({}) in interval [{}, {}] with discretization {}".format(self.n, self.ub, self.lb, self.discrete))
 
@@ -41,6 +43,7 @@ class VariableDefinition():
                 # we simply iterate over all of them and fill the 
                 # initial values this way. Afterwards we will sort them.
                 if self.n >= len(self.discrete):
+                    # TODO test this statement
                     self.initial_guess = []
                     for i in range(self.n):
                         self.initial_guess.append(self.discrete[i % len(self.discrete)])
@@ -49,6 +52,7 @@ class VariableDefinition():
                     n_low = round((len(self.discrete)- self.n)/2)
                     self.initial_guess = self.discrete[n_low:n_low+self.n]
         elif type(self.initial_guess)==np.nparray:
+            # TODO test this statement
             self.initial_guess = np.sort(self.initial_guess, axis=-1)
         elif type(self.initial_guess)!=np.ndarray:
             raise ValueError("Unknown input {}: Either specify list of values, numpy ndarray or method to obtain initial guess.".format(self.initial_guess))
@@ -71,6 +75,7 @@ class MultiVariableDefinition():
     initial_guess = "uniform"
     unique: bool = False
 
+    # TODO test these statements
     @root_validator(pre=True)
     def check_dimensions(cls, values):
         lb = values.get('lb')
@@ -114,7 +119,7 @@ class MultiVariableDefinition():
                 raise ValueError("Too many steps ({}) in interval [{}, {}] with discretization {}".format(n, ub, lb, discrete))
         return values
 
-
+    # TODO test these statements
     def __post_init__(self):
         # If we only have a float that was specified, then make it a list
         if type(self.lb) == float:

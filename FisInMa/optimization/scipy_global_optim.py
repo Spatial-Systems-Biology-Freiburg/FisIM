@@ -38,11 +38,13 @@ def __scipy_optimizer_function(X, fsmp: FisherModelParametrized, full=False, dis
     total = 0
     # Get values for ode_t0
     if fsmp.ode_t0_def is not None:
+        # TODO test these statements
         fsmp.ode_t0 = X[:fsmp.ode_t0_def.n]
         total += fsmp.ode_t0_def.n
     
     # Get values for ode_x0
     if fsmp.ode_x0_def is not None:
+        # TODO test these statements
         n_x = len(fsmp.ode_x0[0])
         temp = X[total:total + fsmp.ode_x0_def.n * n_x].reshape(fsmp.ode_x0_def.n, n_x)
         fsmp.ode_x0 = [t for t in temp]
@@ -56,6 +58,7 @@ def __scipy_optimizer_function(X, fsmp: FisherModelParametrized, full=False, dis
     # Get values for inputs
     for i, inp_def in enumerate(fsmp.inputs_def):
         if inp_def is not None:
+            # TODO test these statements
             fsmp.inputs[i]=X[total:total+inp_def.n]
             total += inp_def.n
 
@@ -113,6 +116,7 @@ def _scipy_calculate_bounds_constraints(fsmp: FisherModelParametrized):
     # Check if initial values are sampled over
     if type(fsmp.ode_x0_def)==MultiVariableDefinition:
         # Bounds for value
+        # TODO test these statements
         for lb_i, ub_i in zip(fsmp.ode_x0_def.lb, fsmp.ode_x0_def.ub):
             lb += [lb_i] * fsmp.ode_x0_def.n
             ub += [ub_i] * fsmp.ode_x0_def.n

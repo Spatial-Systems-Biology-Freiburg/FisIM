@@ -90,6 +90,7 @@ class FisherModel(_FisherModelOptions, _FisherModelBase):
         obs_names = ['obs_fun', 'obs_dgdx', 'obs_dgdp']
         c_obs = np.sum([n in values.keys() and callable(values[n]) for n in obs_names])
         if 1 < c_obs < 3:
+            # TODO test this statement
             raise ValueError("Specify all of \'obs_fun\', \'obs_dgdx\' and \'obs_dgdp\' or none.")
         return values
 
@@ -100,6 +101,7 @@ class FisherModel(_FisherModelOptions, _FisherModelBase):
         c_fun = np.sum([n in values.keys() and callable(values[n]) for n in fun_names])
         c_obs = np.sum([n in values.keys() and callable(values[n]) for n in obs_names])
         if c_obs > 0 and c_fun != c_obs:
+            # TODO test this statement
             raise ValueError("Specify both \'ode_dfdx0\' and \'obs_dgdx0' when using observables.")
         return values
 
@@ -131,12 +133,14 @@ class _FisherModelParametrizedBase(_FisherOdeFunctions):
     def parameters(self) -> tuple:
         return self.variable_values.parameters
 
+    # TODO test this statement
     @property
     def ode_args(self) -> tuple:
         return self.variable_values.ode_args
 
     # These methods obtain only mutable quantities.
     # Return None or a list of None and values depending on which quantity is mutable
+    # TODO test this statement
     @property
     def ode_x0_mut(self):
         if self.variable_definitions.ode_x0 is None:
@@ -144,6 +148,7 @@ class _FisherModelParametrizedBase(_FisherOdeFunctions):
         else:
             return self.variable_values.ode_x0
 
+    # TODO test this statement
     @property
     def ode_t0_mut(self):
         if self.variable_definitions.ode_t0 is None:
@@ -151,6 +156,7 @@ class _FisherModelParametrizedBase(_FisherOdeFunctions):
         else:
             return self.variable_values.ode_t0
 
+    # TODO test this statement
     @property
     def times_mut(self):
         if self.variable_definitions.times is None:
@@ -158,6 +164,7 @@ class _FisherModelParametrizedBase(_FisherOdeFunctions):
         else:
             return self.variable_values.times
 
+    # TODO test this statement
     @property
     def inputs_mut(self):
         ret = []
@@ -196,6 +203,7 @@ class _FisherModelParametrizedBase(_FisherOdeFunctions):
     @ode_t0.setter
     def ode_t0(self, t0) -> None:
         if type(t0) == float:
+            # TODO test this statement
             self.variable_values.ode_t0 = np.array([t0])
         else:
             self.variable_values.ode_t0 = t0
@@ -216,6 +224,7 @@ class _FisherModelParametrizedBase(_FisherOdeFunctions):
                 if self.variable_definitions.inputs[i] is None:
                     raise AttributeError("Variable inputs at index {} is not mutable!".format(i))
 
+    # TODO test this statement
     @ode_args.setter
     def ode_args(self, ode_args) -> None:
         self.variable_values.ode_args = ode_args
@@ -279,6 +288,7 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
         elif type(fsm.ode_x0) is np.ndarray and fsm.ode_x0.ndim > 1:
             raise TypeError("Variable ode_x0 should be list of arrays with dimension 1 respectively!")
         elif type(fsm.ode_x0) is tuple and len(fsm.ode_x0) >= 3:
+            # TODO test these statements
             x0 = MultiVariableDefinition(*fsm.ode_x0)
             x0_def = x0
             x0_vals = x0.initial_guess
@@ -292,6 +302,7 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
             x0_def = None
             x0_vals = [np.array(fsm.ode_x0)]
         elif type(fsm.ode_x0) == MultiVariableDefinition:
+            # TODO test these statements
             x0_def = fsm.ode_x0
             x0_vals = fsm.ode_x0.initial_guess
         else:
@@ -332,6 +343,7 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
         if callable(fsm.ode_dfdx0):
             if callable(fsm.obs_fun) or callable(fsm.obs_dgdp) or callable(fsm.obs_dgdx):
                 if not callable(fsm.obs_dgdx0):
+                    # TODO test this statement
                     raise ValueError("ode_dfdx0 was specified and observable is probably used but obs_dgx0 was not given!")
 
             if len(variable_values.ode_x0) > 1:
@@ -352,12 +364,15 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
                     elif "abs" in c0:
                         covariance = CovarianceDefinition(absolute=np.array(c1))
                     else:
+                        # TODO test this statement
                         raise ValueError("Cannot read input of covariance {}".format(fsm.covariance))
                 if type(c0)==type(c1)==list:
                     if len(c0)!=n_x or len(c1)!=n_x:
+                        # TODO test this statement
                         raise ValueError("Length of covariance list should be equal to number of observables")
                     covariance = CovarianceDefinition(absolute=np.array(c0), relative=np.array(c1))
                 elif type(c0)==type(c1)==float:
+                    # TODO test this statement FROM HERE
                     covariance = CovarianceDefinition(absolute=np.full((n_obs,), c0), relative=np.full((n_obs,), c1))
             elif type(fsm.covariance) == float:
                 covariance = CovarianceDefinition(absolute=np.full((n_obs,), [fsm.covariance]))
@@ -371,6 +386,7 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
                 raise ValueError("Cannot read input of covariance {}".format(fsm.covariance))
         else:
             covariance = CovarianceDefinition(absolute=None, relative=None)
+        # TODO UNTIL HERE
 
         # Construct parametrized model class and return it
         fsmp = FisherModelParametrized(

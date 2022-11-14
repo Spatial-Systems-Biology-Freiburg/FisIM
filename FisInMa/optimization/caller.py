@@ -75,6 +75,7 @@ def find_optimal(fsm: FisherModel, optimization_strategy: str="scipy_differentia
         display_optimization_start(fsmp)
 
     if optimization_strategy not in OPTIMIZATION_STRATEGIES.keys():
+        # TODO test this statement
         raise KeyError("Please specify one of the following optimization_strategies for optimization: " + str(OPTIMIZATION_STRATEGIES.keys()))
 
     fsr = OPTIMIZATION_STRATEGIES[optimization_strategy](fsmp, discrete_penalizer, **kwargs)

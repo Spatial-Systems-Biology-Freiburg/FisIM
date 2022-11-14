@@ -194,12 +194,14 @@ def _discrete_penalizer(fsmp: FisherModelParametrized, penalizer_name="default")
         discr = fsmp.times_def.discrete
         if type(discr) is np.ndarray:
             if fsmp.identical_times==True:
+                # TODO test these statements
                 values = fsmp.times
                 pen_times, pen_times_full = penalizer(values, discr)
             else:
                 pen_times_full = []
                 for index in itertools.product(*[range(len(q)) for q in fsmp.inputs]):
                     if fsmp.identical_times==True:
+                        # TODO test this statement
                         values = fsmp.times
                     else:
                         values = fsmp.times[index]
