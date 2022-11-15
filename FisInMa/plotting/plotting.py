@@ -8,6 +8,31 @@ from FisInMa.model import FisherResults, FisherModelParametrized
 from FisInMa.solving import calculate_fisher_criterion
 
 
+def plot_template(fsr: FisherResults, sol, sol_new, y_design, y_model, outdir, additional_name, y_name, i, j, k=None):
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.plot(sol_new.times, y_model, color="#21918c", label="Model Solution", linewidth=2)
+
+    # Plot sampled time points
+    ax.scatter(sol.times, y_design, s=160, alpha=0.5, color="#440154", label="Optimal Design")
+    ax.set_xlabel("Time", fontsize=15)
+    ax.set_ylabel(y_name, fontsize=15)
+    ax.tick_params(axis="y", labelsize=13)
+    ax.tick_params(axis="x", labelsize=13)
+    ax.legend(fontsize=15, framealpha=0.5)
+    if k == None:
+        save_name = "{}_Results_{}_{}_{}_{:03.0f}_x_{:02.0f}.svg".format(y_name, fsr.ode_fun.__name__, fsr.criterion_fun.__name__ , additional_name, i, j)
+        title_name = f"Observable {j}, \n Inputs {[round(inp, 1) for inp in sol.inputs]},\n Times {[round(t, 1) for t in sol.times]}"
+    else:
+        save_name = "{}_Results_{}_{}_{}_{:03.0f}_x_{:02.0f}_p_{:02.0f}.svg".format(y_name, fsr.ode_fun.__name__, fsr.criterion_fun.__name__ , additional_name, i, j, k)
+        title_name = f"Observable {j},  Parameter {k}, \n Inputs {[round(inp, 1) for inp in sol.inputs]},\n Times {[round(t, 1) for t in sol.times]}"
+    ax.set_title(title_name, fontsize=15)
+
+    fig.savefig(outdir / Path(save_name), bbox_inches='tight')
+
+    # Remove figure to free space
+    plt.close(fig)
+
+
 def plot_all_odes(fsr: FisherResults, fsr_plot=None, outdir=Path("."), additional_name=""):
     """Plots results of the ODE with time points at which the ODE is evaluated
     for every input combination.
@@ -26,6 +51,7 @@ def plot_all_odes(fsr: FisherResults, fsr_plot=None, outdir=Path("."), additiona
         # Plot the solution and store in individual files
         for j in range(n_x):
             plot_template(fsr, sol, sol_new, sol.ode_solution.y[j], sol_new.ode_solution.y[j], outdir, additional_name, "ODE", i, j)
+
 
 def plot_all_observables(fsr: FisherResults, fsr_plot=None, outdir=Path("."), additional_name=""):
     """Plots the observables with time points chosen for Optimal Experimental Design.
@@ -87,7 +113,6 @@ def plot_all_solutions(fsr: FisherResults, fsr_plot=None,  outdir=Path("."), add
     plot_all_observables(fsr, fsr_plot, outdir, additional_name)
 
 
-
 def get_frs_plot(fsr: FisherResults):
     times_low = fsr.ode_t0
     times_high = fsr.times_def.ub if fsr.times_def is not None else np.max(fsr.times)
@@ -100,29 +125,5 @@ def get_frs_plot(fsr: FisherResults):
 
     frs_plot = calculate_fisher_criterion(fsmp, fsr.criterion_fun, relative_sensitivities=fsr.relative_sensitivities, verbose=False)
     return frs_plot
-
-def plot_template(fsr: FisherResults, sol, sol_new, y_design, y_model, outdir, additional_name, y_name, i, j, k=None):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.plot(sol_new.times, y_model, color="#21918c", label="Model Solution", linewidth=2)
-
-    # Plot sampled time points
-    ax.scatter(sol.times, y_design, s=160, alpha=0.5, color="#440154", label="Optimal Design")
-    ax.set_xlabel("Time", fontsize=15)
-    ax.set_ylabel(y_name, fontsize=15)
-    ax.tick_params(axis="y", labelsize=13)
-    ax.tick_params(axis="x", labelsize=13)
-    ax.legend(fontsize=15, framealpha=0.5)
-    if k == None:
-        save_name = "{}_Results_{}_{}_{}_{:03.0f}_x_{:02.0f}.svg".format(y_name, fsr.ode_fun.__name__, fsr.criterion_fun.__name__ , additional_name, i, j)
-        title_name = f"Observable {j}, \n Inputs {[round(inp, 1) for inp in sol.inputs]},\n Times {[round(t, 1) for t in sol.times]}"
-    else:
-        save_name = "{}_Results_{}_{}_{}_{:03.0f}_x_{:02.0f}_p_{:02.0f}.svg".format(y_name, fsr.ode_fun.__name__, fsr.criterion_fun.__name__ , additional_name, i, j, k)
-        title_name = f"Observable {j},  Parameter {k}, \n Inputs {[round(inp, 1) for inp in sol.inputs]},\n Times {[round(t, 1) for t in sol.times]}"
-    ax.set_title(title_name, fontsize=15)
-    
-    fig.savefig(outdir / Path(save_name), bbox_inches='tight')
-
-    # Remove figure to free space
-    plt.close(fig)
 
 # TODO - find way to plot json dump from database
