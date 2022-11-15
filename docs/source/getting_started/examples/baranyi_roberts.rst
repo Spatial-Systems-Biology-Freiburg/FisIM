@@ -5,8 +5,8 @@ The Baranyi and Roberts growth model (1994) is introduced by a two-dimensional v
 
 .. math::
     \begin{alignat}{3}
-        &\dot x_1(t) &= \frac{x_2(t)}{x_2(t) + 1} \mu^\text{max} \bigg(1 - \frac{x_1(t)}{x_1^\text{max}}\bigg) x(t)\\
-        &\dot x_2(t) &= \mu^\text{max}  x_2(t)
+        &\dot x_1(t) &&= \frac{x_2(t)}{x_2(t) + 1} \mu^\text{max} \bigg(1 - \frac{x_1(t)}{x_1^\text{max}}\bigg) x(t)\\
+        &\dot x_2(t) &&= \mu^\text{max}  x_2(t)
     \end{alignat}
    :label: eq:baranyi_roberts_ode    
 
@@ -23,7 +23,7 @@ where :math:`b` is the regression coefficient, and :math:`T_\text{min}` is the m
 Here :math:`x_1^\text{max}, b, T_\text{min}` are parameters that we estimate. And temperature :math:`T` is an input of the system.
 
 .. code-block:: python3
-    :caption: The input file: the ODEs definition.
+    :caption: The ODEs describing the system
 
     #!/usr/bin/env python3
     import numpy as np
@@ -83,7 +83,7 @@ As an observable, it is pretty common to measure the bacteria count :math:`x_1` 
 For simplicity, we would consider the prior case :math:`y(t_i) = x_1(t_i)`.
 
 .. code-block:: python3
-    :caption: The input file: the observables definition.
+    :caption: The Observables to be used to calculate the Sensitivities
 
     def obs_fun(t, x, u, p, ode_args):
     # Define the observable function
