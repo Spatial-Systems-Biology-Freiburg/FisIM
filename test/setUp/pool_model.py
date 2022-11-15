@@ -77,7 +77,7 @@ class ModelParamInitialValues:
         self.t0 = 0.0
         self.x0 = n0
 
-        self.times = (self.t0, 16.0, n_times)
+        self.times = {"lb":self.t0, "ub":16.0, "n":n_times}
 
         # Values for temperatures
         self.inputs = [

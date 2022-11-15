@@ -117,7 +117,8 @@ if __name__ == "__main__":
 
     # Values for temperatures (Q-Values)
     inputs = [
-        np.linspace(temp_low, temp_high, n_temps)
+        np.linspace(temp_low, temp_high, n_temps),
+        # {"lb": temp_low, "ub": temp_high, "n": n_temps},
     ]
     # Values for times (can be same for every temperature or different)
     # the distinction is made by dimension of array
@@ -127,9 +128,10 @@ if __name__ == "__main__":
             ode_dfdx=dfdx,
             ode_dfdp=dfdp,
             ode_dfdx0=dfdx0,
-            ode_t0=times_low,
-            ode_x0=x0,
-            times=(times_low, times_high, n_times),
+            ode_t0=[times_low],
+            # ode_x0={"lb":0.5, "ub":10.0, "n":2},
+            ode_x0=n0,
+            times={"lb":times_low, "ub":times_high, "n":n_times},
             inputs=inputs,
             parameters=P,
             ode_args=Const,

@@ -75,7 +75,6 @@ _VECTORIZED_TYPE_CASTS = {
     np.ndarray: nparray_to_list_of_vectors,
     float: lambda x: [np.array([x])],
     dict: lambda x: MultiVariableDefinition(**x),
-    tuple: lambda x: MultiVariableDefinition(*x),
     MultiVariableDefinition: lambda x: x,
 }
 
@@ -84,7 +83,6 @@ _SCALAR_TYPE_CASTS = {
     list: list_to_nparray_of_float,
     np.ndarray: nparray_correct_shape_and_float,
     dict: lambda x: VariableDefinition(**x),
-    tuple: lambda x: VariableDefinition(*x),
     VariableDefinition: lambda x: x,
 }
 
@@ -92,7 +90,6 @@ _TIMES_TYPE_CASTS = {
     list: lambda x: np.array(x),
     np.ndarray: times_nparray_to_correct_shape,
     dict: lambda x: VariableDefinition(**x),
-    tuple: lambda x: VariableDefinition(*x),
     VariableDefinition: lambda x: x,
 }
 

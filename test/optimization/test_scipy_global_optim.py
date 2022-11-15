@@ -69,7 +69,7 @@ class Test_BoundsConstraints:
 
     def test_bounds_constraints_sample_ode_t0(self, default_model):
         fsm = default_model.fsm
-        fsm.ode_t0 = (0.00, 0.001, 3)
+        fsm.ode_t0 = {"lb":0.00, "ub":0.001, "n":3}
         fsmp = FisherModelParametrized.init_from(fsm)
         bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
         np.testing.assert_almost_equal(bounds, [[fsm.ode_t0.lb, fsm.ode_t0.ub]]*fsm.ode_t0.n)
@@ -90,8 +90,7 @@ class Test_BoundsConstraints:
     def test_constraints_sample_times(self, default_model):
         fsm = default_model.fsm
         fsm.identical_times=True
-        fsm.times = (0.0, 10.0, 5)
-        # fsm.times = {"lb": 0.0, "ub": 10.0, "n": 5}
+        fsm.times = {"lb":0.0, "ub":10.0, "n":5}
         fsmp = FisherModelParametrized.init_from(fsm)
         bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
         n_inputs = np.product([len(q) for q in fsmp.inputs])
@@ -106,18 +105,21 @@ class Test_BoundsConstraints:
     
     def test_constraints_sample_inputs(self, default_model):
         fsm = default_model.fsm
-        inp = [(1.0, 2.0, 3), (3.0, 44.0, 6)]
+        inp = [
+            {"lb":1.0, "ub":2.0, "n":3},
+            {"lb":3.0, "ub":44.0, "n":6}
+        ]
         fsm.inputs = inp
         fsmp = FisherModelParametrized.init_from(fsm)
         bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
         # Test bounds and constraints
-        np.testing.assert_almost_equal(bounds, [inp[0][0:2]]*inp[0][2] + [inp[1][0:2]]*inp[1][2])
-        np.testing.assert_almost_equal(constraints.lb, [-np.inf]*(inp[0][2]-1+inp[1][2]-1))
-        np.testing.assert_almost_equal(constraints.ub, [0.0]*(inp[0][2]-1+inp[1][2]-1))
+        np.testing.assert_almost_equal(bounds, [[inp[0]["lb"], inp[0]["ub"]]]*inp[0]["n"] + [[inp[1]["lb"], inp[1]["ub"]]]*inp[1]["n"])
+        np.testing.assert_almost_equal(constraints.lb, [-np.inf]*(inp[0]["n"]-1+inp[1]["n"]-1))
+        np.testing.assert_almost_equal(constraints.ub, [0.0]*(inp[0]["n"]-1+inp[1]["n"]-1))
         # Create matrix to compare against
         B = np.eye(0)
         for i in range(len(inp)):
-            A = _create_comparison_matrix(inp[i][2])
+            A = _create_comparison_matrix(inp[i]["n"])
             B = np.block([[B,np.zeros((B.shape[0],A.shape[1]))],[np.zeros((A.shape[0],B.shape[1])),A]])
         np.testing.assert_almost_equal(constraints.A, B)
 

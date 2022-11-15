@@ -63,11 +63,11 @@ class Test_fmsp_init_from_fsm:
 
     def test_sample_ode_t0(self, default_model):
         fsm = default_model.fsm
-        t0 = (1.1, 7.2, 4)
+        t0 = {"lb":1.1, "ub":7.2, "n":4}
         fsm.ode_t0 = t0
         fsm.identical_times = True
         fsmp = FisherModelParametrized.init_from(fsm)
-        np.testing.assert_almost_equal(fsmp.ode_t0, np.linspace(*t0))
+        np.testing.assert_almost_equal(fsmp.ode_t0, np.linspace(t0["lb"], t0["ub"], t0["n"]))
 
     def test_fixed_ode_t0_float(self, default_model):
         fsm = default_model.fsm
@@ -103,63 +103,63 @@ class Test_fmsp_init_from_fsm:
 
     def test_sample_times_identical(self, default_model):
         fsm = default_model.fsm
-        t = (3.21, 11.44, 2)
+        t = {"lb":3.21, "ub":11.44, "n":2}
         fsm.times = t
         fsm.identical_times = True
         fsmp = FisherModelParametrized.init_from(fsm)
         times = fsmp.times
-        np.testing.assert_almost_equal(times, np.linspace(*t))
+        np.testing.assert_almost_equal(times, np.linspace(t["lb"], t["ub"], t["n"]))
     
     def test_sample_times_not_identical(self, default_model):
         fsm = default_model.fsm
-        t = (3.35, 78.2, 6)
+        t = {"lb":3.35, "ub":78.2, "n":6}
         fsm.times = t
         fsmp = FisherModelParametrized.init_from(fsm)
         times = fsmp.times
-        np.testing.assert_almost_equal(times, np.full(tuple(len(q) for q in fsmp.inputs) + (t[2],), np.linspace(*t)))
+        np.testing.assert_almost_equal(times, np.full(tuple(len(q) for q in fsmp.inputs) + (t["n"],), np.linspace(t["lb"], t["ub"], t["n"])))
     
     def test_sample_inputs(self, default_model):
         fsm = default_model.fsm
-        inp0 = (-2.0, 51.2, 3)
+        inp0 = {"lb":-2.0, "ub":51.2, "n":3}
         inp1 = np.array([1,2,3,4.5,5.2,3.4])
         fsm.inputs = [inp0, inp1]
         fsmp = FisherModelParametrized.init_from(fsm)
         inputs = fsmp.inputs
-        for i, j in zip(inputs, [np.linspace(*inp0), inp1]):
+        for i, j in zip(inputs, [np.linspace(inp0["lb"], inp0["ub"], inp0["n"]), inp1]):
             np.testing.assert_almost_equal(i, j)
     
     # Test combinations (2)
     def test_sample_ode_x0_ode_t0(self, default_model):
         fsm = default_model.fsm
         x0 = [[0.0187, 0.000498], [0.0291, 0.002]]
-        t0 = (0.0, 1.0, 7)
+        t0 = {"lb":0.0, "ub":1.0, "n":7}
         fsm.ode_x0 = x0
         fsm.ode_t0 = t0
         fsmp = FisherModelParametrized.init_from(fsm)
         for p, q in zip(fsmp.ode_x0, x0):
             np.testing.assert_almost_equal(p, q)
-        np.testing.assert_almost_equal(fsmp.ode_t0, np.linspace(*t0))
+        np.testing.assert_almost_equal(fsmp.ode_t0, np.linspace(t0["lb"], t0["ub"], t0["n"]))
     
     def test_sample_ode_x0_times(self, default_model):
         fsm = default_model.fsm
         x0 = [[0.0187, 0.000498], [0.0291, 0.002]]
-        t = (3.21, 11.44, 2)
+        t = {"lb":3.21, "ub":11.44, "n":2}
         fsm.ode_x0 = x0
         fsm.times = t
         fsmp = FisherModelParametrized.init_from(fsm)
         for p, q in zip(fsmp.ode_x0, x0):
             np.testing.assert_almost_equal(p, q)
-        np.testing.assert_almost_equal(fsmp.times, np.full(tuple(len(q) for q in fsmp.inputs) + (t[2],), np.linspace(*t)))
+        np.testing.assert_almost_equal(fsmp.times, np.full(tuple(len(q) for q in fsmp.inputs) + (t["n"],), np.linspace(t["lb"], t["ub"], t["n"])))
 
     def test_sample_ode_t0_times(self, default_model):
         fsm = default_model.fsm
-        t0 = (-2.13, 5.05, 6)
-        t = (3.21, 11.44, 2)
+        t0 = {"lb":-2.13, "ub":5.05, "n":6}
+        t = {"lb":3.21, "ub":11.44, "n":2}
         fsm.ode_t0 = t0
         fsm.times = t
         fsmp = FisherModelParametrized.init_from(fsm)
-        np.testing.assert_almost_equal(fsmp.ode_t0, np.linspace(*t0))
-        np.testing.assert_almost_equal(fsmp.times, np.full(tuple(len(q) for q in fsmp.inputs) + (t[2],), np.linspace(*t)))
+        np.testing.assert_almost_equal(fsmp.ode_t0, np.linspace(t0["lb"], t0["ub"], t0["n"]))
+        np.testing.assert_almost_equal(fsmp.times, np.full(tuple(len(q) for q in fsmp.inputs) + (t["n"],), np.linspace(t["lb"], t["ub"], t["n"])))
 
     # TODO
     # def test_sample_ode_x0_inputs(self, default_model):
@@ -192,7 +192,7 @@ class Test_fmsp_init_from_fsm:
 class Test_fsmp_set_get:
     def test_set_get_t0(self, default_model):
         fsm = default_model.fsm
-        t0 = (2.22, 56.3, 8)
+        t0 = {"lb":2.22, "ub":56.3, "n":8}
         fsm.ode_t0 = t0
         fsmp = FisherModelParametrized.init_from(fsm)
         t0 = 1.0
@@ -210,7 +210,7 @@ class Test_fsmp_set_get:
     
     def test_set_get_times_identical(self, default_model):
         fsm = default_model.fsm
-        times = (4.22, 9.44, 8)
+        times = {"lb":4.22, "ub":9.44, "n":8}
         fsm.times = times
         fsm.identical_times = True
         fsmp = FisherModelParametrized.init_from(fsm)
@@ -220,16 +220,16 @@ class Test_fsmp_set_get:
     
     def test_set_get_times_not_identical(self, default_model):
         fsm = default_model.fsm
-        t = (4.22, 9.44, 8)
+        t = {"lb":4.22, "ub":9.44, "n":8}
         fsm.times = t
         fsmp = FisherModelParametrized.init_from(fsm)
-        times = np.full(fsmp.times.shape, np.linspace(3.119, 6.489, t[2]))
+        times = np.full(fsmp.times.shape, np.linspace(3.119, 6.489, t["n"]))
         fsmp.times = times
         np.testing.assert_almost_equal(times, fsmp.times)
     
     def test_set_get_inputs(self, default_model):
         fsm = default_model.fsm
-        inp0 = (-2.0, 51.2, 3)
+        inp0 = {"lb":-2.0, "ub":51.2, "n":3}
         inp1 = np.array([1,2,3,4.5,5.2,3.4])
         fsm.inputs = [inp0, inp1]
         fsmp = FisherModelParametrized.init_from(fsm)

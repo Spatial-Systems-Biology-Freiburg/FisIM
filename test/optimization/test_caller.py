@@ -17,7 +17,7 @@ class Test_Caller:
             np.arange(2, 2+2),
             np.arange(5, 2+5)
         ]
-        fsm.times = (0.0, 10.0, 2)
+        fsm.times = {"lb":0.0, "ub":10.0, "n":2}
         # Choose very small iteration and population numbers.
         # This is not about convergence, but about if the method will not fail.
         fsr = find_optimal(fsm, "scipy_differential_evolution", workers=1, maxiter=1, popsize=2)
@@ -32,7 +32,7 @@ class Test_Caller:
             np.arange(2, 2+2),
             np.arange(5, 5+2)
         ]
-        fsm.times = (0.0, 10.0, 2)
+        fsm.times = {"lb":0.0, "ub":10.0, "n":2}
         # Choose very small iteration and population numbers.
         # This is not about convergence, but about if the method will not fail.
         fsr = find_optimal(fsm, "scipy_basinhopping", niter=1, interval=2)
@@ -47,7 +47,7 @@ class Test_Caller:
             np.arange(2, 2+2),
             np.arange(5, 5+2)
         ]
-        fsm.times = (0.0, 10.0, 2)
+        fsm.times = {"lb":0.0, "ub":10.0, "n":2}
 
         # Choose very small iteration and population numbers.
         # This is not about convergence, but about if the method will not fail.
