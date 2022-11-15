@@ -1,7 +1,8 @@
 Getting Started
 ===============
 
-This package can be used as follows ...
+This page gathers information on how to install the package and get started with
+your first experimental design.
 
 .. toctree::
    :maxdepth: 3
