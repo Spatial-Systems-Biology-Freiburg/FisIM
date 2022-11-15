@@ -106,20 +106,18 @@ class Test_BoundsConstraints:
     
     def test_constraints_sample_inputs(self, default_model):
         fsm = default_model.fsm
-        fsm.inputs = [
-            (1.0, 2.0, 3),
-            (3.0, 44.0, 6)
-        ]
+        inp = [(1.0, 2.0, 3), (3.0, 44.0, 6)]
+        fsm.inputs = inp
         fsmp = FisherModelParametrized.init_from(fsm)
         bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
         # Test bounds and constraints
-        np.testing.assert_almost_equal(bounds, [fsm.inputs[0][0:2]]*fsm.inputs[0][2] + [fsm.inputs[1][0:2]]*fsm.inputs[1][2])
-        np.testing.assert_almost_equal(constraints.lb, [-np.inf]*(fsm.inputs[0][2]-1+fsm.inputs[1][2]-1))
-        np.testing.assert_almost_equal(constraints.ub, [0.0]*(fsm.inputs[0][2]-1+fsm.inputs[1][2]-1))
+        np.testing.assert_almost_equal(bounds, [inp[0][0:2]]*inp[0][2] + [inp[1][0:2]]*inp[1][2])
+        np.testing.assert_almost_equal(constraints.lb, [-np.inf]*(inp[0][2]-1+inp[1][2]-1))
+        np.testing.assert_almost_equal(constraints.ub, [0.0]*(inp[0][2]-1+inp[1][2]-1))
         # Create matrix to compare against
         B = np.eye(0)
-        for i in range(len(fsm.inputs)):
-            A = _create_comparison_matrix(fsm.inputs[i][2])
+        for i in range(len(inp)):
+            A = _create_comparison_matrix(inp[i][2])
             B = np.block([[B,np.zeros((B.shape[0],A.shape[1]))],[np.zeros((A.shape[0],B.shape[1])),A]])
         np.testing.assert_almost_equal(constraints.A, B)
 

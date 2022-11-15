@@ -149,8 +149,9 @@ class TestConvergence:
             for t in sol.times])
 
             s = sol_sens_own.reshape((-1, n_obs, n_p)).swapaxes(0, 2)
-            i = np.where(fsmp.inputs[0] == sol.inputs)
-            S_own[(slice(None), slice(None), i[0][0], slice(None))] = s
+            comp = np.isclose(fsmp.inputs[0], sol.inputs[0])
+            i = next(i for i, el in enumerate(comp) if el==True)
+            S_own[(slice(None), slice(None), i, slice(None))] = s
 
             np.testing.assert_almost_equal(sol_ode_calc, sol_ode_own, decimal=3)
             np.testing.assert_almost_equal(sol_dxdp_calc, sol_dxdp_own.reshape((len(sol.times), -1)), decimal=3)

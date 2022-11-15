@@ -33,20 +33,21 @@ def list_to_list_of_vectors(ls: list) -> List[np.ndarray]:
         raise TypeError("Cannot convert list {} to list of numpy arrays".format(ls))
 
 
-def list_to_list_of_float(ls: list) -> List[float]:
+def list_to_nparray_of_float(ls: list) -> List[float]:
     if all([type(l)==float for l in ls]):
-        return ls
+        return np.array(ls)
     elif all([type(l)==np.ndarray and l.size==1 for l in ls]):
-        return [float(l) for l in ls]
+        return np.array([float(l) for l in ls])
     else:
         raise TypeError("Cannot convert list {} to list of numpy arrays".format(ls))
 
 
-def nparray_to_list_of_float(ls: np.ndarray) -> List[float]:
-    if all([type(l)==np.float64 for l in ls]):
-        return [float(l) for l in ls]
+def nparray_correct_shape_and_float(ls: np.ndarray) -> List[float]:
+    acceptable_types = [float, int, np.int_, np.short, np.intc, np.longlong, np.half, np.float16, np.float32, np.single, np.double, np.longdouble, np.short]
+    if all([type(l) in acceptable_types for l in ls]):
+        return np.array([float(l) for l in ls])
     elif all([type(l)==np.ndarray and l.size==1 for l in ls]):
-        return [float(l) for l in ls]
+        return np.array([float(l) for l in ls])
     else:
         raise TypeError("Cannot convert list {} to list of numpy arrays".format(ls))
 
@@ -75,14 +76,16 @@ _VECTORIZED_TYPE_CASTS = {
     float: lambda x: [np.array([x])],
     dict: lambda x: MultiVariableDefinition(**x),
     tuple: lambda x: MultiVariableDefinition(*x),
+    MultiVariableDefinition: lambda x: x,
 }
 
 _SCALAR_TYPE_CASTS = {
     float: lambda x: [x],
-    list: list_to_list_of_float,
-    np.ndarray: nparray_to_list_of_float,
+    list: list_to_nparray_of_float,
+    np.ndarray: nparray_correct_shape_and_float,
     dict: lambda x: VariableDefinition(**x),
     tuple: lambda x: VariableDefinition(*x),
+    VariableDefinition: lambda x: x,
 }
 
 _TIMES_TYPE_CASTS = {
@@ -90,6 +93,7 @@ _TIMES_TYPE_CASTS = {
     np.ndarray: times_nparray_to_correct_shape,
     dict: lambda x: VariableDefinition(**x),
     tuple: lambda x: VariableDefinition(*x),
+    VariableDefinition: lambda x: x,
 }
 
 
@@ -100,11 +104,10 @@ def _general_validator(value, casts):
         return casts[type(value)](value)
 
 
-
 @dataclass(config=Config)
 class _FisherVariablesBase:
-    ode_x0: VECTORIZED_TYPE#Union[List[np.ndarray], np.ndarray, MultiVariableDefinition]#Union[MultiVariableDefinition, MULTIVARIABLE_DEF_TUPLE, np.ndarray, List[float], List[List[float]], float, List[np.ndarray]]
-    ode_t0: SCALAR_TYPE#Union[VARIABLE_DEF_TUPLE, float, np.ndarray, List]
+    ode_x0: VECTORIZED_TYPE
+    ode_t0: SCALAR_TYPE
     times: Union[tuple, List[float], List[List[float]], np.ndarray, VariableDefinition, None]
     inputs: List#[SCALAR_TYPE]# list[Union[list[float],np.ndarray]]
     parameters: Tuple[float, ...]
@@ -175,8 +178,11 @@ class FisherModel(_FisherModelOptions, _FisherModelBase):
 
     @validator('times', pre=True)
     def validate_times(cls, times):
-        ret = _general_validator(times, _TIMES_TYPE_CASTS)
-        return ret
+        return _general_validator(times, _TIMES_TYPE_CASTS)
+
+    @validator('inputs', pre=True, each_item=True)
+    def validate_inputs(cls, inp):
+        return _general_validator(inp, _SCALAR_TYPE_CASTS)
 
     @root_validator
     def all_observables_defined(cls, values):
@@ -359,19 +365,19 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
         _inputs_def = []
         _inputs_vals = []
         for q in fsm.inputs:
-            if type(q) == tuple and len(q) >= 3:
-                q_def = VariableDefinition(*q)
-                _inputs_def.append(q_def)
-                _inputs_vals.append(q_def.initial_guess)
+            q = _general_validator(q, _SCALAR_TYPE_CASTS)
+            if type(q) == VariableDefinition:
+                _inputs_def.append(q)
+                _inputs_vals.append(q.initial_guess)
             else:
                 _inputs_def.append(None)
-                _inputs_vals.append(np.array(q))
-        
+                _inputs_vals.append(q)
         variable_definitions.inputs = _inputs_def
         variable_values.inputs = _inputs_vals
         inputs_shape = tuple(len(q) for q in _inputs_vals)
 
         # Check if we want to sample over initial values
+        fsm.ode_x0 = _general_validator(fsm.ode_x0, _VECTORIZED_TYPE_CASTS)
         if type(fsm.ode_x0)==MultiVariableDefinition:
             variable_definitions.ode_x0 = fsm.ode_x0
             variable_values.ode_x0 = fsm.ode_x0.initial_guess
@@ -380,6 +386,7 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
             variable_values.ode_x0 = fsm.ode_x0
 
         # Check if time values are sampled
+        fsm.times = _general_validator(fsm.times, _SCALAR_TYPE_CASTS)
         if type(fsm.times)==VariableDefinition:
             variable_definitions.times = fsm.times
             variable_values.times = fsm.times.initial_guess
@@ -392,6 +399,7 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
             variable_values.times = np.full(inputs_shape + variable_values.times.shape, variable_values.times)
 
         # Check if we want to sample over initial time
+        fsm.ode_t0 = _general_validator(fsm.ode_t0, _SCALAR_TYPE_CASTS)
         if type(fsm.ode_t0)==VariableDefinition:
             variable_definitions.ode_t0 = fsm.ode_t0
             variable_values.ode_t0 = fsm.ode_t0.initial_guess
