@@ -114,14 +114,14 @@ def plot_all_solutions(fsr: FisherResults, fsr_plot=None,  outdir=Path("."), add
 
 
 def get_frs_plot(fsr: FisherResults):
-    times_low = fsr.ode_t0
+    times_low = fsr.ode_t0[0]
     times_high = fsr.times_def.ub if fsr.times_def is not None else np.max(fsr.times)
     t_values = np.linspace(times_low, times_high, 1000)
 
     fsmp_args = {key:value for key, value in fsr.__dict__.items() if not key.startswith('_')}
 
     fsmp = FisherModelParametrized(**fsmp_args)
-    fsmp.times = t_values.reshape(fsmp.times.shape[0:-1] + (-1,))
+    fsmp.times = np.full(fsmp.times.shape[0:-1] + (t_values.size,), t_values)
 
     frs_plot = calculate_fisher_criterion(fsmp, fsr.criterion_fun, relative_sensitivities=fsr.relative_sensitivities, verbose=False)
     return frs_plot
