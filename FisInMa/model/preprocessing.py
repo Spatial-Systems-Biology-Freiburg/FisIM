@@ -51,6 +51,7 @@ class VariableDefinition():
                 else:
                     n_low = round((len(self.discrete)- self.n)/2)
                     self.initial_guess = self.discrete[n_low:n_low+self.n]
+            self.initial_guess = np.array(self.initial_guess)
         elif type(self.initial_guess)==np.nparray:
             # TODO test this statement
             self.initial_guess = np.sort(self.initial_guess, axis=-1)
@@ -144,7 +145,7 @@ class MultiVariableDefinition():
         # Define initial guess for variable
         if self.initial_guess == "uniform":
             if self.discrete is None:
-                self.initial_guess = [d for d in np.array([np.linspace(self.lb[i], self.ub[i], self.n) for i in range(len(self.lb))]).T]
+                self.initial_guess = np.array([d for d in np.array([np.linspace(self.lb[i], self.ub[i], self.n) for i in range(len(self.lb))]).T])
             else:
                 # If we sample more points than we have discrete values,
                 # we simply iterate over all of them and fill the
