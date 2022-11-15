@@ -92,7 +92,8 @@ if __name__ == "__main__":
 
     # Define interval and number of sampling points for times
     n_times = 6
-    times = (0.0, 20.0, n_times)
+    # times = (0.0, 20.0, n_times)
+    times = {"lb": 0.0, "ub": 20.0, "n":n_times}
 
     # Define explicit temperature points
     Temp_low = 4.0
