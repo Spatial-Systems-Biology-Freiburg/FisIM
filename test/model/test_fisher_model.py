@@ -2,6 +2,7 @@
 
 import pytest
 import numpy as np
+from pydantic import ValidationError
 
 from test.setUp import default_model, model_init_params, pool_model
 
@@ -42,8 +43,8 @@ class Test_fmsp_init_from_fsm:
     def test_fixed_ode_x0_too_large_array(self, default_model):
         fsm = default_model.fsm
         x0 = np.array([[0.02, 0.05],[0.015, 0.04767]])
-        fsm.ode_x0 = x0
-        with pytest.raises(TypeError):
+        with pytest.raises(ValidationError):
+            fsm.ode_x0 = x0
             fsmp = FisherModelParametrized.init_from(fsm)
 
     def test_fixed_ode_x0_explicit_multiple_vector(self, default_model):

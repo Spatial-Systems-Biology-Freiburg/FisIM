@@ -20,12 +20,13 @@ class Test_DiscrPenalty:
     @pytest.mark.parametrize("N_x0,n_t0,n_times,n_inputs_0,n_inputs_1,identical_times,penalty_name", generate_penalty_combs())
     def test_ode_t0(self, default_model_parametrized, penalty_name):
         fsm = default_model_parametrized.fsm
-        fsm.ode_t0 = (0.00, 0.001, 3, 0.0002)
+        disc = 0.0002
+        fsm.ode_t0 = (0.00, 0.001, 3, disc)
         # Initialize model with initial guess
         fsmp = FisherModelParametrized.init_from(fsm)
 
         # Test if discretization was correctly used
-        np.testing.assert_almost_equal(fsmp.ode_t0_def.discrete, np.arange(fsm.ode_t0[0], fsm.ode_t0[1] + fsm.ode_t0[3]/2, fsm.ode_t0[3]))
+        np.testing.assert_almost_equal(fsmp.ode_t0_def.discrete, np.arange(fsm.ode_t0.lb, fsm.ode_t0.ub + disc/2, disc))
         
         # Calculate penalty for initial_guess = discretization
         # The penalty should be non-effective (ie. = 1.0)
@@ -58,12 +59,13 @@ class Test_DiscrPenalty:
     @pytest.mark.parametrize("N_x0,n_t0,n_times,n_inputs_0,n_inputs_1,identical_times,penalty_name", generate_penalty_combs())
     def test_times(self, default_model_parametrized, penalty_name):
         fsm = default_model_parametrized.fsm
-        fsm.times = (0.00, 10.0, 5, 0.5)
+        disc = 0.5
+        fsm.times = (0.00, 10.0, 5, disc)
         # Initialize model with initial guess
         fsmp = FisherModelParametrized.init_from(fsm)
 
         # Test if discretization was correctly used
-        np.testing.assert_almost_equal(fsmp.times_def.discrete, np.arange(fsm.times[0], fsm.times[1] + fsm.times[3]/2, fsm.times[3]))
+        np.testing.assert_almost_equal(fsmp.times_def.discrete, np.arange(fsm.times.lb, fsm.times.ub + disc/2, disc))
         
         # Calculate penalty for initial_guess = discretization
         # The penalty should be non-effective (ie. = 1.0)
@@ -104,12 +106,13 @@ class Test_DiscrPenalty:
     @pytest.mark.parametrize("N_x0,n_t0,n_times,n_inputs_0,n_inputs_1,identical_times,penalty_name", generate_penalty_combs())
     def test_inputs(self, default_model_parametrized, penalty_name):
         fsm = default_model_parametrized.fsm
-        fsm.inputs[0] = (5.0, 8.0, 3, 0.25)
+        disc = 0.25
+        fsm.inputs[0] = (5.0, 8.0, 3, disc)
         # Initialize model with initial guess
         fsmp = FisherModelParametrized.init_from(fsm)
 
         # Test if discretization was correctly used
-        np.testing.assert_almost_equal(fsmp.inputs_def[0].discrete, np.arange(fsm.inputs[0][0], fsm.inputs[0][1] + fsm.inputs[0][3]/2, fsm.inputs[0][3]))
+        np.testing.assert_almost_equal(fsmp.inputs_def[0].discrete, np.arange(fsm.inputs[0][0], fsm.inputs[0][1] + disc/2, disc))
 
         # Calculate penalty for initial_guess = discretization
         # The penalty should be non-effective (ie. = 1.0)

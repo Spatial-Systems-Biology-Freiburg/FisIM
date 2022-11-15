@@ -2,12 +2,12 @@ import numpy as np
 # from dataclasses import dataclass
 from copy import deepcopy
 from pydantic.dataclasses import dataclass
-from pydantic import root_validator
+from pydantic import root_validator, validator
 try:
     from collections.abc import Callable
 except:
     from typing import Callable
-from typing import Optional, Union, Any, List, Tuple
+from typing import Optional, Union, Any, List, Tuple, Dict
 
 from .preprocessing import VariableDefinition, MultiVariableDefinition, CovarianceDefinition
 
@@ -15,18 +15,98 @@ from .preprocessing import VariableDefinition, MultiVariableDefinition, Covarian
 class Config:
     arbitrary_types_allowed = True
     smart_union = True
+    validate_assignment = True
 
 
 VARIABLE_DEF_TUPLE = Tuple[float, float, int, Optional[Any], Optional[Any], Optional[Any], Optional[Any]]
 MULTIVARIABLE_DEF_TUPLE = Tuple[List[float], List[float], int, Optional[Any], Optional[Any], Optional[Any], Optional[Any]]
 
 
+def list_to_list_of_vectors(ls: list) -> List[np.ndarray]:
+    if all([type(l)==float for l in ls]):
+        return [np.array(ls)]
+    elif all([type(l)==list and all([type(li)==float for li in l]) for l in ls]):
+        return [np.array(l) for l in ls]
+    elif all([type(l)==np.ndarray and l.ndim==1 for l in ls]):
+        return ls
+    else:
+        raise TypeError("Cannot convert list {} to list of numpy arrays".format(ls))
+
+
+def list_to_list_of_float(ls: list) -> List[float]:
+    if all([type(l)==float for l in ls]):
+        return ls
+    elif all([type(l)==np.ndarray and l.size==1 for l in ls]):
+        return [float(l) for l in ls]
+    else:
+        raise TypeError("Cannot convert list {} to list of numpy arrays".format(ls))
+
+
+def nparray_to_list_of_float(ls: np.ndarray) -> List[float]:
+    if all([type(l)==np.float64 for l in ls]):
+        return [float(l) for l in ls]
+    elif all([type(l)==np.ndarray and l.size==1 for l in ls]):
+        return [float(l) for l in ls]
+    else:
+        raise TypeError("Cannot convert list {} to list of numpy arrays".format(ls))
+
+
+def nparray_to_list_of_vectors(npa: np.ndarray) -> List[np.ndarray]:
+    if npa.ndim==1:
+        return [npa]
+    elif npa.ndim==0:
+        return [np.array([npa], dtype=float)]
+    else:
+        raise ValueError("Dimension of the array must be <2")
+
+
+def times_nparray_to_correct_shape(times: np.ndarray) -> np.ndarray:
+    return times
+
+
+TIMES_TYPE = Union[List, np.ndarray, VariableDefinition, None]
+VECTORIZED_TYPE = Union[List, np.ndarray, MultiVariableDefinition, None]
+SCALAR_TYPE = Union[List[float], np.ndarray, float, VariableDefinition, None]
+
+
+_VECTORIZED_TYPE_CASTS = {
+    list: list_to_list_of_vectors,
+    np.ndarray: nparray_to_list_of_vectors,
+    float: lambda x: [np.array([x])],
+    dict: lambda x: MultiVariableDefinition(**x),
+    tuple: lambda x: MultiVariableDefinition(*x),
+}
+
+_SCALAR_TYPE_CASTS = {
+    float: lambda x: [x],
+    list: list_to_list_of_float,
+    np.ndarray: nparray_to_list_of_float,
+    dict: lambda x: VariableDefinition(**x),
+    tuple: lambda x: VariableDefinition(*x),
+}
+
+_TIMES_TYPE_CASTS = {
+    list: lambda x: np.array(x),
+    np.ndarray: times_nparray_to_correct_shape,
+    dict: lambda x: VariableDefinition(**x),
+    tuple: lambda x: VariableDefinition(*x),
+}
+
+
+def _general_validator(value, casts):
+    if type(value) not in casts.keys():
+        raise TypeError("We cannot process the type {}. Please specify one of the following types: {}".format(type(value), casts.keys()))
+    else:
+        return casts[type(value)](value)
+
+
+
 @dataclass(config=Config)
 class _FisherVariablesBase:
-    ode_x0: Union[MultiVariableDefinition, MULTIVARIABLE_DEF_TUPLE, np.ndarray, List[float], List[List[float]], float, List[np.ndarray]]
-    ode_t0: Union[VARIABLE_DEF_TUPLE, float, np.ndarray, List]
-    times: Union[tuple, List[float], List[List[float]], np.ndarray]
-    inputs: List# list[Union[list[float],np.ndarray]]
+    ode_x0: VECTORIZED_TYPE#Union[List[np.ndarray], np.ndarray, MultiVariableDefinition]#Union[MultiVariableDefinition, MULTIVARIABLE_DEF_TUPLE, np.ndarray, List[float], List[List[float]], float, List[np.ndarray]]
+    ode_t0: SCALAR_TYPE#Union[VARIABLE_DEF_TUPLE, float, np.ndarray, List]
+    times: Union[tuple, List[float], List[List[float]], np.ndarray, VariableDefinition, None]
+    inputs: List#[SCALAR_TYPE]# list[Union[list[float],np.ndarray]]
     parameters: Tuple[float, ...]
 
 
@@ -85,6 +165,19 @@ class _FisherModelOptions(_FisherVariablesOptions, _FisherObservableFunctionsOpt
 @dataclass(config=Config)
 class FisherModel(_FisherModelOptions, _FisherModelBase):
     # TODO - Documentation Fisher Model
+    @validator('ode_x0', pre=True)
+    def validate_ode_x0(cls, ode_x0):
+        return _general_validator(ode_x0, _VECTORIZED_TYPE_CASTS)
+
+    @validator('ode_t0', pre=True)
+    def validate_ode_t0(cls, ode_t0):
+        return _general_validator(ode_t0, _SCALAR_TYPE_CASTS)
+
+    @validator('times', pre=True)
+    def validate_times(cls, times):
+        ret = _general_validator(times, _TIMES_TYPE_CASTS)
+        return ret
+
     @root_validator
     def all_observables_defined(cls, values):
         obs_names = ['obs_fun', 'obs_dgdx', 'obs_dgdp']
@@ -279,65 +372,32 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
         inputs_shape = tuple(len(q) for q in _inputs_vals)
 
         # Check if we want to sample over initial values
-        if type(fsm.ode_x0) is float:
-            x0_def = None
-            x0_vals = [np.array([fsm.ode_x0])]
-        elif type(fsm.ode_x0) is np.ndarray and fsm.ode_x0.ndim == 1:
-            x0_def = None
-            x0_vals = [fsm.ode_x0]
-        elif type(fsm.ode_x0) is np.ndarray and fsm.ode_x0.ndim > 1:
-            raise TypeError("Variable ode_x0 should be list of arrays with dimension 1 respectively!")
-        elif type(fsm.ode_x0) is tuple and len(fsm.ode_x0) >= 3:
-            # TODO test these statements
-            x0 = MultiVariableDefinition(*fsm.ode_x0)
-            x0_def = x0
-            x0_vals = x0.initial_guess
-        elif type(fsm.ode_x0) is list and len(fsm.ode_x0) > 0 and type(fsm.ode_x0[0]) is list and len(fsm.ode_x0[0]) > 0 and type(fsm.ode_x0[0][0]) is float:
-            x0_def = None
-            x0_vals = [np.array(xi) for xi in fsm.ode_x0]
-        elif type(fsm.ode_x0) is list and len(fsm.ode_x0) > 0 and type(fsm.ode_x0[0])==np.ndarray:
-            x0_def = None
-            x0_vals = fsm.ode_x0
-        elif type(fsm.ode_x0) is list and len(fsm.ode_x0) > 0 and type(fsm.ode_x0[0]==float):
-            x0_def = None
-            x0_vals = [np.array(fsm.ode_x0)]
-        elif type(fsm.ode_x0) == MultiVariableDefinition:
-            # TODO test these statements
-            x0_def = fsm.ode_x0
-            x0_vals = fsm.ode_x0.initial_guess
+        if type(fsm.ode_x0)==MultiVariableDefinition:
+            variable_definitions.ode_x0 = fsm.ode_x0
+            variable_values.ode_x0 = fsm.ode_x0.initial_guess
         else:
-            x0_def = None
-            x0_vals = np.array(fsm.ode_x0)
-
-        variable_definitions.ode_x0 = x0_def
-        variable_values.ode_x0 = x0_vals
+            variable_definitions.ode_x0 = None
+            variable_values.ode_x0 = fsm.ode_x0
 
         # Check if time values are sampled
-        if type(fsm.times) == tuple and len(fsm.times) >= 3:
-            t = VariableDefinition(*fsm.times)
-            variable_definitions.times = t
-            variable_values.times = t.initial_guess
-        elif type(fsm.times)==list:
-            variable_definitions.times = None
-            variable_values.times = np.array(fsm.times)
+        if type(fsm.times)==VariableDefinition:
+            variable_definitions.times = fsm.times
+            variable_values.times = fsm.times.initial_guess
         else:
             variable_definitions.times = None
-            variable_values.times = np.array(fsm.times)
-        # If non-identical times were chosen, expand initial guess to full array
+            variable_values.times = fsm.times
+
+        # Additionally if identical times were not defined, we need to extend the shape to the full one.
         if fsm.identical_times==False:
             variable_values.times = np.full(inputs_shape + variable_values.times.shape, variable_values.times)
 
         # Check if we want to sample over initial time
-        if type(fsm.ode_t0) == tuple and len(fsm.ode_t0) >= 3:
-            t0 = VariableDefinition(*fsm.ode_t0)
-            variable_definitions.ode_t0 = t0
-            variable_values.ode_t0 = t0.initial_guess
-        elif type(fsm.ode_t0) == float:
-            variable_definitions.ode_t0 = None
-            variable_values.ode_t0 = np.array([fsm.ode_t0])
+        if type(fsm.ode_t0)==VariableDefinition:
+            variable_definitions.ode_t0 = fsm.ode_t0
+            variable_values.ode_t0 = fsm.ode_t0.initial_guess
         else:
             variable_definitions.ode_t0 = None
-            variable_values.ode_t0 = np.array(fsm.ode_t0)
+            variable_values.ode_t0 = fsm.ode_t0
 
         # Check if we treat the initial values as a parameter
         if callable(fsm.ode_dfdx0):
@@ -350,8 +410,8 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
                 raise ValueError("Specify a single initial value to use it as a parameter. Sampling and treating x0 as parameter are complementary.")
 
         # Check if covariance was specified for our system
-        n_x = len(x0_vals[0])
-        n_obs = n_x if callable(fsm.obs_fun)==False else np.array(fsm.obs_fun(variable_values.times[0], x0_vals[0], [v[0] for v in variable_values.inputs], fsm.parameters, fsm.ode_args)).size
+        n_x = len(variable_values.ode_x0[0])
+        n_obs = n_x if callable(fsm.obs_fun)==False else np.array(fsm.obs_fun(variable_values.times[0], variable_values.ode_x0[0], [v[0] for v in variable_values.inputs], fsm.parameters, fsm.ode_args)).size
 
         if fsm.covariance is not None:
             if type(fsm.covariance) == tuple and len(fsm.covariance) == 2:
@@ -437,7 +497,7 @@ class _FisherResultsBase(_FisherModelParametrizedBase):
 
 @dataclass(config=Config)
 class _FisherResultsOptions(_FisherModelParametrizedOptions):
-    penalty_discrete_summary: dict = None
+    penalty_discrete_summary: Any = None
 
 
 @dataclass(config=Config)

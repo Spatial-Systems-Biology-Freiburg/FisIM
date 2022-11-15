@@ -72,10 +72,10 @@ class Test_BoundsConstraints:
         fsm.ode_t0 = (0.00, 0.001, 3)
         fsmp = FisherModelParametrized.init_from(fsm)
         bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
-        np.testing.assert_almost_equal(bounds, [fsm.ode_t0[0:2]]*fsm.ode_t0[2])
-        np.testing.assert_almost_equal(constraints.lb, [-np.inf]*(fsm.ode_t0[2]-1))
-        np.testing.assert_almost_equal(constraints.ub, [np.inf]*(fsm.ode_t0[2]-1))
-        np.testing.assert_almost_equal(constraints.A, _create_comparison_matrix(fsm.ode_t0[2]))
+        np.testing.assert_almost_equal(bounds, [[fsm.ode_t0.lb, fsm.ode_t0.ub]]*fsm.ode_t0.n)
+        np.testing.assert_almost_equal(constraints.lb, [-np.inf]*(fsm.ode_t0.n-1))
+        np.testing.assert_almost_equal(constraints.ub, [np.inf]*(fsm.ode_t0.n-1))
+        np.testing.assert_almost_equal(constraints.A, _create_comparison_matrix(fsm.ode_t0.n))
     
     def test_bounds_constraints_sample_ode_x0(self, default_model):
         fsm = default_model.fsm
@@ -91,16 +91,17 @@ class Test_BoundsConstraints:
         fsm = default_model.fsm
         fsm.identical_times=True
         fsm.times = (0.0, 10.0, 5)
+        # fsm.times = {"lb": 0.0, "ub": 10.0, "n": 5}
         fsmp = FisherModelParametrized.init_from(fsm)
         bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
         n_inputs = np.product([len(q) for q in fsmp.inputs])
         n_times = fsmp.times.shape[-1] if fsm.identical_times==True else n_inputs * fsmp.times.shape[-1]
         # Test bounds and constraints
-        np.testing.assert_almost_equal(bounds, [fsm.times[0:2]] * n_times)
-        np.testing.assert_almost_equal(constraints.ub, [0.0]*(fsm.times[2]-1))
-        np.testing.assert_almost_equal(constraints.lb, [-np.inf]*(fsm.times[2]-1))
+        np.testing.assert_almost_equal(bounds, [[fsm.times.lb, fsm.times.ub]] * n_times)
+        np.testing.assert_almost_equal(constraints.ub, [0.0]*(fsm.times.n-1))
+        np.testing.assert_almost_equal(constraints.lb, [-np.inf]*(fsm.times.n-1))
         # Create matrix to compare against
-        A = _create_comparison_matrix(fsm.times[2])
+        A = _create_comparison_matrix(fsm.times.n)
         np.testing.assert_almost_equal(constraints.A, A)
     
     def test_constraints_sample_inputs(self, default_model):
