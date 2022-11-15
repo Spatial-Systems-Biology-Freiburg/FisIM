@@ -145,7 +145,7 @@ def get_S_matrix(fsmp: FisherModelParametrized, relative_sensitivities=False, **
     S = np.zeros((n_p_full, n_t0, N_x0, n_obs) + inputs_shape + (fsmp.times.shape[-1],))
 
     # Do not calculate the covariance any further if both are None
-    calculate_covar = fsmp.covariance.absolute is not None or fsmp.covariance.relative is not None
+    calculate_covar = fsmp.covariance.abs is not None or fsmp.covariance.rel is not None
     if calculate_covar:
         uncertainty = np.zeros((n_t0, N_x0, n_obs) + inputs_shape + (fsmp.times.shape[-1],))
 
@@ -201,8 +201,8 @@ def get_S_matrix(fsmp: FisherModelParametrized, relative_sensitivities=False, **
 
         # Define constants for covariance calculation
         if calculate_covar:
-            c_abs = 0.0 if fsmp.covariance.absolute is None else fsmp.covariance.absolute
-            c_rel = 0.0 if fsmp.covariance.relative is None else fsmp.covariance.relative
+            c_abs = 0.0 if fsmp.covariance.abs is None else fsmp.covariance.abs
+            c_rel = 0.0 if fsmp.covariance.rel is None else fsmp.covariance.rel
 
         # Calculate the S-Matrix from the sensitivities
         # Depending on if we want to calculate the relative sensitivities

@@ -68,6 +68,7 @@ def times_nparray_to_correct_shape(times: np.ndarray) -> np.ndarray:
 TIMES_TYPE = Union[List, np.ndarray, VariableDefinition, None]
 VECTORIZED_TYPE = Union[List, np.ndarray, MultiVariableDefinition, None]
 SCALAR_TYPE = Union[List[float], np.ndarray, float, VariableDefinition, None]
+COVARIANCE_TYPE = Union[dict, CovarianceDefinition, None]
 
 
 _VECTORIZED_TYPE_CASTS = {
@@ -93,6 +94,12 @@ _TIMES_TYPE_CASTS = {
     VariableDefinition: lambda x: x,
 }
 
+_COVARIANCE_TYPE_CASTS = {
+    dict: lambda x: CovarianceDefinition(**x),
+    CovarianceDefinition: lambda x: x,
+    type(None): lambda x: CovarianceDefinition(None, None),
+}
+
 
 def _general_validator(value, casts):
     if type(value) not in casts.keys():
@@ -114,7 +121,7 @@ class _FisherVariablesBase:
 class _FisherVariablesOptions:
     ode_args: Any = None
     identical_times: bool = False
-    covariance: Union[float, Tuple[float, float], List[float], Tuple[str, float], Tuple[List[float], List[float]], Tuple[str, List[float]], CovarianceDefinition] = None
+    covariance: COVARIANCE_TYPE = None
 
 
 @dataclass(config=Config)
@@ -180,6 +187,10 @@ class FisherModel(_FisherModelOptions, _FisherModelBase):
     @validator('inputs', pre=True, each_item=True)
     def validate_inputs(cls, inp):
         return _general_validator(inp, _SCALAR_TYPE_CASTS)
+
+    @validator('covariance', pre=True)
+    def validate_covariance(cls, cov):
+        return _general_validator(cov, _COVARIANCE_TYPE_CASTS)
 
     @root_validator
     def all_observables_defined(cls, values):
@@ -418,40 +429,25 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
         n_x = len(variable_values.ode_x0[0])
         n_obs = n_x if callable(fsm.obs_fun)==False else np.array(fsm.obs_fun(variable_values.times[0], variable_values.ode_x0[0], [v[0] for v in variable_values.inputs], fsm.parameters, fsm.ode_args)).size
 
-        if fsm.covariance is not None:
-            if type(fsm.covariance) == tuple and len(fsm.covariance) == 2:
-                c0 = fsm.covariance[0]
-                c1 = fsm.covariance[1]
-
-                if type(c0)==str and type(c1)==float:
-                    if "rel" in c0:
-                        covariance = CovarianceDefinition(relative=np.array(c1))
-                    elif "abs" in c0:
-                        covariance = CovarianceDefinition(absolute=np.array(c1))
+        fsm.covariance = _general_validator(fsm.covariance, _COVARIANCE_TYPE_CASTS)
+        # Check that the covariance shapes are matching the rest of the system
+        if type(fsm.covariance) is CovarianceDefinition:
+            covariance = fsm.covariance
+            for val in [covariance.rel, covariance.abs]:
+                if val is not None:
+                    if type(val) == float:
+                        val = np.full((n_obs,), val)
+                    elif type(val)==np.ndarray and val.size==1:
+                        val = np.full((n_obs,), val)
+                    elif len(val)==n_obs:
+                        val = np.array(val)
                     else:
-                        # TODO test this statement
-                        raise ValueError("Cannot read input of covariance {}".format(fsm.covariance))
-                if type(c0)==type(c1)==list:
-                    if len(c0)!=n_x or len(c1)!=n_x:
-                        # TODO test this statement
-                        raise ValueError("Length of covariance list should be equal to number of observables")
-                    covariance = CovarianceDefinition(absolute=np.array(c0), relative=np.array(c1))
-                elif type(c0)==type(c1)==float:
-                    # TODO test this statement FROM HERE
-                    covariance = CovarianceDefinition(absolute=np.full((n_obs,), c0), relative=np.full((n_obs,), c1))
-            elif type(fsm.covariance) == float:
-                covariance = CovarianceDefinition(absolute=np.full((n_obs,), [fsm.covariance]))
-            elif type(fsm.covariance) == list:
-                if len(fsm.covariance)!=n_x:
-                    raise ValueError("Length of covariance list should be equal to number of observables")
-                covariance = CovarianceDefinition(absolute=np.array(fsm.covariance))
-            elif type(fsm.covariance) == CovarianceDefinition:
-                covariance = fsm.covariance
-            else:
-                raise ValueError("Cannot read input of covariance {}".format(fsm.covariance))
+                        raise ValueError("Cannot use covariance in this form. Please supply a float or a list or np.ndarray of floats to {} matching the number of observables.".format(val.__name__))
+
+        elif fsm.covariance is None:
+            covariance = None
         else:
-            covariance = CovarianceDefinition(absolute=None, relative=None)
-        # TODO UNTIL HERE
+            raise TypeError("Cannot use type {} for covariance.".format(type(fsm.covariance)))
 
         # Construct parametrized model class and return it
         fsmp = FisherModelParametrized(

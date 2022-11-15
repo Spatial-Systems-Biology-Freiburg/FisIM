@@ -62,8 +62,8 @@ class VariableDefinition():
 
 @dataclass(config=Config)
 class CovarianceDefinition():
-    relative: Union[np.ndarray, List[float]] = None
-    absolute: Union[np.ndarray, List[float]] = None
+    rel: Union[np.ndarray, List[float], float] = None
+    abs: Union[np.ndarray, List[float], float] = None
 
 
 @dataclass(config=Config)
