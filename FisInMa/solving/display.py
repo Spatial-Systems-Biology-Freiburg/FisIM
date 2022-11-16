@@ -42,18 +42,18 @@ def display_entries(table, terminal_size, caption=None):
 def display_fsmp_details(fsmp: FisherModelParametrized, pp=pprint.PrettyPrinter(indent=2, width=shutil.get_terminal_size((80, 20))[0]), terminal_size=shutil.get_terminal_size((80, 20))):
     display_heading("ODE FUNCTIONS", terminal_size)
     cols = [
-        ("ode_fun", fsmp.ode_fun.__name__),
-        ("ode_dfdx", fsmp.ode_dfdx.__name__),
-        ("ode_dfdp", fsmp.ode_dfdp.__name__)
+        ("ode_fun", getattr(fsmp.ode_fun, '__name__', 'unknown')),
+        ("ode_dfdx", getattr(fsmp.ode_dfdx, '__name__', 'unknown')),
+        ("ode_dfdp", getattr(fsmp.ode_dfdp, '__name__', 'unknown')),
     ]
     if callable(fsmp.ode_dfdx0):
-        cols.append(("ode_dfdx0", fsmp.ode_dfdx0.__name__))
+        cols.append(("ode_dfdx0", getattr(fsmp.ode_dfdx0, '__name__', 'unknown')))
     if callable(fsmp.obs_fun):
-        cols.append(("obs_fun", fsmp.obs_fun.__name__))
-        cols.append(("obs_dgdx", fsmp.obs_dgdx.__name__))
-        cols.append(("obs_dgdp", fsmp.obs_dgdp.__name__))
+        cols.append(("obs_fun", getattr(fsmp.obs_fun, '__name__', 'unknown')))
+        cols.append(("obs_dgdx", getattr(fsmp.obs_dgdx, '__name__', 'unknown')))
+        cols.append(("obs_dgdp", getattr(fsmp.obs_dgdp, '__name__', 'unknown')))
     if callable(fsmp.obs_dgdx0):
-        cols.append(("obs_dgdx0", fsmp.obs_dgdx0.__name__))
+        cols.append(("obs_dgdx0", getattr(fsmp.obs_dgdx0, '__name__', 'unknown')))
     display_entries(cols, terminal_size)
 
     display_heading("INITIAL GUESS", terminal_size)
@@ -103,7 +103,7 @@ def display_fsr_details(fsr: FisherResults, pp=pprint.PrettyPrinter(indent=2, wi
 
     display_heading("CRITERION")
     cols = [
-        (fsr.criterion_fun.__name__, fsr.criterion),
+        (getattr(fsr.criterion_fun, '__name__', 'unknown'), fsr.criterion),
     ]
     cols += _generate_matrix_cols(fsr.S.T, "sensitivity matrix", terminal_size)
     cols += _generate_matrix_cols(fsr.C.T, "inverse covariance matrix", terminal_size)

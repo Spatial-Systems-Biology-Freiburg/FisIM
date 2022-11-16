@@ -20,10 +20,10 @@ def plot_template(fsr: FisherResults, sol, sol_new, y_design, y_model, outdir, a
     ax.tick_params(axis="x", labelsize=13)
     ax.legend(fontsize=15, framealpha=0.5)
     if k == None:
-        save_name = "{}_Results_{}_{}_{}_{:03.0f}_x_{:02.0f}.svg".format(y_name, fsr.ode_fun.__name__, fsr.criterion_fun.__name__ , additional_name, i, j)
+        save_name = "{}_Results_{}_{}_{}_{:03.0f}_x_{:02.0f}.svg".format(y_name, getattr(fsr.ode_fun, '__name__', 'unknown'), getattr(fsr.criterion_fun, '__name__', 'unknown'), additional_name, i, j)
         title_name = f"Observable {j}, \n Inputs {[round(inp, 1) for inp in sol.inputs]},\n Times {[round(t, 1) for t in sol.times]}"
     else:
-        save_name = "{}_Results_{}_{}_{}_{:03.0f}_x_{:02.0f}_p_{:02.0f}.svg".format(y_name, fsr.ode_fun.__name__, fsr.criterion_fun.__name__ , additional_name, i, j, k)
+        save_name = "{}_Results_{}_{}_{}_{:03.0f}_x_{:02.0f}_p_{:02.0f}.svg".format(y_name, getattr(fsr.ode_fun, '__name__', 'unknown'), getattr(fsr.criterion_fun, '__name__', 'unknown'), additional_name, i, j, k)
         title_name = f"Observable {j},  Parameter {k}, \n Inputs {[round(inp, 1) for inp in sol.inputs]},\n Times {[round(t, 1) for t in sol.times]}"
     ax.set_title(title_name, fontsize=15)
 

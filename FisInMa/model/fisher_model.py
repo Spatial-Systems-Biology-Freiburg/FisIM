@@ -1,6 +1,7 @@
 import numpy as np
 # from dataclasses import dataclass
 from copy import deepcopy
+import functools
 from pydantic.dataclasses import dataclass
 from pydantic import root_validator, validator
 try:
@@ -133,9 +134,9 @@ class _FisherOdeFunctions:
 
 @dataclass(config=Config)
 class _FisherObservableFunctionsOptional:
-    obs_fun: Optional[Callable] = None
-    obs_dgdx: Optional[Callable] = None
-    obs_dgdp: Optional[Callable] = None
+    obs_fun: Union[Callable, int, List[int]] = None
+    obs_dgdx: Callable = None
+    obs_dgdp: Callable = None
     ode_dfdx0: Callable = None
     obs_dgdx0: Callable = None
 
@@ -169,6 +170,22 @@ class _FisherModelOptions(_FisherVariablesOptions, _FisherObservableFunctionsOpt
     pass
 
 
+def _obs_fun_autogenerate(t, y, inputs, parameters, ode_args, comp):
+    return [y[i] for i in comp]
+
+
+def _obs_dgdx_autogenerate(t, y, inputs, parameters, ode_args, n_x, comp):
+    return [[int(c==i) for i in range(n_x)] for c in comp]
+
+
+def _obs_dgdp_autogenerate(t, y, inputs, parameters, ode_args, n_obs, n_p):
+    return np.zeros((n_obs, n_p))
+
+
+def _obs_dgdx0_autogenerate(t, y, inputs, parameters, ode_args, n_x):
+    return np.zeros((n_x, n_x))
+
+
 @dataclass(config=Config)
 class FisherModel(_FisherModelOptions, _FisherModelBase):
     # TODO - Documentation Fisher Model
@@ -194,15 +211,55 @@ class FisherModel(_FisherModelOptions, _FisherModelBase):
 
     @root_validator
     def all_observables_defined(cls, values):
+        # Check if we can automatically calculate the new observable functions
+        # First get the current functions
+        print(values.keys())
+        obs_fun = values["obs_fun"]
+        obs_dgdx = values["obs_dgdx"]
+        obs_dgdp = values["obs_dgdp"]
+
+        # Now see if we want a range or only one input value
+        if obs_fun is not None and obs_dgdx is None and obs_dgdp is None:
+            if type(obs_fun)==int and obs_fun >= 0:
+                comp = [obs_fun]
+            elif type(obs_fun)==list and all([q>=0 for q in obs_fun]):
+                comp = sorted(obs_fun)
+
+            # Calculate the shapes of the respective functions
+            # These are just helper variables
+            ode_fun = values["ode_fun"]
+            t0 = values["ode_t0"][0]
+            x0 = values["ode_x0"][0]
+            inputs = [q.initial_guess[0] if type(q)==VariableDefinition else q[0] for q in values["inputs"]]
+            parameters = values["parameters"]
+            ode_args = values["ode_args"]
+            n_x = len(ode_fun(t0, x0, inputs, parameters, ode_args))
+            n_p = len(parameters)
+
+            # Check that we are not trying to index variables which are not there
+            if len(comp) > n_x:
+                raise ValueError("Cannot automatically generate functions when index is higher than available ODE components.")
+
+            # Generate automatically the observable functions
+            values["obs_fun"] = functools.partial(_obs_fun_autogenerate, comp=comp)
+            values["obs_dgdx"] = functools.partial(_obs_dgdx_autogenerate, n_x=n_x, comp=comp)
+            values["obs_dgdp"] = functools.partial(_obs_dgdp_autogenerate, n_obs=len(comp), n_p=n_p)
+
+            # Additionally, if ode_dfdx0 was specified, we also generate the function for the observable
+            if values["ode_dfdx0"] is not None and values["obs_dgdx0"] is None:
+                values["obs_dgdx0"] = functools.partial(_obs_dgdx0_autogenerate, n_x=n_x)
+            elif values["ode_dfdx0"] is None and values["obs_dgdx0"] is not None:
+                raise TypeError("Do not specify obs_fun as integer or list and simultanously obs_dfdx0!")
+
         obs_names = ['obs_fun', 'obs_dgdx', 'obs_dgdp']
         c_obs = np.sum([n in values.keys() and callable(values[n]) for n in obs_names])
         if 1 < c_obs < 3:
             # TODO test this statement
             raise ValueError("Specify all of \'obs_fun\', \'obs_dgdx\' and \'obs_dgdp\' or none.")
-        return values
+        # return values
 
-    @root_validator
-    def all_derivatives_x0_defined(cls, values):
+    # @root_validator
+    # def all_derivatives_x0_defined(cls, values):
         fun_names = ['ode_fun', 'ode_dfdx', 'ode_dfdp', 'ode_dfdx0']
         obs_names = ['obs_fun', 'obs_dgdx', 'obs_dgdp', 'obs_dgdx0']
         c_fun = np.sum([n in values.keys() and callable(values[n]) for n in fun_names])
@@ -442,7 +499,7 @@ class FisherModelParametrized(_FisherModelParametrizedOptions, _FisherModelParam
                     elif len(val)==n_obs:
                         val = np.array(val)
                     else:
-                        raise ValueError("Cannot use covariance in this form. Please supply a float or a list or np.ndarray of floats to {} matching the number of observables.".format(val.__name__))
+                        raise ValueError("Cannot use covariance in this form. Please supply a float or a list or np.ndarray of floats to {} matching the number of observables.".format(getattr(val, '__name__', 'unnamed_function')))
 
         elif fsm.covariance is None:
             covariance = None
