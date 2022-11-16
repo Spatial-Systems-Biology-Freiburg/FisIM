@@ -3,7 +3,6 @@ import numpy as np
 import os, sys
 sys.path.append(os.getcwd())
 from FisInMa import *
-import time
 
 
 def baranyi_roberts_ode(t, x, u, p, ode_args):
@@ -79,31 +78,15 @@ def obs_dgdx(t, x, u, p, ode_args):
 
 
 if __name__ == "__main__":
-    start_time = time.time()
-
-    # Parameters, ode_args and initial conditions were derived from K. Grijspeerdt1 and P. Vanrolleghem (1999) results
-    # for Salmonella enteritidis growth curve in egg yolk at 30 C
-
-    # Define parameters
+    # Define parameters and initial conditions
     p = (1e8, 0.2, 1.0) # (x_max, b, T_min)
-
-    # Define initial conditions
-    x0 = np.array([1e3, 0.1])
+    x0 = np.array([1e3, 0.1]) 
 
     # Define interval and number of sampling points for times
-    n_times = 6
-    # times = (0.0, 20.0, n_times)
-    times = {"lb": 0.0, "ub": 20.0, "n":n_times}
+    times = {"lb": 0.0, "ub": 10.0, "n": 6}
 
     # Define explicit temperature points
-    Temp_low = 4.0
-    Temp_high = 10.0
-    n_Temp = 3
-
-    # Summarize all input definitions in list (only temperatures)
-    inputs = [
-        np.linspace(Temp_low, Temp_high, n_Temp)
-    ]
+    inputs = [{"lb": 3.0, "ub": 12.0, "n": 1}]
 
     # Create the FisherModel which serves as the entry point
     #  for the solving and optimization algorithms
@@ -119,7 +102,8 @@ if __name__ == "__main__":
         parameters=p,
         obs_fun=obs_fun,
         obs_dgdx=obs_dgdx,
-        obs_dgdp=obs_dgdp
+        obs_dgdp=obs_dgdp,
+        covariance={"abs": 0.3, "rel": 0.1}
     )
 
     fsr = find_optimal(
@@ -132,13 +116,7 @@ if __name__ == "__main__":
         polish=False,
     )
 
-    end_time = time.time()
-    diff = (end_time-start_time)
-    print(f"\n Optimization time: {diff:.2f} s")
-
     # Plot all ODE results with chosen time points
     # for different data points
-    conditions = f"rel_sensit_cont_{n_times}times_{n_Temp}temps"
-    plot_all_observables(fsr, outdir="out/baranyi_model", additional_name=conditions)
-    plot_all_sensitivities(fsr, outdir="out/baranyi_model", additional_name=conditions)
-    json_dump(fsr, f"out/baranyi_model/baranyi_roberts_ode_fisher_determinant_{conditions}.json")
+    plot_all_solutions(fsr)
+    json_dump(fsr, "baranyi_roberts.json")
