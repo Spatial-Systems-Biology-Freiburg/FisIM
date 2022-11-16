@@ -1,0 +1,86 @@
+sh-5.1$ python examples/damped_oscillator.py 
+============================== SUMMARY OF FISHER MODEL ==============================
+=================================== ODE FUNCTIONS ===================================
+├─ode_fun   damped_osci
+├─ode_dfdx  damped_osci_dfdx
+└─ode_dfdp  damped_osci_dfdp
+=================================== INITIAL GUESS ===================================
+├─ode_x0           [array([ 6., 20.])]
+├─ode_t0           [0.]
+├─times            [[ 0.  5. 10.]]
+├─inputs           [array([0.08])]
+├─parameters       (3.0, 1.0, 5.0)
+├─ode_args         None
+├─identical_times  False
+└─covariance       CovarianceDefinition(rel=None, abs=None)
+=============================== VARIABLE DEFINITIONS ================================
+├─ode_x0           None
+├─ode_t0           None
+├─times            VariableDefinition(lb=0.0, ub=10.0, n=3, discrete=None, min_distance=None, unique=False)
+├─inputs           [None]
+├─parameters       (3.0, 1.0, 5.0)
+├─ode_args         None
+├─identical_times  False
+└─covariance       CovarianceDefinition(rel=None, abs=None)
+================================== VARIABLE VALUES ==================================
+├─ode_x0           [array([ 6., 20.])]
+├─ode_t0           [0.]
+├─times            [[ 0.  5. 10.]]
+├─inputs           [array([0.08])]
+├─parameters       (3.0, 1.0, 5.0)
+├─ode_args         None
+├─identical_times  False
+└─covariance       CovarianceDefinition(rel=None, abs=None)
+=================================== OTHER OPTIONS ===================================
+└─identical_times  False
+============================= STARTING OPTIMIZATION RUN =============================
+differential_evolution step 1: f(x)= -8.01838e-12
+differential_evolution step 2: f(x)= -8.01838e-12
+differential_evolution step 3: f(x)= -8.01838e-12
+differential_evolution step 4: f(x)= -8.15833e-12
+differential_evolution step 5: f(x)= -8.15833e-12
+differential_evolution step 6: f(x)= -8.15833e-12
+differential_evolution step 7: f(x)= -8.15833e-12
+differential_evolution step 8: f(x)= -1.13942e-11
+differential_evolution step 9: f(x)= -1.17195e-11
+differential_evolution step 10: f(x)= -1.17195e-11
+differential_evolution step 11: f(x)= -1.17195e-11
+differential_evolution step 12: f(x)= -1.17195e-11
+differential_evolution step 13: f(x)= -1.75116e-11
+differential_evolution step 14: f(x)= -1.75116e-11
+differential_evolution step 15: f(x)= -1.75116e-11
+differential_evolution step 16: f(x)= -1.75116e-11
+differential_evolution step 17: f(x)= -1.75116e-11
+differential_evolution step 18: f(x)= -1.99191e-11
+differential_evolution step 19: f(x)= -1.99191e-11
+differential_evolution step 20: f(x)= -1.99191e-11
+
+================================= OPTIMIZED RESULTS =================================
+===================================== CRITERION =====================================
+├─fisher_determinant         1.9919075539958553e-11
+├─sensitivity matrix         [[ -0.80156668 -10.01958349   6.56496328]
+│                             [ -1.04401692 -13.05021153   4.18222325]
+│                             [ -1.02766883 -12.84586043   1.74355491]
+│                             [  0.37171508   4.64643853   0.96671143]
+│                             [  0.13627137   1.70339212   2.33633093]
+│                             [ -0.05091669  -0.63645857   2.86981462]]
+├─inverse covariance matrix  [[1. 0. 0. 0. 0. 0.]
+│                             [0. 1. 0. 0. 0. 0.]
+│                             [0. 0. 1. 0. 0. 0.]
+│                             [0. 0. 0. 1. 0. 0.]
+│                             [0. 0. 0. 0. 1. 0.]
+│                             [0. 0. 0. 0. 0. 1.]]
+================================ INDIVIDUAL RESULTS =================================
+Result_0
+├─ode_x0      [ 6. 20.]
+├─ode_t0      0.0
+├─times       [1.77272691 2.02130042 2.19968034]
+├─inputs      [0.08]
+└─parameters  (3.0, 1.0, 5.0)
+========================== DISCRETIZATION PENALTY SUMMARY ===========================
+├─penalty          1.0
+├─penalty_ode_t0   1.0
+├─penalty_inputs   1.0
+├─penalty_times    1.0
+└─penalty_summary  {'ode_t0': [], 'inputs': [], 'times': []}
+sh-5.1$ 

@@ -75,7 +75,6 @@ if __name__ == "__main__":
             times={"lb":times_low, "ub":times_high, "n":n_times},
             inputs=inputs,
             parameters=parameters,
-            covariance={"rel": 0.1},
     )
 
     # This finds the optimal time points to estimate the parameters

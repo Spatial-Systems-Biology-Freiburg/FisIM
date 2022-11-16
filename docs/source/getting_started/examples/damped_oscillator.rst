@@ -99,7 +99,7 @@ for our experimental design.
    :language: python
    :linenos:
    :lineno-start: 68
-   :lines: 68-79
+   :lines: 68-78
 
 The next step solves this model and actually does the optimization.
 The result is called a fisher result and contains information on final values and the
@@ -108,8 +108,12 @@ optimization procedure.
 .. literalinclude:: ../../../../examples/damped_oscillator.py
    :language: python
    :linenos:
-   :lineno-start: 81
-   :lines: 81-82
+   :lineno-start: 80
+   :lines: 80-81
+
+When executing the script in a terminal, the output might look like the following.
+
+.. literalinclude:: ../../../source/_static/damped_osci_plots/output_example.txt
 
 In our final step we can visualize the results by autmatically generating images or saving
 results as a json file.
@@ -117,5 +121,10 @@ results as a json file.
 .. literalinclude:: ../../../../examples/damped_oscillator.py
    :language: python
    :linenos:
-   :lineno-start: 84
-   :lines: 84-86
+   :lineno-start: 83
+   :lines: 83-85
+
+This image shows one of the results of this optimization run.
+You can see the :math:`B` component of the :ref:`ODE <eq:damped-osci-ode-first-order>`.
+
+.. image:: ../../../source/_static/damped_osci_plots/Observable_Results_damped_osci_fisher_determinant__000_x_01.svg
