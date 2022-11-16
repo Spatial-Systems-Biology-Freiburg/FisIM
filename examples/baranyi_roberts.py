@@ -52,30 +52,6 @@ def ode_dfdx(t, x, u, p, ode_args):
         ]
     ]
 
-def obs_fun(t, x, u, p, ode_args):
-    x1, x2 = x
-    (Temp, ) = u
-    (x_max, b, Temp_min) = p
-    return [
-        x1
-    ]
-
-def obs_dgdp(t, x, u, p, ode_args):
-    x1, x2 = x
-    (Temp, ) = u
-    (x_max, b, Temp_min) = p
-    return [
-        [0, 0, 0]
-    ]
-
-def obs_dgdx(t, x, u, p, ode_args):
-    x1, x2 = x
-    (Temp, ) = u
-    (x_max, b, Temp_min) = p
-    return [
-        [1, 0]
-    ]
-
 
 if __name__ == "__main__":
     # Define parameters and initial conditions
@@ -100,9 +76,7 @@ if __name__ == "__main__":
         times=times,
         inputs=inputs,
         parameters=p,
-        obs_fun=obs_fun,
-        obs_dgdx=obs_dgdx,
-        obs_dgdp=obs_dgdp,
+        obs_fun=0,
         covariance={"abs": 0.3, "rel": 0.1}
     )
 
