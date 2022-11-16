@@ -177,7 +177,7 @@ Save and plot the results of optimization.
 
 The resulting Optimal Experimental Design:
 
-.. figure:: Observable_Results_baranyi_roberts_ode_fisher_determinant_rel_sensit_cont_6times_1temps_000_x_00.svg
+.. figure:: ../../../source/_static/baranyi_roberts/Observable_Results_baranyi_roberts_ode_fisher_determinant_rel_sensit_cont_6times_1temps_000_x_00.svg
     :align: center
     :width: 400
 
