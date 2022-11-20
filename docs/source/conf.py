@@ -15,7 +15,7 @@ import FisInMa
 project = 'FisInMa'
 copyright = '2022, Jonas Pleyer, Polina Gaindrik'
 author = 'Jonas Pleyer, Polina Gaindrik'
-release = '0.0.1'
+release = '0.0.2'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

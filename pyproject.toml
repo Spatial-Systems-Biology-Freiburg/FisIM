@@ -4,16 +4,18 @@ build-backend = "hatchling.build"
 
 [project]
 name = "FisInMa"
-version = "0.0.1"
+version = "0.0.2"
 authors = [
   { name="Jonas Pleyer", email="jonas.pleyer@fdm.uni-freiburg.de" },
   { name="Polina Gaindrik", email="p.gaindrik@tsenso.com" },
 ]
 dependencies = [
-  "scipy",
+  "matplotlib",
   "numpy",
   "pymongo",
-  "matplotlib",
+  "scipy",
+  "pydantic",
+  "pytest",
 ]
 description = "Optimal experimental design utilizing the Fischer information matrix"
 readme = "README.md"
@@ -25,5 +27,7 @@ classifiers = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/Spatial-Systems-Biology-Freiburg/Model-Design-Fischer-Information-Matrix"
+"Home-page" = "https://github.com/Spatial-Systems-Biology-Freiburg/Model-Design-Fischer-Information-Matrix"
 "Bug Tracker" = "https://github.com/Spatial-Systems-Biology-Freiburg/Model-Design-Fischer-Information-Matrix/issues"
+Documentation = "https://spatial-systems-biology-freiburg.github.io/FisInMa/"
+"Source code" = "https://github.com/Spatial-Systems-Biology-Freiburg/FisInMa"
