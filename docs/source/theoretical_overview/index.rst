@@ -7,7 +7,7 @@ Theoretical Overview
 
    Theoretical Background <theoretical_background/index>
 
-TThe parameter estimation from the gathered experimental data is a significant part of the mathematical modeling of the real-life system.
+The parameter estimation from the gathered experimental data is a significant part of the mathematical modeling of the real-life system.
 However, due to constant measurement noise, the parameter values are always found with some uncertainty.
 To reduce this error, the Experimental Design should be optimized to increase the informational worth of the data :cite:p:`derlindenImpactExperimentDesign2013, balsa-cantoe.bangaj.r.COMPUTINGOPTIMALDYNAMIC2008`.
 
@@ -28,3 +28,7 @@ We are interested in systems widely used in Systems Biology and described by Ord
 
 .. bibliography::
     :style: plain
+    :filter: False
+
+    derlindenImpactExperimentDesign2013
+    balsa-cantoe.bangaj.r.COMPUTINGOPTIMALDYNAMIC2008
