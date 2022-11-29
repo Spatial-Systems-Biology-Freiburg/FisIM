@@ -39,62 +39,59 @@ Define the system of ODEs.
    :lineno-start: 8
    :lines: 8-53
 
-As an observable, it is pretty common to measure the bacteria count :math:`x_1` or the logarithm of this value. 
-For simplicity, we would consider the prior case :math:`y(t_i) = x_1(t_i)`.
-
-.. literalinclude:: ../../../../examples/baranyi_roberts.py
-   :language: python
-   :linenos:
-   :lineno-start: 55
-   :lines: 55-77
-
 Define the parameters of the system :code:`p` and initial conditions :code:`x0`.
 
 .. literalinclude:: ../../../../examples/baranyi_roberts.py
    :language: python
    :linenos:
-   :lineno-start: 82
-   :lines: 82-83
+   :lineno-start: 58
+   :lines: 58-59
 
 Define optimization of 6 time points with lower bound :code:`0.0`, upper bound :code:`10.0`.
 
 .. literalinclude:: ../../../../examples/baranyi_roberts.py
    :language: python
    :linenos:
-   :lineno-start: 86
-   :lines: 86
+   :lineno-start: 62
+   :lines: 62
 
 Define optimization of one input value (temperature) with lower bound :code:`3.0`, upper bound :code:`12.0`.
 
 .. literalinclude:: ../../../../examples/baranyi_roberts.py
    :language: python
    :linenos:
-   :lineno-start: 89
-   :lines: 89
+   :lineno-start: 65
+   :lines: 65
+
+As an observable, it is pretty common to measure the bacteria count :math:`x_1` or the logarithm of this value. 
+For simplicity, we would consider the prior case where the observable is the null-component of the state variable vector :math:`y(t_i) = x_1(t_i)`.
+
+.. code-block:: python3
+
+   obs_fun = 0
 
 The resulting Fisher Model:
 
 .. literalinclude:: ../../../../examples/baranyi_roberts.py
    :language: python
    :linenos:
-   :lineno-start: 93
-   :lines: 93-107
+   :lineno-start: 69
+   :lines: 69-81
 
 The optimization is then held using relative sensitivities and D-optimality criterion (determinant).
 
 .. literalinclude:: ../../../../examples/baranyi_roberts.py
    :language: python
    :linenos:
-   :lineno-start: 109
-   :lines: 109-117
-
+   :lineno-start: 83
+   :lines: 83-91
 Save and plot the results of optimization.
 
 .. literalinclude:: ../../../../examples/baranyi_roberts.py
    :language: python
    :linenos:
-   :lineno-start: 121
-   :lines: 121-122
+   :lineno-start: 95
+   :lines: 95-97
 
 The resulting Optimal Experimental Design:
 
