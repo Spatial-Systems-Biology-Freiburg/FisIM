@@ -20,11 +20,11 @@ When designing real-life experiments, researchers need to choose appropriate tim
 This package assumes that the structure of the experiment is determined by an ODE which can in general be written in explicit form as in equation :eq:`overview_ode_def`.
 The input variables :math:`u` are known numerical values and alter the behaviour of the system while the experiment aims to estimate the parameters :math:`p`.
 To optimally design an experiment (ie. choose time-points :math:`t_i` or configurations for input values :math:`u`), we want to maximize the total information obtained by the measurements.
-The package uses the Fisher Information method in which we calculate the sensitivities.
+The package uses the Fisher Information method in which we calculate the sensitivities
 
 .. math::
    \begin{equation}
-      S_{ij} = \frac{\partial x_i}{\partial p_j}(t_k, u_l)
+      s_{ij} = \frac{\partial x_i}{\partial p_j}(t_k, u_l)
    \end{equation}
 
 and afterwards the Fisher Information matrix :math:`F` (optionally with covariance matrix :math:`C` determined by specified uncertainties).
