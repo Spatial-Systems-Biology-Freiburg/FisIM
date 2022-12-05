@@ -9,10 +9,10 @@ The Fisher information matrix (FIM) can be easily calculated via the sensitivity
 
 .. math::
     \begin{alignat}{3}
-    F = S^T Q^{-1} S,
+    F = S^T C^{-1} S,
     \end{alignat}
 
-where :math:`Q` is the covariance matrix of measurement error.
+where :math:`C` is the covariance matrix of measurement error.
 
 As an example, the mentioned sensitivity matrix for two observables :math:`y = (y_1, y_2)`, two different inputs :math:`u = (u_1, u_2)`, :math:`N` different time and :math:`N_p` parameterscan be built in the following way:
 
