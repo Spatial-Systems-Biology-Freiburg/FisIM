@@ -74,8 +74,7 @@ def _calculate_sensitivities_with_observable(fsmp: FisherModelParametrized, t: n
         term2 = np.array([
             # This has shape (n_x, n_obs)
             np.array(fsmp.obs_dgdx(ti, x[:,i], Q, fsmp.parameters, fsmp.ode_args), dtype=float)
-                .reshape((n_x, n_obs))
-                .T
+                .reshape((n_obs, n_x))
                 .dot(s[:n_p,:,i].T)
             for i, ti in enumerate(t)
         ]).reshape((n_t, n_obs, n_p)).swapaxes(0, 2)
