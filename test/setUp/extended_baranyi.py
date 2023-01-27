@@ -7,63 +7,86 @@ from FisInMa import *
 def baranyi_roberts_ode(t, x, u, p, ode_args):
     x1, x2, y1, y2 = x
     (Temp, ) = u
-    (xy_max, b_x, Temp_min_x, alpha_x, b_y, Temp_min_y, alpha_y, ) = p
+    (xy_max, b_x, Temp_min_x, b_y, Temp_min_y, ) = p
     # Define the maximum growth rate
     mu_max_x = b_x**2 * (Temp - Temp_min_x)**2
     mu_max_y = b_y**2 * (Temp - Temp_min_y)**2
     return [
-        mu_max_x * (x2/(x2 + 1)) * (1 - x1/xy_max) * x1 - alpha_x * x1 * y1 / xy_max, # f1
-        mu_max_x * x2,                                                                # f2
-        mu_max_y * (y2/(y2 + 1)) * (1 - y1/xy_max) * y1 - alpha_y * x1 * y1 / xy_max, # f3
-        mu_max_y * y2,                                                                # f4
+        mu_max_x * (x2/(x2 + 1)) * x1 * (1 - x1/xy_max - y1 / xy_max), # f1
+        mu_max_x * x2,                                                 # f2
+        mu_max_y * (y2/(y2 + 1)) * y1 * (1 - y1/xy_max - x1 / xy_max), # f3
+        mu_max_y * y2,                                                 # f4
     ]
-
 
 def ode_dfdp(t, x, u, p, ode_args):
     x1, x2, y1, y2 = x
     (Temp, ) = u
-    (xy_max, b_x, Temp_min_x, alpha_x, b_y, Temp_min_y, alpha_y, ) = p
+    (xy_max, b_x, Temp_min_x, b_y, Temp_min_y, ) = p
     # Define the maximum growth rate
     mu_max_x = b_x**2 * (Temp - Temp_min_x)**2
     mu_max_y = b_y**2 * (Temp - Temp_min_y)**2
     return [
         [
-            mu_max_x * (x2/(x2 + 1)) * (x1/xy_max)**2 + alpha_x*x1*y1 / (xy_max**2), # df1/dxy_max
-             2 * b_x * (Temp - Temp_min_x)**2 * (x2/(x2 + 1)) * (1 - x1/xy_max)*x1,  # df1/db_x
-            -2 * b_x**2 * (Temp - Temp_min_x) * (x2/(x2 + 1)) * (1 - x1/xy_max)*x1,  # df1/dTemp_min_x
-            - x1 * y1 / xy_max,                                                      # df1/daplha_x
-            0,                                                                       # df1/db_y
-            0,                                                                       # df1/dTemp_min_y
-            0                                                                        # df1/daplha_y
+            mu_max_x * (x2/(x2 + 1)) * x1 * (x1 + y1) / (xy_max**2),                         # df1/dxy_max
+             2 * b_x * (Temp - Temp_min_x)**2 * (x2/(x2 + 1)) * x1 * (1 - (x1 + y1)/xy_max), # df1/db_x
+            -2 * b_x**2 * (Temp - Temp_min_x) * (x2/(x2 + 1)) * x1 * (1 - (x1 + y1)/xy_max), # df1/dTemp_min_x
+            0,                                                                               # df1/db_y
+            0                                                                                # df1/dTemp_min_y
         ],
         [
-            0,                                                      # df2/dx_max
-            2 * b_x * (Temp - Temp_min_x)**2 * x2,                  # df2/db
-            2 * b_x**2 * (Temp - Temp_min_x) * x2,                  # df2/dTemp_min
-            0,
-            0, 
+            0,                                      # df2/dxy_max
+            2 * b_x * (Temp - Temp_min_x)**2 * x2,  # df2/dbx
+            -2 * b_x**2 * (Temp - Temp_min_x) * x2, # df2/dTemp_minx
             0,
             0
         ],
         [
-            mu_max_y * (y2/(y2 + 1)) * (y1/xy_max)**2 + alpha_y*x1*y1 / (xy_max**2),  # df3/dxy_max
+            mu_max_y * (y2/(y2 + 1)) * y1 * (x1 + y1) / (xy_max**2), # df3/dxy_max
+            0,  
             0, 
-            0, 
-            0,
-            2 * b_y * (Temp - Temp_min_y)**2 * (y2/(y2 + 1))
-                * (1 - y1/xy_max)*y1,                           
-            -2 * b_y**2 * (Temp - Temp_min_y) * (y2/(y2 + 1))
-                * (1 - y1/xy_max)*y1,                            
-            - x1 * y1 / xy_max,                                   
+            2 * b_y * (Temp - Temp_min_y)**2 * (y2/(y2 + 1)) * y1 * (1 - (x1 + y1)/xy_max),                      
+            -2 * b_y**2 * (Temp - Temp_min_y) * (y2/(y2 + 1)) * y1 * (1 - (x1 + y1)/xy_max),                                                          
         ],
         [
             0, 
             0,
-            0,
-            0,                                                
+            0,                                               
             2 * b_y * (Temp - Temp_min_y)**2 * y2,                  
-            2 * b_y**2 * (Temp - Temp_min_y) * y2,                  
+            -2 * b_y**2 * (Temp - Temp_min_y) * y2,                  
+        ]
+    ]
+
+def ode_dfdx(t, x, u, p, ode_args):
+    x1, x2, y1, y2 = x
+    (Temp, ) = u
+    (xy_max, b_x, Temp_min_x, b_y, Temp_min_y, ) = p
+    # Define the maximum growth rate
+    mu_max_x = b_x**2 * (Temp - Temp_min_x)**2
+    mu_max_y = b_y**2 * (Temp - Temp_min_y)**2
+    return [
+        [
+            mu_max_x * (x2/(x2 + 1)) * (1 - (2*x1 + y1)/xy_max),  # df1/dx1
+            mu_max_x * 1/(x2 + 1)**2 * (1 - (x1 + y1)/xy_max)*x1, # df1/dx2
+            -mu_max_x * x1 / xy_max,                              # df1/dy1
+            0,                                                    # df1/dy2
+        ],
+        [
+            0,                                                    # df2/dx1
+            mu_max_x,                                             # df2/dx2
+            0,
             0
+        ],
+        [
+            -mu_max_y * y1 / xy_max,                              # df3/dx1
+            0,
+            mu_max_y * (y2/(y2 + 1)) * (1 - (2*y1 + x1)/xy_max),  # df3/dy1
+            mu_max_y * 1/(y2 + 1)**2 * (1 - (x1 + y1)/xy_max)*y1, # df3/dy2
+        ],
+        [
+            0,                                                                    # df4/dx1
+            0,                                                                    # df4/dx2
+            0,
+            mu_max_y
         ]
     ]
 
