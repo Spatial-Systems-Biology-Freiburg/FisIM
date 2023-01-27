@@ -92,5 +92,5 @@ if __name__ == "__main__":
 
     # Plot all ODE results with chosen time points
     # for different data points
-    plot_all_solutions(fsr, file_format="png")
+    plot_all_solutions(fsr)
     json_dump(fsr, "baranyi_roberts.json")

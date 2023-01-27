@@ -85,13 +85,14 @@ The optimization is then held using relative sensitivities and D-optimality crit
    :linenos:
    :lineno-start: 83
    :lines: 83-91
+   
 Save and plot the results of optimization.
 
 .. literalinclude:: ../../../../examples/baranyi_roberts.py
    :language: python
    :linenos:
    :lineno-start: 95
-   :lines: 95-97
+   :lines: 95-96
 
 The resulting Optimal Experimental Design:
 
