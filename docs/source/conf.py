@@ -40,5 +40,11 @@ exclude_patterns = ['_build', '_templates', 'Thumbs.db', '.DS_Store']
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = 'pydata_sphinx_theme'
+html_theme_options = {
+   "logo": {
+      "image_light": "logo-light.png",
+      "image_dark": "logo-dark.png",
+   }
+}
 html_static_path = ['_static']
 bibtex_bibfiles = ['references.bib']
