@@ -32,7 +32,7 @@ def ode_dfdp(t, x, u, p, ode_args):
         [
             0,                                                  # df2/dx_max
             2 * b * (Temp - Temp_min)**2 * x2,                  # df2/db
-            2 * b**2 * (Temp - Temp_min) * x2                   # df2/dTemp_min
+            -2 * b**2 * (Temp - Temp_min) * x2                   # df2/dTemp_min
         ]
     ]
 
@@ -92,5 +92,5 @@ if __name__ == "__main__":
 
     # Plot all ODE results with chosen time points
     # for different data points
-    plot_all_solutions(fsr)
+    plot_all_solutions(fsr, file_format="png")
     json_dump(fsr, "baranyi_roberts.json")
