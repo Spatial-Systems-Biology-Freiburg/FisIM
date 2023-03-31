@@ -32,7 +32,7 @@ def ode_dfdp(t, x, u, p, ode_args):
         [
             0,                                                  # df2/dx_max
             2 * b * (Temp - Temp_min)**2 * x2,                  # df2/db
-            -2 * b**2 * (Temp - Temp_min) * x2                   # df2/dTemp_min
+            -2 * b**2 * (Temp - Temp_min) * x2                  # df2/dTemp_min
         ]
     ]
 

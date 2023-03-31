@@ -17,7 +17,7 @@ class TestObservableGeneration:
             fsmp = FisherModelParametrized.init_from(fsm)
 
             results.append(get_S_matrix(fsmp))
-        
+
         for i, j in itertools.product(range(4), range(4)):
             for res_1, res_2 in zip(
                 results[i][2],

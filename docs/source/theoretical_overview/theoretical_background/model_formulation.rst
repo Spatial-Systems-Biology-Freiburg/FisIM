@@ -2,7 +2,7 @@ Model Formulation
 =================
 
 .. note::
-  
+
   In-depth information about the theoretical underlying and the calculation methods will be described in a book chapter releasing in the near future.
 
 This library supports systems whose state variable vector :math:`x = (x_1, x_2, ..., x_n)` evolution in time :math:`t` is described by the ODEs:

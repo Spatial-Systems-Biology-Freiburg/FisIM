@@ -42,17 +42,17 @@ def ode_dfdp(t, x, u, p, ode_args):
         ],
         [
             mu_max_y * (y2/(y2 + 1)) * y1 * (x1 + y1) / (xy_max**2), # df3/dxy_max
-            0,  
-            0, 
-            2 * b_y * (Temp - Temp_min_y)**2 * (y2/(y2 + 1)) * y1 * (1 - (x1 + y1)/xy_max),                      
-            -2 * b_y**2 * (Temp - Temp_min_y) * (y2/(y2 + 1)) * y1 * (1 - (x1 + y1)/xy_max),                                                          
+            0,
+            0,
+            2 * b_y * (Temp - Temp_min_y)**2 * (y2/(y2 + 1)) * y1 * (1 - (x1 + y1)/xy_max),
+            -2 * b_y**2 * (Temp - Temp_min_y) * (y2/(y2 + 1)) * y1 * (1 - (x1 + y1)/xy_max),
         ],
         [
-            0, 
             0,
-            0,                                               
-            2 * b_y * (Temp - Temp_min_y)**2 * y2,                  
-            -2 * b_y**2 * (Temp - Temp_min_y) * y2,                  
+            0,
+            0,
+            2 * b_y * (Temp - Temp_min_y)**2 * y2,
+            -2 * b_y**2 * (Temp - Temp_min_y) * y2,
         ]
     ]
 
@@ -93,13 +93,13 @@ def ode_dfdx(t, x, u, p, ode_args):
 
 class ModelExtendedBaranyi:
     def __init__(self, obs=[0], N_x0=2, n_t0=13, n_times=5, n_inputs=7, identical_times=False):
-        # Use prime numbers for sampled parameters to 
+        # Use prime numbers for sampled parameters to
         # show errors in code where reshaping is done
         self.x0 = [np.array([1e4, 0.1 / i, 1e2, 0.1 / i]) for i in range(1, N_x0+1)]
         self.t0=np.linspace(0.0, 0.01, n_t0)
         self.times=np.linspace(0.1, 10.0, n_times)
         self.inputs=[np.arange(3, n_inputs + 3)]
-        
+
         self.parameters = (1e8, 0.2, 1.0, 0.2, 1.0)
         self.fsm = FisherModel(
             ode_fun=baranyi_roberts_ode,

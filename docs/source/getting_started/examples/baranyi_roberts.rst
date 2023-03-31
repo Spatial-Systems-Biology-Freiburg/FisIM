@@ -85,7 +85,7 @@ The optimization is then held using relative sensitivities and D-optimality crit
    :linenos:
    :lineno-start: 83
    :lines: 83-91
-   
+
 Save and plot the results of optimization.
 
 .. literalinclude:: ../../../../examples/baranyi_roberts.py

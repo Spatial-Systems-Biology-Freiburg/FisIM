@@ -17,7 +17,7 @@ where :math:`C` is the covariance matrix of measurement error.
 As an example, the mentioned sensitivity matrix for two observables :math:`y = (y_1, y_2)`, two different inputs :math:`u = (u_1, u_2)`, :math:`N` different time and :math:`N_p` parameterscan be built in the following way:
 
 .. math::
-    S = 
+    S =
     \begin{bmatrix}
     s_{11} (t_1, u_1) & ... & s_{1 N_p}(t_1, u_1) \\
     \vdots  &   & \vdots  \\
