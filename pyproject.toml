@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "FisInMa"
-version = "0.0.2"
+version = "0.1.0"
 authors = [
   { name="Jonas Pleyer", email="jonas.pleyer@fdm.uni-freiburg.de" },
   { name="Polina Gaindrik", email="p.gaindrik@tsenso.com" },
