@@ -1,8 +1,8 @@
 import pprint
 import shutil
 
-from FisInMa.model import FisherModelParametrized, FisherResults
-from FisInMa.solving import display_fsmp_details, display_fsr_details, display_heading
+from Fishi.model import FisherModelParametrized, FisherResults
+from Fishi.solving import display_fsmp_details, display_fsr_details, display_heading
 
 
 def display_optimization_start(fsmp: FisherModelParametrized):

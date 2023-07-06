@@ -4,8 +4,8 @@ import scipy as sp
 from pathlib import Path
 import itertools
 
-from FisInMa.model import FisherResults, FisherModelParametrized
-from FisInMa.solving import calculate_fisher_criterion
+from Fishi.model import FisherResults, FisherModelParametrized
+from Fishi.solving import calculate_fisher_criterion
 
 
 def plot_template(fsr: FisherResults, sol, sol_new, y_design, y_model, outdir, additional_name, y_name, i, j, k=None, file_format="svg"):

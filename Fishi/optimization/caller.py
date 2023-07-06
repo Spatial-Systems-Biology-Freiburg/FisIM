@@ -1,4 +1,4 @@
-from FisInMa.model import FisherModel, FisherModelParametrized
+from Fishi.model import FisherModel, FisherModelParametrized
 from .scipy_global_optim import __scipy_differential_evolution, __scipy_basinhopping, __scipy_brute
 from .display import display_optimization_start, display_optimization_end
 

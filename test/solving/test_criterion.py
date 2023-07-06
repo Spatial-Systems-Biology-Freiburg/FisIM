@@ -1,7 +1,7 @@
 import numpy as np
 
-from FisInMa.model import FisherModelParametrized
-from FisInMa.solving import *
+from Fishi.model import FisherModelParametrized
+from Fishi.solving import *
 
 class Test_Criteria:
     @classmethod

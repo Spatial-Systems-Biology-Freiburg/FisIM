@@ -3,8 +3,8 @@ import scipy as sp
 import scipy.optimize as optimize
 import itertools
 
-from FisInMa.model import FisherModel, FisherModelParametrized, VariableDefinition, MultiVariableDefinition
-from FisInMa.solving import calculate_fisher_criterion, fisher_determinant
+from Fishi.model import FisherModel, FisherModelParametrized, VariableDefinition, MultiVariableDefinition
+from Fishi.solving import calculate_fisher_criterion, fisher_determinant
 from .penalty import _discrete_penalizer
 
 

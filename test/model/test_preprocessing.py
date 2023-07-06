@@ -3,7 +3,7 @@
 import pytest
 import numpy as np
 
-from FisInMa import VariableDefinition
+from Fishi import VariableDefinition
 
 
 class TestVariableDefinition:

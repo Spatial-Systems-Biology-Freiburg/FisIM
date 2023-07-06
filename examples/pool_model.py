@@ -2,7 +2,7 @@
 
 #################################
 # THESE LINES ARE ONLY NEEDED   #
-# WHEN FisInMa IS NOT INSTALLED #
+# WHEN Fishi IS NOT INSTALLED #
 # OTHERWISE REMOVE THEM         #
 #################################
 import os, sys
@@ -16,7 +16,7 @@ import copy
 
 
 # Import custom functions for optimization
-from FisInMa import *
+from Fishi import *
 
 
 # System of equation for pool-model and sensitivities

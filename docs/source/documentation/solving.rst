@@ -2,19 +2,19 @@ Solving
 -------
 
 
-.. automodule:: FisInMa.solving.solve_fsm
+.. automodule:: Fishi.solving.solve_fsm
    :members:
    :inherited-members:
    :show-inheritance:
    :undoc-members:
 
-.. automodule:: FisInMa.solving.criteria
+.. automodule:: Fishi.solving.criteria
    :members:
    :inherited-members:
    :show-inheritance:
    :undoc-members:
 
-.. automodule:: FisInMa.solving.display
+.. automodule:: Fishi.solving.display
    :members:
    :inherited-members:
    :show-inheritance:

@@ -2,7 +2,7 @@ Database
 --------
 
 
-.. automodule:: FisInMa.database.json
+.. automodule:: Fishi.database.json
    :members:
    :inherited-members:
    :show-inheritance:

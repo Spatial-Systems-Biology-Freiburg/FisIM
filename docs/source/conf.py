@@ -6,13 +6,13 @@
 import os
 import sys
 sys.path.append(os.path.abspath('../../'))
-import FisInMa
+import Fishi
 
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'FisInMa'
+project = 'Fishi'
 copyright = '2022, Jonas Pleyer, Polina Gaindrik'
 author = 'Jonas Pleyer, Polina Gaindrik'
 release = '0.0.2'

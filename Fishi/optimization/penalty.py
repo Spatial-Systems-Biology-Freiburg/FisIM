@@ -3,7 +3,7 @@ import itertools
 
 from pydantic.dataclasses import dataclass
 
-from FisInMa.model import FisherModel, FisherModelParametrized, VariableDefinition
+from Fishi.model import FisherModel, FisherModelParametrized, VariableDefinition
 
 
 class PenaltyConfig:

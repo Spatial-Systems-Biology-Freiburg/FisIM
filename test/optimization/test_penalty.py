@@ -1,8 +1,8 @@
 import pytest
 import numpy as np
 
-from FisInMa.model import FisherModelParametrized
-from FisInMa.optimization.penalty import _discrete_penalizer, DISCRETE_PENALTY_FUNCTIONS
+from Fishi.model import FisherModelParametrized
+from Fishi.optimization.penalty import _discrete_penalizer, DISCRETE_PENALTY_FUNCTIONS
 
 from test.setUp import default_model_parametrized
 

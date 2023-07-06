@@ -2,25 +2,25 @@ Optimization
 ------------
 
 
-.. automodule:: FisInMa.optimization.caller
+.. automodule:: Fishi.optimization.caller
     :members:
     :inherited-members:
     :show-inheritance:
     :undoc-members:
 
-.. automodule:: FisInMa.optimization.display
+.. automodule:: Fishi.optimization.display
     :members:
     :inherited-members:
     :show-inheritance:
     :undoc-members:
 
-.. automodule:: FisInMa.optimization.penalty
+.. automodule:: Fishi.optimization.penalty
     :members:
     :inherited-members:
     :show-inheritance:
     :undoc-members:
 
-.. automodule:: FisInMa.optimization.scipy_global_optim
+.. automodule:: Fishi.optimization.scipy_global_optim
     :members:
     :inherited-members:
     :show-inheritance:

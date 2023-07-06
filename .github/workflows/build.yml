@@ -24,9 +24,9 @@ jobs:
           python -m build
       - name: Install package
         run:
-          pip install dist/fisinma*.tar.gz
+          pip install dist/Fishi*.tar.gz
       - name: Yield the package
         uses: actions/upload-artifact@v3
         with:
-          name: FisInMa
-          path: dist/fisinma*.tar.gz
+          name: Fishi
+          path: dist/Fishi*.tar.gz

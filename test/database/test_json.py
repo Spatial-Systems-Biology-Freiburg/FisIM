@@ -3,9 +3,9 @@ import itertools
 import pytest
 import os
 
-from FisInMa.database import *
-from FisInMa.solving import fisher_determinant, fisher_mineigenval, fisher_ratioeigenval, fisher_sumeigenval
-from FisInMa.solving import calculate_fisher_criterion
+from Fishi.database import *
+from Fishi.solving import fisher_determinant, fisher_mineigenval, fisher_ratioeigenval, fisher_sumeigenval
+from Fishi.solving import calculate_fisher_criterion
 from test.setUp import default_model_small, pool_model_small
 
 

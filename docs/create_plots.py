@@ -3,7 +3,7 @@ import os, sys
 from pathlib import Path
 sys.path.append(os.getcwd())
 
-import FisInMa
+import Fishi
 
 
 # Generate plots for the discretization

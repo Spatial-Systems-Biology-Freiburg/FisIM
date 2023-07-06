@@ -1,8 +1,8 @@
 import numpy as np
 import pytest
 
-from FisInMa.model import FisherModelParametrized
-from FisInMa.solving import *
+from Fishi.model import FisherModelParametrized
+from Fishi.solving import *
 
 from test.setUp import default_model_small, pool_model_small
 

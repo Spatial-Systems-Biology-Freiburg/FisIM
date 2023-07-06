@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from FisInMa import FisherModel, FisherModelParametrized
+from Fishi import FisherModel, FisherModelParametrized
 
 
 def f_default(t, x, inputs, params, consts):

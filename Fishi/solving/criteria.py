@@ -1,6 +1,6 @@
 import numpy as np
 
-from FisInMa.model import FisherModelParametrized
+from Fishi.model import FisherModelParametrized
 
 
 def fisher_determinant(fsmp: FisherModelParametrized, S, C):

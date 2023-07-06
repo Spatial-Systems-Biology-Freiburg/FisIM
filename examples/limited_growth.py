@@ -2,7 +2,7 @@
 
 #################################
 # THESE LINES ARE ONLY NEEDED   #
-# WHEN FisInMa IS NOT INSTALLED #
+# WHEN Fishi IS NOT INSTALLED #
 # OTHERWISE REMOVE THEM         #
 #################################
 import os, sys
@@ -13,7 +13,7 @@ import numpy as np
 
 
 # Import custom package to solve such fisher models
-from FisInMa import *
+from Fishi import *
 
 
 # System of equation for pool-model and sensitivities

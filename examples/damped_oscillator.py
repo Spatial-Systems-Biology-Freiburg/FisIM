@@ -5,7 +5,7 @@ import os, sys
 sys.path.append(os.getcwd())
 
 import numpy as np
-from FisInMa import *
+from Fishi import *
 
 # Defines the right hand side of the ODE of an parametrized damped oscillator
 def damped_osci(t, y, inputs, parameters, ode_args):

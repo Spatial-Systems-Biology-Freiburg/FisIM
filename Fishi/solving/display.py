@@ -5,7 +5,7 @@ from dataclasses import fields
 import numpy as np
 import itertools
 
-from FisInMa.model import FisherModelParametrized, FisherResults, FisherResultSingle
+from Fishi.model import FisherModelParametrized, FisherResults, FisherResultSingle
 
 
 def display_heading(string, terminal_size=shutil.get_terminal_size((80, 20))):

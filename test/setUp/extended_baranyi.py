@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from FisInMa import *
+from Fishi import *
 
 
 def baranyi_roberts_ode(t, x, u, p, ode_args):

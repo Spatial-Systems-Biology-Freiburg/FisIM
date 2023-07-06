@@ -1,8 +1,8 @@
 import numpy as np
 import pytest
 
-from FisInMa.model import FisherModelParametrized
-from FisInMa.solving import *
+from Fishi.model import FisherModelParametrized
+from Fishi.solving import *
 
 from test.setUp import extended_baranyi_model, extended_baranyi_model_small, extended_baranyi_model_parametrized
 
