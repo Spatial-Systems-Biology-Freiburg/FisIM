@@ -8,5 +8,5 @@ python -m build
 python -m pip install twine
 
 # Release the package
-python -m twine upload dist/fishi-0.1.0*
+python -m twine upload dist/fishi-0.1.1*
 
