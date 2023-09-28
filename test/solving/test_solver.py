@@ -3,8 +3,8 @@ import scipy as sp
 import pytest
 import itertools
 
-from Fishi.model import FisherModelParametrized
-from Fishi.solving import *
+from eDPM.model import FisherModelParametrized
+from eDPM.solving import *
 
 from test.setUp import default_model, default_model_parametrized, default_model_small, pool_model_small
 

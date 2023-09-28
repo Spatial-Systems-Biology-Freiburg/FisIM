@@ -6,7 +6,7 @@ from pydantic import ValidationError
 
 from test.setUp import default_model, model_init_params, pool_model
 
-from Fishi import FisherModelParametrized
+from eDPM import FisherModelParametrized
 
 
 class Test_fmsp_init_from_fsm:

@@ -13,7 +13,7 @@ import numpy as np
 
 
 # Import custom package to solve such fisher models
-from Fishi import *
+from eDPM import *
 
 
 # System of equation for pool-model and sensitivities

@@ -2,7 +2,7 @@ import numpy as np
 import scipy.integrate as integrate
 import itertools
 
-from Fishi.model import FisherModelParametrized, FisherResults, FisherResultSingle
+from eDPM.model import FisherModelParametrized, FisherResults, FisherResultSingle
 from .criteria import fisher_determinant
 
 

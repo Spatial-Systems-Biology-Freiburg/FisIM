@@ -16,7 +16,7 @@ import copy
 
 
 # Import custom functions for optimization
-from Fishi import *
+from eDPM import *
 
 
 # System of equation for pool-model and sensitivities

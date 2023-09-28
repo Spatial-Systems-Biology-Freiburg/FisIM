@@ -2,8 +2,8 @@ import numpy as np
 import pytest
 import itertools
 
-from Fishi.optimization.scipy_global_optim import _scipy_calculate_bounds_constraints, _create_comparison_matrix
-from Fishi.model import FisherModelParametrized, FisherResults
+from eDPM.optimization.scipy_global_optim import _scipy_calculate_bounds_constraints, _create_comparison_matrix
+from eDPM.model import FisherModelParametrized, FisherResults
 
 from test.setUp import default_model, default_model_parametrized, default_model_small
 

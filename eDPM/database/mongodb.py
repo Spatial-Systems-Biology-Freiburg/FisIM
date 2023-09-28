@@ -1,7 +1,7 @@
 from pymongo import MongoClient
 from datetime import datetime
 
-from Fishi.data_structures import FischerResult, apply_marks, revert_marks
+from eDPM.data_structures import FischerResult, apply_marks, revert_marks
 
 
 def __get_mongodb_client():

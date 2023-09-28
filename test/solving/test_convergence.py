@@ -3,8 +3,8 @@ import scipy as sp
 import time
 import pytest
 
-from Fishi.model import FisherModel, FisherModelParametrized
-from Fishi.solving import *
+from eDPM.model import FisherModel, FisherModelParametrized
+from eDPM.solving import *
 
 
 # Define a RHS of ODE where exact result is known

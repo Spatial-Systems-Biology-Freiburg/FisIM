@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from Fishi import optimization as opt
+from eDPM import optimization as opt
 plt.rcParams["font.family"] = "serif"
 plt.rc('text', usetex=True)
 plt.rcParams['text.latex.preamble'] = r"\usepackage{bm} \usepackage{amsmath}"

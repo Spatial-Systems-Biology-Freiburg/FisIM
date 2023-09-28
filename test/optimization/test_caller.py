@@ -1,8 +1,8 @@
 import pytest
 import numpy as np
 
-from Fishi.model import FisherModelParametrized, FisherResults
-from Fishi.optimization.caller import find_optimal
+from eDPM.model import FisherModelParametrized, FisherResults
+from eDPM.optimization.caller import find_optimal
 
 from test.setUp import default_model_small
 

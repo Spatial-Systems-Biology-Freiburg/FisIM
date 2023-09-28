@@ -3,7 +3,7 @@ from pydantic.json import custom_pydantic_encoder
 import numpy as np
 import functools
 
-from Fishi.model import FisherResults
+from eDPM.model import FisherResults
 
 
 def _get_encoder(fsr: FisherResults):

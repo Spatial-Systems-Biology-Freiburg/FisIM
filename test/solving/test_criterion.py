@@ -1,7 +1,7 @@
 import numpy as np
 
-from Fishi.model import FisherModelParametrized
-from Fishi.solving import *
+from eDPM.model import FisherModelParametrized
+from eDPM.solving import *
 
 class Test_Criteria:
     @classmethod

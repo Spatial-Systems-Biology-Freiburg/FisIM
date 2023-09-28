@@ -6,7 +6,7 @@
 import os
 import sys
 sys.path.append(os.path.abspath('../../'))
-import Fishi
+import eDPM
 
 
 # -- Project information -----------------------------------------------------

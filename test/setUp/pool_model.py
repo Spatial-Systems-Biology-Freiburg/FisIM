@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from Fishi import *
+from eDPM import *
 
 
 def pool(t, y, Q, P, Const):

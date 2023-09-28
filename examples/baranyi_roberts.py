@@ -2,7 +2,7 @@
 import numpy as np
 import os, sys
 sys.path.append(os.getcwd())
-from Fishi import *
+from eDPM import *
 
 
 def baranyi_roberts_ode(t, x, u, p, ode_args):
