@@ -10,22 +10,22 @@ from eDPM.solving import calculate_fisher_criterion
 
 def plot_template(fsr: FisherResults, sol, sol_new, y_design, y_model, outdir, additional_name, y_name, i, j, k=None, file_format="svg"):
     fig, ax = plt.subplots(figsize=(10, 6))
-    ax.plot(sol_new.times, y_model, color="#21918c", label="Model Solution", linewidth=2)
+    ax.plot(sol_new.times, y_model, color="#21918c", label="Model Solution", linewidth=3)
 
     # Plot sampled time points
-    ax.scatter(sol.times, y_design, s=160, alpha=0.5, color="#440154", label="Optimal Design")
-    ax.set_xlabel("Time", fontsize=15)
-    ax.set_ylabel(y_name, fontsize=15)
-    ax.tick_params(axis="y", labelsize=13)
-    ax.tick_params(axis="x", labelsize=13)
-    ax.legend(fontsize=15, framealpha=0.5)
+    ax.scatter(sol.times, y_design, s=300, alpha=0.5, color="#440154", label="Optimal Design")
+    ax.set_xlabel("Time", fontsize=22)
+    ax.set_ylabel(y_name, fontsize=22)
+    ax.tick_params(axis="y", labelsize=20)
+    ax.tick_params(axis="x", labelsize=20)
+    ax.legend(fontsize=22, framealpha=0.)
     if k == None:
         save_name = "{}_Results_{}_{}_{}_{:03.0f}_x_{:02.0f}.{}".format(y_name, getattr(fsr.ode_fun, '__name__', 'unknown'), getattr(fsr.criterion_fun, '__name__', 'unknown'), additional_name, i, j, file_format)
         title_name = f"Observable {j}, \n Inputs {[round(inp, 1) for inp in sol.inputs]},\n Times {[round(t, 1) for t in sol.times]}"
     else:
         save_name = "{}_Results_{}_{}_{}_{:03.0f}_x_{:02.0f}_p_{:02.0f}.{}".format(y_name, getattr(fsr.ode_fun, '__name__', 'unknown'), getattr(fsr.criterion_fun, '__name__', 'unknown'), additional_name, i, j, k, file_format)
         title_name = f"Observable {j},  Parameter {k}, \n Inputs {[round(inp, 1) for inp in sol.inputs]},\n Times {[round(t, 1) for t in sol.times]}"
-    ax.set_title(title_name, fontsize=15)
+    ax.set_title(title_name, fontsize=22)
 
     fig.savefig(outdir / Path(save_name), bbox_inches='tight')
 
