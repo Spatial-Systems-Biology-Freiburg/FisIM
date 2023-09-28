@@ -55,14 +55,14 @@ def ode_dfdx(t, x, u, p, ode_args):
 
 if __name__ == "__main__":
     # Define parameters and initial conditions
-    p = (1e8, 0.2, 1.0) # (x_max, b, T_min)
-    x0 = np.array([1e3, 0.1]) 
+    p = (2e4, 0.02, -5.5) # (x_max, b, T_min)
+    x0 = np.array([50., 1.])
 
     # Define interval and number of sampling points for times
-    times = {"lb": 0.0, "ub": 10.0, "n": 6}
+    times = {"lb": 0., "ub": 100., "n": 6}
 
     # Define explicit temperature points
-    inputs = [{"lb": 3.0, "ub": 12.0, "n": 1}]
+    inputs = [{"lb": 2.0, "ub": 12.0, "n": 1}]
 
     # Create the FisherModel which serves as the entry point
     #  for the solving and optimization algorithms
