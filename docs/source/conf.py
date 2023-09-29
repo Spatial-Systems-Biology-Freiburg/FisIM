@@ -12,7 +12,7 @@ import eDPM
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'Fishi'
+project = 'eDPM'
 copyright = '2022, Jonas Pleyer, Polina Gaindrik'
 author = 'Jonas Pleyer, Polina Gaindrik'
 release = '0.0.2'

@@ -2,7 +2,7 @@ Database
 --------
 
 
-.. automodule:: Fishi.database.json
+.. automodule:: eDPM.database.json
    :members:
    :inherited-members:
    :show-inheritance:

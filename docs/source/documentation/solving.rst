@@ -2,19 +2,19 @@ Solving
 -------
 
 
-.. automodule:: Fishi.solving.solve_fsm
+.. automodule:: eDPM.solving.solve_fsm
    :members:
    :inherited-members:
    :show-inheritance:
    :undoc-members:
 
-.. automodule:: Fishi.solving.criteria
+.. automodule:: eDPM.solving.criteria
    :members:
    :inherited-members:
    :show-inheritance:
    :undoc-members:
 
-.. automodule:: Fishi.solving.display
+.. automodule:: eDPM.solving.display
    :members:
    :inherited-members:
    :show-inheritance:
