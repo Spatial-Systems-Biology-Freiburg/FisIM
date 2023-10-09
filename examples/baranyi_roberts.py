@@ -4,13 +4,20 @@ import os, sys
 sys.path.append(os.getcwd())
 from eDPM import *
 
-
+# The function name can be chosen freely, but the order
+# of required function arguments is fixed by the definition.
 def baranyi_roberts_ode(t, x, u, p, ode_args):
+    # Unpack the input vectors x, u, p for easy access
+    # of their components
     x1, x2 = x
     (Temp, ) = u
     (x_max, b, Temp_min) = p
-    # Define the maximum growth rate
+
+    # Calculate the maximum growth rate
     mu_max = b**2 * (Temp - Temp_min)**2
+
+    # Calculate the right hand side of the ODE, store it
+    # in a list [...] and return it.
     return [
         mu_max * (x2/(x2 + 1)) * (1 - x1/x_max) * x1,           # f1
         mu_max * x2                                             # f2
