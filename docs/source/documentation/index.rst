@@ -85,3 +85,4 @@ file or string.
    Optimization <optimization>
    Database <database>
    Plotting <plotting>
+   Analysis<analysis>
