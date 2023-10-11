@@ -24,9 +24,9 @@ jobs:
           python -m build
       - name: Install package
         run:
-          pip install dist/eDPM*.tar.gz
+          pip install dist/edpm*.tar.gz
       - name: Yield the package
         uses: actions/upload-artifact@v3
         with:
           name: eDPM
-          path: dist/eDPM*.tar.gz
+          path: dist/edpm*.tar.gz
