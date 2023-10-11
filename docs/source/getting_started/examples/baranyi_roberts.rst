@@ -29,7 +29,7 @@ First of all, import al the necessary libraries.
 .. code-block:: python3
 
     import numpy as np
-    from Fishi import *
+    from eDPM import *
 
 Define the system of ODEs.
 

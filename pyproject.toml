@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "Fishi"
+name = "eDPM"
 version = "0.1.1"
 authors = [
   { name="Jonas Pleyer", email="jonas.pleyer@fdm.uni-freiburg.de" },
@@ -29,5 +29,5 @@ classifiers = [
 [project.urls]
 "Home-page" = "https://github.com/Spatial-Systems-Biology-Freiburg/Model-Design-Fischer-Information-Matrix"
 "Bug Tracker" = "https://github.com/Spatial-Systems-Biology-Freiburg/Model-Design-Fischer-Information-Matrix/issues"
-Documentation = "https://spatial-systems-biology-freiburg.github.io/Fishi/"
-"Source code" = "https://github.com/Spatial-Systems-Biology-Freiburg/Fishi"
+Documentation = "https://spatial-systems-biology-freiburg.github.io/eDPM/"
+"Source code" = "https://github.com/Spatial-Systems-Biology-Freiburg/eDPM"

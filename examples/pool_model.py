@@ -2,7 +2,7 @@
 
 #################################
 # THESE LINES ARE ONLY NEEDED   #
-# WHEN Fishi IS NOT INSTALLED #
+# WHEN eDPM IS NOT INSTALLED #
 # OTHERWISE REMOVE THEM         #
 #################################
 import os, sys
