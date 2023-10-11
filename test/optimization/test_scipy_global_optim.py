@@ -93,7 +93,7 @@ class Test_BoundsConstraints:
         fsm.times = {"lb":0.0, "ub":10.0, "n":5}
         fsmp = FisherModelParametrized.init_from(fsm)
         bounds, constraints = _scipy_calculate_bounds_constraints(fsmp)
-        n_inputs = np.product([len(q) for q in fsmp.inputs])
+        n_inputs = np.prod([len(q) for q in fsmp.inputs])
         n_times = fsmp.times.shape[-1] if fsm.identical_times==True else n_inputs * fsmp.times.shape[-1]
         # Test bounds and constraints
         np.testing.assert_almost_equal(bounds, [[fsm.times.lb, fsm.times.ub]] * n_times)

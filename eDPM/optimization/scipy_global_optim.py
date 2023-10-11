@@ -88,7 +88,7 @@ def _scipy_calculate_bounds_constraints(fsmp: FisherModelParametrized):
     uc = []
 
     # Determine the number of mutable variables which can be sampled over
-    n_times = np.product(fsmp.times.shape) if fsmp.times_def  is not None else 0
+    n_times = np.prod(fsmp.times.shape) if fsmp.times_def  is not None else 0
     n_inputs = [len(q) if q_def is not None else 0 for q, q_def in zip(fsmp.inputs, fsmp.inputs_def)]
     n_mut = [
         fsmp.ode_t0_def.n if fsmp.ode_t0_def is not None else 0,
@@ -132,7 +132,7 @@ def _scipy_calculate_bounds_constraints(fsmp: FisherModelParametrized):
     # Check if times are sampled over
     if type(fsmp.times_def)==VariableDefinition:
         # How many time points are we sampling?
-        n_times = np.product(fsmp.times.shape)
+        n_times = np.prod(fsmp.times.shape)
 
         # Store lower and upper bound
         lb += [fsmp.times_def.lb] * n_times

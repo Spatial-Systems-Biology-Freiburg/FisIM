@@ -129,7 +129,7 @@ def discrete_penalty_individual_template(vals, vals_discr, pen_structure):
             if vals_discr[i] <= v <= vals_discr[i+1]:
                 dx = vals_discr[i+1] - vals_discr[i]
                 prod.append(pen_structure(v - vals_discr[i], dx))
-    pen = np.product(prod)
+    pen = np.prod(prod)
     return pen, prod
 
 
@@ -169,7 +169,7 @@ def discrete_penalty_calculator_default(vals, vals_discr):
     # TODO - should be specifiable as parameter in optimization routine
     # Calculate the penalty for provided values
     prod = np.array([1 - (np.abs(np.prod((vals_discr - v))))**(1.0 / len(vals_discr)) / (np.max(vals_discr) - np.min(vals_discr)) for v in vals])
-    pen = np.product(prod)
+    pen = np.prod(prod)
     # Return the penalty and the output per inserted variable
     return pen, prod
 

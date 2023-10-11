@@ -256,7 +256,7 @@ def get_S_matrix(fsmp: FisherModelParametrized, relative_sensitivities=False, **
         except:
             C = np.full((len(uncertainty), len(uncertainty)), np.nan)
     else:
-        n_datapoints = np.product(S.shape[1:])
+        n_datapoints = np.prod(S.shape[1:])
         C = np.eye(n_datapoints)
 
     # Reshape to 2D Form (len(P),:)
