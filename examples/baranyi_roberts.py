@@ -96,6 +96,8 @@ if __name__ == "__main__":
         popsize=10,
         polish=False,
     )
+    # Check the structural identifiability
+    check_if_identifiable(fsr)
 
     # Plot all ODE results with chosen time points
     # for different data points
