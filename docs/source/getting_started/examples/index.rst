@@ -7,4 +7,3 @@ Examples
 
    Baranyi and Roberts Model <baranyi_roberts>
    Damped Oscillator <damped_oscillator>
-   Pool Model <pool_model>
