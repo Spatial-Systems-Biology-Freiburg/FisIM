@@ -77,7 +77,7 @@ def display_fsmp_details(fsmp: FisherModelParametrized, pp=pprint.PrettyPrinter(
     display_entries(cols, terminal_size)
 
 
-def _generate_matrix_cols(M, name, terminal_size=shutil.get_terminal_size((80, 20))):
+def generate_matrix_cols(M, name, terminal_size=shutil.get_terminal_size((80, 20))):
     M_strings = np.array2string(M, max_line_width=terminal_size[0]).split("\n")
     M_total = [(name, M_strings[0])]
     M_total += list(zip(itertools.repeat(""), M_strings[1:]))
@@ -89,7 +89,7 @@ def _generate_fsrs_cols(fsrs: FisherResultSingle, terminal_size=shutil.get_termi
         ("ode_x0", fsrs.ode_x0),
         ("ode_t0", fsrs.ode_t0)
     ]
-    cols += _generate_matrix_cols(fsrs.times, "times", terminal_size)
+    cols += generate_matrix_cols(fsrs.times, "times", terminal_size)
 
     cols+= [
         ("inputs", fsrs.inputs),
@@ -105,8 +105,8 @@ def display_fsr_details(fsr: FisherResults, pp=pprint.PrettyPrinter(indent=2, wi
     cols = [
         (getattr(fsr.criterion_fun, '__name__', 'unknown'), fsr.criterion),
     ]
-    cols += _generate_matrix_cols(fsr.S.T, "sensitivity matrix", terminal_size)
-    cols += _generate_matrix_cols(fsr.C.T, "inverse covariance matrix", terminal_size)
+    cols += generate_matrix_cols(fsr.S.T, "sensitivity matrix", terminal_size)
+    cols += generate_matrix_cols(fsr.C.T, "inverse covariance matrix", terminal_size)
     display_entries(cols, terminal_size)
 
     display_heading("INDIVIDUAL RESULTS")
