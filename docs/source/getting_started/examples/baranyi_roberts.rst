@@ -37,7 +37,7 @@ Define the system of ODEs.
    :language: python
    :linenos:
    :lineno-start: 8
-   :lines: 8-53
+   :lines: 9-60
 
 Define the parameters of the system :code:`p` and initial conditions :code:`x0`.
 
@@ -45,23 +45,23 @@ Define the parameters of the system :code:`p` and initial conditions :code:`x0`.
    :language: python
    :linenos:
    :lineno-start: 58
-   :lines: 58-59
+   :lines: 65-66
 
-Define optimization of 6 time points with lower bound :code:`0.0`, upper bound :code:`10.0`.
+Define optimization of 6 time points with lower bound :code:`0.0`, upper bound :code:`100.0`.
 
 .. literalinclude:: ../../../../examples/baranyi_roberts.py
    :language: python
    :linenos:
    :lineno-start: 62
-   :lines: 62
+   :lines: 69
 
-Define optimization of one input value (temperature) with lower bound :code:`3.0`, upper bound :code:`12.0`.
+Define optimization of one input value (temperature) with lower bound :code:`2.0`, upper bound :code:`12.0`.
 
 .. literalinclude:: ../../../../examples/baranyi_roberts.py
    :language: python
    :linenos:
    :lineno-start: 65
-   :lines: 65
+   :lines: 72
 
 As an observable, it is pretty common to measure the bacteria count :math:`x_1` or the logarithm of this value. 
 For simplicity, we would consider the prior case where the observable is the null-component of the state variable vector :math:`y(t_i) = x_1(t_i)`.
@@ -76,7 +76,7 @@ The resulting Fisher Model:
    :language: python
    :linenos:
    :lineno-start: 69
-   :lines: 69-81
+   :lines: 76-88
 
 The optimization is then held using relative sensitivities and D-optimality criterion (determinant).
 
@@ -84,7 +84,16 @@ The optimization is then held using relative sensitivities and D-optimality crit
    :language: python
    :linenos:
    :lineno-start: 83
-   :lines: 83-91
+   :lines: 90-98
+
+Check the structural indentifiability of the Design.
+
+.. literalinclude:: ../../../../examples/baranyi_roberts.py
+   :language: python
+   :linenos:
+   :lineno-start: 95
+   :lines: 100
+
 
 Save and plot the results of optimization.
 
@@ -92,7 +101,7 @@ Save and plot the results of optimization.
    :language: python
    :linenos:
    :lineno-start: 95
-   :lines: 95-96
+   :lines: 104-105
 
 The resulting Optimal Experimental Design:
 
