@@ -3,7 +3,8 @@ from .display import display_identifiability_check
 import numpy as np
 
 def check_if_identifiable(fsr: FisherResults):
-    """This function will return `True` if a problem with identifieability is present.
+    """This function will return `True` if a problem is identifiable.
+    It returns `False` if structural non-identifiability is present.
     We check if the rank of the Fisher matrix is full.
 
     Note: We can only assert the identifieability of this particular configuration.
