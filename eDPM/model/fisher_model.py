@@ -213,7 +213,6 @@ class FisherModel(_FisherModelOptions, _FisherModelBase):
     def all_observables_defined(cls, values):
         # Check if we can automatically calculate the new observable functions
         # First get the current functions
-        print(values.keys())
         obs_fun = values["obs_fun"]
         obs_dgdx = values["obs_dgdx"]
         obs_dgdp = values["obs_dgdp"]
