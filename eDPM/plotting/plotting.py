@@ -11,15 +11,16 @@ from eDPM.solving import calculate_fisher_criterion
 def plot_template(fsr: FisherResults, sol, sol_new, y_design, y_model, outdir, additional_name, y_name, i, j, k=None, file_format="svg"):
     # Define properties for plotting
     plt.rcParams['figure.figsize'] = (10, 6)
-    plt.rcParams['figure.dpi'] = 400
+    plt.rcParams['figure.dpi'] = 600
     plt.rcParams["font.family"] = "sans-serif"
     #plt.rcParams['font.sans-serif'] = 'Helvetica'
 
     plt.rcParams['legend.fontsize'] = 28.
     plt.rcParams['legend.framealpha'] = 0.
+    plt.rcParams['legend.handlelength'] = 1.3
 
     plt.rcParams['axes.labelsize'] = 28.
-    plt.rcParams['axes.prop_cycle'] = plt.cycler(color=["#21918c"], linewidth=[3.])
+    plt.rcParams['axes.prop_cycle'] = plt.cycler(color=["#21918c"], linewidth=[4.])
     plt.rcParams['lines.markersize'] = 25
     plt.rcParams['xtick.labelsize'] = 20
     plt.rcParams['ytick.labelsize'] = 20
@@ -28,7 +29,8 @@ def plot_template(fsr: FisherResults, sol, sol_new, y_design, y_model, outdir, a
     ax.plot(sol_new.times, y_model, label="Model Solution")
 
     # Plot sampled time points
-    ax.scatter(sol.times, y_design, alpha=0.5, color="#440154", label="Optimal Design")
+    ax.scatter(fsr.ode_t0, [y_model[0]], alpha=0.5, color="#440154")
+    ax.scatter(fsr.ode_t0+sol.times,y_design, alpha=0.5, color="#440154", label="Optimal Design")
     ax.set_xlabel("Time")
     ax.set_ylabel(y_name)
     ax.legend()
