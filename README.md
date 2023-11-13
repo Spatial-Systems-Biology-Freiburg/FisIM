@@ -6,7 +6,7 @@
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/eDPM?style=flat-square)
 ![PyPI - License](https://img.shields.io/pypi/l/eDPM?style=flat-square)
 
-# eDPM - Fisher Information
+# eDPM - experimental Design for Predictive Microbiology
 This tools analyzes ODEs for optimality criteria and maximes their Fischer Information Matrix (see [Wikipedia](https://en.wikipedia.org/wiki/Fisher_information) )
 
 Find the documentation on [spatial-systems-biology-freiburg.github.io/eDPM](https://spatial-systems-biology-freiburg.github.io/eDPM/)
