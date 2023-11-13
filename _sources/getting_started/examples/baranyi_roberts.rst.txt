@@ -1,0 +1,113 @@
+Baranyi and Roberts Model
+=========================
+
+The Baranyi and Roberts growth model (1994) is introduced by a two-dimensional vector of state variables :math:`\mathbf{x}=(x_1, x_2)`, where :math:`x_1(t)` denotes the cell concentration of a bacterial population at the time :math:`t`, and :math:`x_2(t)` defines a physiological state of the cells, the process of adjustment (lag-phase):
+
+.. math::
+    :name: eq:baranyi_roberts_ode 
+    
+    \begin{alignat}{3}
+        &\dot x_1(t) &&= \frac{x_2(t)}{x_2(t) + 1} \mu^\text{max} \bigg(1 - \frac{x_1(t)}{x_1^\text{max}}\bigg) x(t)\\
+        &\dot x_2(t) &&= \mu^\text{max}  x_2(t)
+    \end{alignat}
+ 
+
+Here :math:`\mu^\text{max}` is the maximum growth rate, and :math:`x_1^\text{max}` is bacteria concentration at the saturation. 
+To account for the influence of the temperature on the activity of the model, we will use the 'square root' or Ratkowsky-type model for the maximum growth rate
+
+.. math::
+   \begin{alignat}{3}
+        \sqrt{\mu^\text{max}} = b (T - T_\text{min}),
+   \end{alignat}
+   :label: eq:ratakowski_model
+
+where :math:`b` is the regression coefficient, and :math:`T_\text{min}` is the minimum temperature at which the growth can occur.
+Here :math:`x_1^\text{max}, b, T_\text{min}` are parameters that we estimate. And temperature :math:`T` is an input of the system.
+
+First of all, import al the necessary libraries.
+
+.. code-block:: python3
+
+    import numpy as np
+    from eDPM import *
+
+Define the system of ODEs.
+
+.. literalinclude:: ../../../../examples/baranyi_roberts.py
+   :language: python
+   :linenos:
+   :lineno-start: 8
+   :lines: 9-60
+
+Define the parameters of the system :code:`p` and initial conditions :code:`x0`.
+
+.. literalinclude:: ../../../../examples/baranyi_roberts.py
+   :language: python
+   :linenos:
+   :lineno-start: 58
+   :lines: 65-66
+
+Define optimization of 6 time points with lower bound :code:`0.0`, upper bound :code:`100.0`.
+
+.. literalinclude:: ../../../../examples/baranyi_roberts.py
+   :language: python
+   :linenos:
+   :lineno-start: 62
+   :lines: 69
+
+Define optimization of one input value (temperature) with lower bound :code:`2.0`, upper bound :code:`12.0`.
+
+.. literalinclude:: ../../../../examples/baranyi_roberts.py
+   :language: python
+   :linenos:
+   :lineno-start: 65
+   :lines: 72
+
+As an observable, it is pretty common to measure the bacteria count :math:`x_1` or the logarithm of this value. 
+For simplicity, we would consider the prior case where the observable is the null-component of the state variable vector :math:`y(t_i) = x_1(t_i)`.
+
+.. code-block:: python3
+
+   obs_fun = 0
+
+The resulting Fisher Model:
+
+.. literalinclude:: ../../../../examples/baranyi_roberts.py
+   :language: python
+   :linenos:
+   :lineno-start: 69
+   :lines: 76-88
+
+The optimization is then held using relative sensitivities and D-optimality criterion (determinant).
+
+.. literalinclude:: ../../../../examples/baranyi_roberts.py
+   :language: python
+   :linenos:
+   :lineno-start: 83
+   :lines: 90-98
+
+Check the structural indentifiability of the Design.
+
+.. literalinclude:: ../../../../examples/baranyi_roberts.py
+   :language: python
+   :linenos:
+   :lineno-start: 95
+   :lines: 100
+
+
+Save and plot the results of optimization.
+
+.. literalinclude:: ../../../../examples/baranyi_roberts.py
+   :language: python
+   :linenos:
+   :lineno-start: 95
+   :lines: 104-105
+
+The resulting Optimal Experimental Design:
+
+.. figure:: ../../../source/_static/baranyi_roberts/Observable_Results_baranyi_roberts_ode_fisher_determinant_rel_sensit_cont_6times_1temps_000_x_00.svg
+    :align: center
+    :width: 400
+
+    The output of the Experimental Design optimization procedure. 
+    Line plot: the model solution for the observable, scatter plot: the design time points.

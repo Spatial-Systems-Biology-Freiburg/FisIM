@@ -1,0 +1,695 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Damped Oscillator &#8212; eDPM 0.0.2 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
+  <script src="../../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
+
+    <script src="../../_static/documentation_options.js?v=e3a6060d"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/examples/damped_oscillator';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Theoretical Overview" href="../../theoretical_overview/index.html" />
+    <link rel="prev" title="Baranyi and Roberts Model" href="baranyi_roberts.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo-light.png" class="logo__image only-light" alt="eDPM 0.0.2 documentation - Home"/>
+    <script>document.write(`<img src="../../_static/logo-dark.png" class="logo__image only-dark" alt="eDPM 0.0.2 documentation - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="../index.html">
+                        Getting Started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../theoretical_overview/index.html">
+                        Concepts and Background
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../documentation/index.html">
+                        Documentation
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../contributing.html">
+                        Contributing
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary" tabindex="0">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="../index.html">
+                        Getting Started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../theoretical_overview/index.html">
+                        Concepts and Background
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../documentation/index.html">
+                        Documentation
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../contributing.html">
+                        Contributing
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Examples</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="baranyi_roberts.html">Baranyi and Roberts Model</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Damped Oscillator</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Getting Started</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Examples</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">Damped Oscillator</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="damped-oscillator">
+<h1>Damped Oscillator<a class="headerlink" href="#damped-oscillator" title="Link to this heading">#</a></h1>
+<p>A damped oscillator can be described by the second order ordinary differential equation</p>
+<div class="math notranslate nohighlight" id="eq-damped-osci-ode">
+<span id="equation-eq-damped-osci-ode"></span><span class="eqno">(1)<a class="headerlink" href="#eq-damped-osci-ode" title="Link to this equation">#</a></span>\[\ddot{x} + \mu(h)\dot{x} + \lambda x = 0\]</div>
+<p>Here we additionally assume that the parameter <span class="math notranslate nohighlight">\(\mu\)</span> depends on another input
+variable <span class="math notranslate nohighlight">\(h\)</span> via <span class="math notranslate nohighlight">\(\mu(h)=ah + b\)</span>.
+To obtain a first-order equation, we substitute <span class="math notranslate nohighlight">\(\dot{x}=A\)</span> and <span class="math notranslate nohighlight">\(x=B\)</span> and obtain</p>
+<div class="math notranslate nohighlight" id="eq-damped-osci-ode-first-order">
+<span id="equation-eq-damped-osci-ode-first-order"></span><span class="eqno">(2)<a class="headerlink" href="#eq-damped-osci-ode-first-order" title="Link to this equation">#</a></span>\[\begin{split}\begin{align}
+    \dot{A} &amp;= -\mu(h) A - \lambda B\\
+    \dot{B} &amp;= A
+\end{align}\end{split}\]</div>
+<p>This is now a first order ODE with the parameters <span class="math notranslate nohighlight">\(a,b,\lambda\)</span> and the input variable <span class="math notranslate nohighlight">\(h\)</span>.
+Now we can begin with the numerical description of the system.
+It is good practice to first import every needed libraries at the top of our file.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">7</span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="linenos">8</span><span class="kn">from</span> <span class="nn">eDPM</span> <span class="kn">import</span> <span class="o">*</span>
+</pre></div>
+</div>
+<p>To define the system numerically, we write the preceding equations as a function.
+Only the right-hand side of the <a class="reference internal" href="#eq-damped-osci-ode-first-order"><span class="std std-ref">ODE equation</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">10</span><span class="c1"># Defines the right hand side of the ODE of an parametrized damped oscillator</span>
+<span class="linenos">11</span><span class="k">def</span> <span class="nf">damped_osci</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">ode_args</span><span class="p">):</span>
+<span class="linenos">12</span>    <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">l</span> <span class="o">=</span> <span class="n">parameters</span>
+<span class="linenos">13</span>    <span class="n">h</span><span class="p">,</span> <span class="o">=</span> <span class="n">inputs</span>
+<span class="linenos">14</span>    <span class="n">A</span><span class="p">,</span> <span class="n">B</span> <span class="o">=</span> <span class="n">y</span>
+<span class="linenos">15</span>    <span class="k">return</span> <span class="p">[</span>
+<span class="linenos">16</span>        <span class="o">-</span><span class="p">(</span><span class="n">a</span><span class="o">*</span><span class="n">h</span><span class="o">+</span><span class="n">b</span><span class="p">)</span><span class="o">*</span><span class="n">A</span> <span class="o">-</span> <span class="n">l</span><span class="o">*</span><span class="n">B</span><span class="p">,</span>
+<span class="linenos">17</span>        <span class="n">A</span>
+<span class="linenos">18</span>    <span class="p">]</span>
+</pre></div>
+</div>
+<p>We seek to maximize the amount of information in the system to most accurately estimate the parameters
+<span class="math notranslate nohighlight">\((a, b, \lambda)\)</span>.
+To achieve this, we must also define the derivatives of the <a class="reference internal" href="#eq-damped-osci-ode-first-order"><span class="std std-ref">ODE equation</span></a>.
+with respect to the components of the ODE <span class="math notranslate nohighlight">\((A, B)\)</span> and the parameters.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">20</span><span class="c1"># Derivative of the RHS of the ODE with respect to the components of the ODE</span>
+<span class="linenos">21</span><span class="k">def</span> <span class="nf">damped_osci_dfdx</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">ode_args</span><span class="p">):</span>
+<span class="linenos">22</span>    <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">l</span> <span class="o">=</span> <span class="n">parameters</span>
+<span class="linenos">23</span>    <span class="n">h</span><span class="p">,</span> <span class="o">=</span> <span class="n">inputs</span>
+<span class="linenos">24</span>    <span class="n">A</span><span class="p">,</span> <span class="n">B</span> <span class="o">=</span> <span class="n">y</span>
+<span class="linenos">25</span>    <span class="k">return</span> <span class="p">[</span>
+<span class="linenos">26</span>        <span class="p">[</span><span class="o">-</span><span class="p">(</span><span class="n">a</span><span class="o">*</span><span class="n">h</span><span class="o">+</span><span class="n">b</span><span class="p">),</span> <span class="o">-</span><span class="n">l</span><span class="p">],</span>
+<span class="linenos">27</span>        <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="linenos">28</span>    <span class="p">]</span>
+<span class="linenos">29</span>
+<span class="linenos">30</span><span class="c1"># Derivative with respect to the parameters</span>
+<span class="linenos">31</span><span class="k">def</span> <span class="nf">damped_osci_dfdp</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">ode_args</span><span class="p">):</span>
+<span class="linenos">32</span>    <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">l</span> <span class="o">=</span> <span class="n">parameters</span>
+<span class="linenos">33</span>    <span class="n">h</span><span class="p">,</span> <span class="o">=</span> <span class="n">inputs</span>
+<span class="linenos">34</span>    <span class="n">A</span><span class="p">,</span> <span class="n">B</span> <span class="o">=</span> <span class="n">y</span>
+<span class="linenos">35</span>    <span class="k">return</span> <span class="p">[</span>
+<span class="linenos">36</span>        <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="o">*</span><span class="n">A</span><span class="p">,</span> <span class="o">-</span><span class="n">A</span><span class="p">,</span> <span class="o">-</span><span class="n">B</span><span class="p">],</span>
+</pre></div>
+</div>
+<p>Now we have defined the overall structure of the ODE but are still lacking actual numerical values
+to be able to solve the system.
+We gather them in the main function of our script and start with the initial guesses of the parameters.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">41</span><span class="c1"># The main function executes the script and gathers every needed numerical value.</span>
+<span class="linenos">42</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span> 
+<span class="linenos">43</span>    <span class="c1"># Define initial parameter guesses</span>
+<span class="linenos">44</span>    <span class="n">a</span> <span class="o">=</span> <span class="mf">3.0</span>
+<span class="linenos">45</span>    <span class="n">b</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="linenos">46</span>    <span class="n">l</span> <span class="o">=</span> <span class="mf">5.0</span>
+<span class="linenos">47</span>    <span class="n">parameters</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Next, we define the initial values of the <a class="reference internal" href="#eq-damped-osci-ode-first-order"><span class="std std-ref">ODE system</span></a>.
+Notice, that since we have a two-component system, we need to define values for <span class="math notranslate nohighlight">\((A, B)\)</span>,
+meaning in our case the variable <span class="math notranslate nohighlight">\(x\)</span> as well as its time derivative <span class="math notranslate nohighlight">\(\dot{x}\)</span>.
+In the next steps, we define helper variables to later pick explicit values for the input variable <span class="math notranslate nohighlight">\(h\)</span>
+and a range to optimize time points <span class="math notranslate nohighlight">\(t_i\)</span> when to evaluate the solution of the ODE.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">53</span>    <span class="c1"># Numerical values for the input variable h</span>
+<span class="linenos">54</span>    <span class="n">h_low</span> <span class="o">=</span> <span class="mf">0.08</span>
+<span class="linenos">55</span>    <span class="n">h_high</span> <span class="o">=</span> <span class="mf">0.12</span>
+<span class="linenos">56</span>    <span class="n">n_h</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="linenos">57</span>
+<span class="linenos">58</span>    <span class="c1"># Numerical values for time points</span>
+<span class="linenos">59</span>    <span class="n">times_low</span> <span class="o">=</span> <span class="n">t0</span>
+<span class="linenos">60</span>    <span class="n">times_high</span> <span class="o">=</span> <span class="mf">10.0</span>
+<span class="linenos">61</span>    <span class="n">n_times</span> <span class="o">=</span> <span class="mi">3</span>
+</pre></div>
+</div>
+<p>The next statement fixes the explicit values of <span class="math notranslate nohighlight">\(h\)</span>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">63</span>    <span class="c1"># Gather information on inputs in list</span>
+<span class="linenos">64</span>    <span class="n">inputs</span> <span class="o">=</span> <span class="p">[</span>
+<span class="linenos">65</span>        <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">h_low</span><span class="p">,</span> <span class="n">h_high</span><span class="p">,</span> <span class="n">n_h</span><span class="p">)</span>
+<span class="linenos">66</span>    <span class="p">]</span>
+</pre></div>
+</div>
+<p>A short inspection reveals that the following lines of code yield us with a numpy array of explicit values.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Numerical values for the input variable h</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">h_low</span> <span class="o">=</span> <span class="mf">0.08</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">h_high</span> <span class="o">=</span> <span class="mf">0.12</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">n_h</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">h_low</span><span class="p">,</span> <span class="n">h_high</span><span class="p">,</span> <span class="n">n_h</span><span class="p">)</span>
+<span class="n">array</span><span class="p">([</span><span class="mf">0.08</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>So far we have not yet used the methods developed in this package.
+But now we are ready to define the fisher model which can then be solved to obtain optimal conditions
+for our experimental design.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">68</span>    <span class="c1"># Create a fisher model containing all information of the system.</span>
+<span class="linenos">69</span>    <span class="n">fsm</span> <span class="o">=</span> <span class="n">FisherModel</span><span class="p">(</span>
+<span class="linenos">70</span>            <span class="n">ode_fun</span><span class="o">=</span><span class="n">damped_osci</span><span class="p">,</span>
+<span class="linenos">71</span>            <span class="n">ode_dfdx</span><span class="o">=</span><span class="n">damped_osci_dfdx</span><span class="p">,</span>
+<span class="linenos">72</span>            <span class="n">ode_dfdp</span><span class="o">=</span><span class="n">damped_osci_dfdp</span><span class="p">,</span>
+<span class="linenos">73</span>            <span class="n">ode_t0</span><span class="o">=</span><span class="n">times_low</span><span class="p">,</span>
+<span class="linenos">74</span>            <span class="n">ode_x0</span><span class="o">=</span><span class="n">x0</span><span class="p">,</span>
+<span class="linenos">75</span>            <span class="n">times</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;lb&quot;</span><span class="p">:</span><span class="n">times_low</span><span class="p">,</span> <span class="s2">&quot;ub&quot;</span><span class="p">:</span><span class="n">times_high</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span><span class="n">n_times</span><span class="p">},</span>
+<span class="linenos">76</span>            <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span>
+<span class="linenos">77</span>            <span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">,</span>
+<span class="linenos">78</span>    <span class="p">)</span>
+</pre></div>
+</div>
+<p>The next step solves this model and actually does the optimization.
+The result is called a fisher result and contains information on final values and the
+optimization procedure.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">80</span>    <span class="c1"># This finds the optimal time points to estimate the parameters</span>
+<span class="linenos">81</span>    <span class="n">fsr</span> <span class="o">=</span> <span class="n">find_optimal</span><span class="p">(</span><span class="n">fsm</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>When executing the script in a terminal, the output might look like the following.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>sh-5.1$ python examples/damped_oscillator.py 
+============================== SUMMARY OF FISHER MODEL ==============================
+=================================== ODE FUNCTIONS ===================================
+├─ode_fun   damped_osci
+├─ode_dfdx  damped_osci_dfdx
+└─ode_dfdp  damped_osci_dfdp
+=================================== INITIAL GUESS ===================================
+├─ode_x0           [array([ 6., 20.])]
+├─ode_t0           [0.]
+├─times            [[ 0.  5. 10.]]
+├─inputs           [array([0.08])]
+├─parameters       (3.0, 1.0, 5.0)
+├─ode_args         None
+├─identical_times  False
+└─covariance       CovarianceDefinition(rel=None, abs=None)
+=============================== VARIABLE DEFINITIONS ================================
+├─ode_x0           None
+├─ode_t0           None
+├─times            VariableDefinition(lb=0.0, ub=10.0, n=3, discrete=None, min_distance=None, unique=False)
+├─inputs           [None]
+├─parameters       (3.0, 1.0, 5.0)
+├─ode_args         None
+├─identical_times  False
+└─covariance       CovarianceDefinition(rel=None, abs=None)
+================================== VARIABLE VALUES ==================================
+├─ode_x0           [array([ 6., 20.])]
+├─ode_t0           [0.]
+├─times            [[ 0.  5. 10.]]
+├─inputs           [array([0.08])]
+├─parameters       (3.0, 1.0, 5.0)
+├─ode_args         None
+├─identical_times  False
+└─covariance       CovarianceDefinition(rel=None, abs=None)
+=================================== OTHER OPTIONS ===================================
+└─identical_times  False
+============================= STARTING OPTIMIZATION RUN =============================
+differential_evolution step 1: f(x)= -8.01838e-12
+differential_evolution step 2: f(x)= -8.01838e-12
+differential_evolution step 3: f(x)= -8.01838e-12
+differential_evolution step 4: f(x)= -8.15833e-12
+differential_evolution step 5: f(x)= -8.15833e-12
+differential_evolution step 6: f(x)= -8.15833e-12
+differential_evolution step 7: f(x)= -8.15833e-12
+differential_evolution step 8: f(x)= -1.13942e-11
+differential_evolution step 9: f(x)= -1.17195e-11
+differential_evolution step 10: f(x)= -1.17195e-11
+differential_evolution step 11: f(x)= -1.17195e-11
+differential_evolution step 12: f(x)= -1.17195e-11
+differential_evolution step 13: f(x)= -1.75116e-11
+differential_evolution step 14: f(x)= -1.75116e-11
+differential_evolution step 15: f(x)= -1.75116e-11
+differential_evolution step 16: f(x)= -1.75116e-11
+differential_evolution step 17: f(x)= -1.75116e-11
+differential_evolution step 18: f(x)= -1.99191e-11
+differential_evolution step 19: f(x)= -1.99191e-11
+differential_evolution step 20: f(x)= -1.99191e-11
+
+================================= OPTIMIZED RESULTS =================================
+===================================== CRITERION =====================================
+├─fisher_determinant         1.9919075539958553e-11
+├─sensitivity matrix         [[ -0.80156668 -10.01958349   6.56496328]
+│                             [ -1.04401692 -13.05021153   4.18222325]
+│                             [ -1.02766883 -12.84586043   1.74355491]
+│                             [  0.37171508   4.64643853   0.96671143]
+│                             [  0.13627137   1.70339212   2.33633093]
+│                             [ -0.05091669  -0.63645857   2.86981462]]
+├─inverse covariance matrix  [[1. 0. 0. 0. 0. 0.]
+│                             [0. 1. 0. 0. 0. 0.]
+│                             [0. 0. 1. 0. 0. 0.]
+│                             [0. 0. 0. 1. 0. 0.]
+│                             [0. 0. 0. 0. 1. 0.]
+│                             [0. 0. 0. 0. 0. 1.]]
+================================ INDIVIDUAL RESULTS =================================
+Result_0
+├─ode_x0      [ 6. 20.]
+├─ode_t0      0.0
+├─times       [1.77272691 2.02130042 2.19968034]
+├─inputs      [0.08]
+└─parameters  (3.0, 1.0, 5.0)
+========================== DISCRETIZATION PENALTY SUMMARY ===========================
+├─penalty          1.0
+├─penalty_ode_t0   1.0
+├─penalty_inputs   1.0
+├─penalty_times    1.0
+└─penalty_summary  {&#39;ode_t0&#39;: [], &#39;inputs&#39;: [], &#39;times&#39;: []}
+sh-5.1$ 
+</pre></div>
+</div>
+<p>In our final step we can visualize the results by autmatically generating images or saving
+results as a json file.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">83</span>    <span class="c1"># Automatically plot the results and export as json file</span>
+<span class="linenos">84</span>    <span class="n">plot_all_solutions</span><span class="p">(</span><span class="n">fsr</span><span class="p">,</span> <span class="n">outdir</span><span class="o">=</span><span class="s2">&quot;out&quot;</span><span class="p">)</span>
+<span class="linenos">85</span>    <span class="n">json_dump</span><span class="p">(</span><span class="n">fsr</span><span class="p">,</span> <span class="s2">&quot;damped_osci.json&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This image shows one of the results of this optimization run.
+You can see the <span class="math notranslate nohighlight">\(B\)</span> component of the <a class="reference internal" href="#eq-damped-osci-ode-first-order"><span class="std std-ref">ODE</span></a>.</p>
+<img alt="../../_images/Observable_Results_damped_osci_fisher_determinant__000_x_01.svg" src="../../_images/Observable_Results_damped_osci_fisher_determinant__000_x_01.svg" /></section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  <!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="baranyi_roberts.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Baranyi and Roberts Model</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../../theoretical_overview/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Theoretical Overview</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="tocsection sourcelink">
+    <a href="../../_sources/getting_started/examples/damped_oscillator.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright 2022, Jonas Pleyer, Polina Gaindrik.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

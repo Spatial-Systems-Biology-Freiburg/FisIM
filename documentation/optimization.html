@@ -1,0 +1,803 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Optimization &#8212; eDPM 0.0.2 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
+
+    <script src="../_static/documentation_options.js?v=e3a6060d"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'documentation/optimization';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Database" href="database.html" />
+    <link rel="prev" title="Solving" href="solving.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/logo-light.png" class="logo__image only-light" alt="eDPM 0.0.2 documentation - Home"/>
+    <script>document.write(`<img src="../_static/logo-dark.png" class="logo__image only-dark" alt="eDPM 0.0.2 documentation - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../getting_started/index.html">
+                        Getting Started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../theoretical_overview/index.html">
+                        Concepts and Background
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
+                        Documentation
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../contributing.html">
+                        Contributing
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary" tabindex="0">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../getting_started/index.html">
+                        Getting Started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../theoretical_overview/index.html">
+                        Concepts and Background
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
+                        Documentation
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../contributing.html">
+                        Contributing
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="model.html">Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="solving.html">Solving</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database.html">Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="analysis.html">Analysis</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">eDPM</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">Optimization</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="module-eDPM.optimization.caller">
+<span id="optimization"></span><h1>Optimization<a class="headerlink" href="#module-eDPM.optimization.caller" title="Link to this heading">#</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="eDPM.optimization.caller.find_optimal">
+<span class="sig-name descname"><span class="pre">find_optimal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fsm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="model.html#eDPM.model.fisher_model.FisherModel" title="eDPM.model.fisher_model.FisherModel"><span class="pre">FisherModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization_strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'scipy_differential_evolution'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discrete_penalizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eDPM.optimization.caller.find_optimal" title="Link to this definition">#</a></dt>
+<dd><p>Find the global optimum of the supplied FisherModel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fsm</strong> (<a class="reference internal" href="model.html#eDPM.model.fisher_model.FisherModel" title="eDPM.model.fisher_model.FisherModel"><em>FisherModel</em></a>) – The FisherModel object that defines the studied system with its all constraints.</p></li>
+<li><p><strong>optimization_strategy</strong> (<em>str</em>) – <p>Choose the optimization strategy to find global maximum of the objective function. The default is “scipy_differential_evolution”.</p>
+<ul>
+<li><dl>
+<dt>”scipy_differential_evolution” (recommended)</dt><dd><p>The global optimization method uses the <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.differential_evolution.html">scipy.optimize.differential_evolution</a> function showing rather good results for nonlinear dynamic problems.
+The strategy was developed by Storn and Price (1996) and work as follows.</p>
+<p>Firstly, the initial population of the vectors of all optimized values (times and inputs) for one Experimental Design (solutions) is randomly chosen from the region of available values.
+Then each solution mutates by mixing with other candidates.
+To a chosen one solution from the initial population <span class="math notranslate nohighlight">\(D_0\)</span>, a weighted difference between two other random solutions from the same set <span class="math notranslate nohighlight">\((D_\text{rand1} - D_\text{rand2})\)</span> is added.
+This process is called mutation and a new vector <span class="math notranslate nohighlight">\(D_m\)</span> is obtained.
+The next step is to construct a new trial solution.
+This is done by randomly choosing the elements of this vector either from the initial <span class="math notranslate nohighlight">\(D_0\)</span> or the mutated <span class="math notranslate nohighlight">\(D_m\)</span> solutions.
+For each new element of trial vector, from the segment [0, 1) the number should be randomly picked and compared to the so-called recombination constant.
+If this number is less than a constant, then the new solution element is chosen from mutated vector <span class="math notranslate nohighlight">\(D_m\)</span>, otherwise from <span class="math notranslate nohighlight">\(D_0\)</span>.
+So, in general, the degree of mutation can be controlled by changing this recombination constant.
+When the trial candidate is built, it is compared to initial solution <span class="math notranslate nohighlight">\(D_0\)</span>, and the best of them is chosen for the next generation.
+This operation is repeated for every solution candidate of the initial population, and the new population generation can be formed.
+The process of population mutation is repeated till the desired accuracy is achieved.
+This method is rather simple, straightforward, does not require the gradient calculation and is able to be parallelized.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>”scipy_basinhopping”</dt><dd><p>The global optimization method uses the <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.basinhopping.html">scipy.optimize.basinhopping</a> function.
+The algorithm combines the Monte-Carlo optimization with Methropolis acceptance criterion and local optimization that works as follows.
+The strategy is developed by David Wales and Jonathan Doye and combines the Monte-Carlo and local optimization. 
+The classic Monte-Carlo algorithm implies that the values of the optimized vector are perturbed and are either accepted or rejected.
+However, in this modified strategy, after perturbation, the vector is additionally subjected to local optimization.
+And only after this procedure the move is accepted according to the Metropolis criterion.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>”scipy_brute”</dt><dd><p>The global optimization method uses the <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.brute.html">scipy.optimize.brute</a> function.
+It is a grid search algorithm calculating the objective function value at each point of a multidimensional grid in a chosen region.
+The technique is rather slow and inefficient but the global minimum can be guaranteed.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</p></li>
+<li><p><strong>discrete_penalizer</strong> (<em>str</em>) – <p>A function that takes two 1d arrays (values, discretization) and returns a float. It calculates the penalty (1=no penalty, 0=maximum penalty) for datapoints which do not sit on the desired discretization points.</p>
+<ul>
+<li><dl class="simple">
+<dt>”default”</dt><dd><p>Uses the default penalty function that is described by the function <code class="xref py py-meth docutils literal notranslate"><span class="pre">discrete_penalty_calculator_default()</span></code>.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>”product_difference”</dt><dd><p>Uses the discretization penalty function described by the function <code class="xref py py-meth docutils literal notranslate"><span class="pre">discrete_penalty_calculator_default()</span></code>.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>”individual_zigzag”</dt><dd><p>Uses the discretization penalty function described by the function <code class="xref py py-meth docutils literal notranslate"><span class="pre">discrete_penalty_individual_template()</span></code> with the penalty structure <em>pen_structure=penalty_structure_zigzag</em>.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>”individual_cos”</dt><dd><p>Uses the discretization penalty function described by the function <code class="xref py py-meth docutils literal notranslate"><span class="pre">discrete_penalty_individual_template()</span></code> with the penalty structure <em>pen_structure=penalty_structure_cos</em>.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>”individual_gauss”</dt><dd><p>Uses the discretization penalty function described by the function <code class="xref py py-meth docutils literal notranslate"><span class="pre">discrete_penalty_individual_template()</span></code> with the penalty structure <em>pen_structure=penalty_structure_gauss</em>.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>KeyError</strong> – Raised if the chosen optimization strategy is not implemented.</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The result of the optimization as an object <em>FisherResults</em>. Important attributes are the conditions of the Optimal Experimental Design <em>times</em>, <em>inputs</em>, the resultion value of the objective function <em>criterion</em>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="model.html#eDPM.model.fisher_model.FisherResults" title="eDPM.model.fisher_model.FisherResults">FisherResults</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function" id="module-eDPM.optimization.display">
+<dt class="sig sig-object py" id="eDPM.optimization.display.display_optimization_end">
+<span class="sig-name descname"><span class="pre">display_optimization_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fsr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="model.html#eDPM.model.fisher_model.FisherResults" title="eDPM.model.fisher_model.FisherResults"><span class="pre">FisherResults</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eDPM.optimization.display.display_optimization_end" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="eDPM.optimization.display.display_optimization_start">
+<span class="sig-name descname"><span class="pre">display_optimization_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fsmp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="model.html#eDPM.model.fisher_model.FisherModelParametrized" title="eDPM.model.fisher_model.FisherModelParametrized"><span class="pre">FisherModelParametrized</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eDPM.optimization.display.display_optimization_start" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py class" id="module-eDPM.optimization.penalty">
+<dt class="sig sig-object py" id="eDPM.optimization.penalty.PenaltyConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PenaltyConfig</span></span><a class="headerlink" href="#eDPM.optimization.penalty.PenaltyConfig" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="eDPM.optimization.penalty.PenaltyConfig.arbitrary_types_allowed">
+<span class="sig-name descname"><span class="pre">arbitrary_types_allowed</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#eDPM.optimization.penalty.PenaltyConfig.arbitrary_types_allowed" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="eDPM.optimization.penalty.PenaltyInformation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PenaltyInformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">penalty</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">penalty_ode_t0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">penalty_inputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">penalty_times</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">penalty_summary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eDPM.optimization.penalty.PenaltyInformation" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="eDPM.optimization.penalty.PenaltyInformation.penalty">
+<span class="sig-name descname"><span class="pre">penalty</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#eDPM.optimization.penalty.PenaltyInformation.penalty" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="eDPM.optimization.penalty.PenaltyInformation.penalty_inputs">
+<span class="sig-name descname"><span class="pre">penalty_inputs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#eDPM.optimization.penalty.PenaltyInformation.penalty_inputs" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="eDPM.optimization.penalty.PenaltyInformation.penalty_ode_t0">
+<span class="sig-name descname"><span class="pre">penalty_ode_t0</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#eDPM.optimization.penalty.PenaltyInformation.penalty_ode_t0" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="eDPM.optimization.penalty.PenaltyInformation.penalty_summary">
+<span class="sig-name descname"><span class="pre">penalty_summary</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></em><a class="headerlink" href="#eDPM.optimization.penalty.PenaltyInformation.penalty_summary" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="eDPM.optimization.penalty.PenaltyInformation.penalty_times">
+<span class="sig-name descname"><span class="pre">penalty_times</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#eDPM.optimization.penalty.PenaltyInformation.penalty_times" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="eDPM.optimization.penalty.discrete_penalty_calculator_default">
+<span class="sig-name descname"><span class="pre">discrete_penalty_calculator_default</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vals_discr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eDPM.optimization.penalty.discrete_penalty_calculator_default" title="Link to this definition">#</a></dt>
+<dd><p>The discretization penalty function taken as a product of all differences between the optimized value <span class="math notranslate nohighlight">\(v\)</span> and all possible discrete values allowed <span class="math notranslate nohighlight">\(v^{\text{discr}}\)</span>.
+If there is no penalty, a function gives 1 and 0 in case of the maximum penalty for data points that do not sit on the desired discretization points.</p>
+<div class="math notranslate nohighlight">
+\[U_1(v) = 1 - \sqrt[N]{\prod_{k=1}^N (v - v^{\text{discr}}_{k})} \frac{1}{\max(v^{\text{discr}}) - \min(v^{\text{discr}})},\]</div>
+<p>where <span class="math notranslate nohighlight">\(N\)</span> is the size of the vector of the allowed discrete values <span class="math notranslate nohighlight">\(v^{\text{discr}}\)</span>. 
+The resulting contribution of the penalty function is a product of the potential values for each value <span class="math notranslate nohighlight">\(v\)</span>.</p>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="../_images/discretization_product.png"><img alt="../_images/discretization_product.png" src="../_images/discretization_product.png" style="width: 400px;" /></a>
+<figcaption>
+<p><span class="caption-text">The discretization penalty function for discrete values <span class="math notranslate nohighlight">\(v^{\text{discr}} = [1, 2, 3, 6, 8, 9]\)</span>.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>The resulting contribution of the penalty function is calculated as a product of all penalty values for each value <span class="math notranslate nohighlight">\(v\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[U = \prod_{i=1} U_1(v_i).\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vals</strong> (<em>np.ndarary</em>) – The array of values to optimize <span class="math notranslate nohighlight">\(v\)</span>.</p></li>
+<li><p><strong>vals_discr</strong> (<em>np.ndarary</em>) – The array of allowed discrete values <span class="math notranslate nohighlight">\(v^{\text{discr}}\)</span>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The array of the penalty potential values for <em>vals</em>. The resulting contribution (product) of the penalty function.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarary, float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="eDPM.optimization.penalty.discrete_penalty_individual_template">
+<span class="sig-name descname"><span class="pre">discrete_penalty_individual_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vals_discr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pen_structure</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eDPM.optimization.penalty.discrete_penalty_individual_template" title="Link to this definition">#</a></dt>
+<dd><p>The discretization penalty function template.
+If there is no penalty, a function gives 1 and 0 in case of the maximum penalty for data points that do not sit on the desired discretization points.</p>
+<p>The resulting contribution of the penalty function is calculated as a product of all penalty values  for each value <span class="math notranslate nohighlight">\(v\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[U = \prod_{i=1} U_1(v_i).\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vals</strong> (<em>np.ndarary</em>) – The array of values to optimize <span class="math notranslate nohighlight">\(v\)</span>.</p></li>
+<li><p><strong>vals_discr</strong> (<em>np.ndarary</em>) – The array of allowed discrete values <span class="math notranslate nohighlight">\(v^{\text{discr}}\)</span>.</p></li>
+<li><p><strong>pen_structure</strong> – <p>Define the structure of the template.</p>
+<ul>
+<li><dl class="simple">
+<dt><a class="reference internal" href="#eDPM.optimization.penalty.penalty_structure_zigzag" title="eDPM.optimization.penalty.penalty_structure_zigzag"><code class="xref py py-meth docutils literal notranslate"><span class="pre">penalty_structure_zigzag()</span></code></a></dt><dd><p>Use zigzag structure.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><a class="reference internal" href="#eDPM.optimization.penalty.penalty_structure_cos" title="eDPM.optimization.penalty.penalty_structure_cos"><code class="xref py py-meth docutils literal notranslate"><span class="pre">penalty_structure_cos()</span></code></a></dt><dd><p>Use cosine function for potential.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><a class="reference internal" href="#eDPM.optimization.penalty.penalty_structure_gauss" title="eDPM.optimization.penalty.penalty_structure_gauss"><code class="xref py py-meth docutils literal notranslate"><span class="pre">penalty_structure_gauss()</span></code></a></dt><dd><p>Use two Gaussian functions.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</p></li>
+</ul>
+</dd>
+</dl>
+<figure class="align-center" id="id2">
+<a class="reference internal image-reference" href="../_images/discretization_template.png"><img alt="../_images/discretization_template.png" src="../_images/discretization_template.png" style="width: 450px;" /></a>
+<figcaption>
+<p><span class="caption-text">The discretization penalty function for discrete values <span class="math notranslate nohighlight">\(v^{\text{discr}} = [1, 2, 3, 6, 8, 9]\)</span> for different penalty structures.</span><a class="headerlink" href="#id2" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The array of the penalty potential values for <em>vals</em>. The resulting contribution (product) of the penalty function.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarary, float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="eDPM.optimization.penalty.penalty_structure_cos">
+<span class="sig-name descname"><span class="pre">penalty_structure_cos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dv</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eDPM.optimization.penalty.penalty_structure_cos" title="Link to this definition">#</a></dt>
+<dd><p>Define the cosine structure of the penalty potential between two allowed discrete values described by equation</p>
+<div class="math notranslate nohighlight">
+\[U_1(v) = \frac{1}{2} (1 + \cos{2 \pi v}),\]</div>
+<p>where <span class="math notranslate nohighlight">\(v\)</span> is the distance between the optimized value and the smaller neighboring discrete value and <span class="math notranslate nohighlight">\(dv\)</span> is the distance between smaller and larger neighboring discrete values.    
+The function is used as an argument in function <a class="reference internal" href="#eDPM.optimization.penalty.discrete_penalty_individual_template" title="eDPM.optimization.penalty.discrete_penalty_individual_template"><code class="xref py py-meth docutils literal notranslate"><span class="pre">discrete_penalty_individual_template()</span></code></a> and dtermines the shape of it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>v</strong> (<em>float</em>) – The distance between the optimized value and the smaller neighboring discrete value <span class="math notranslate nohighlight">\(v\)</span>.</p></li>
+<li><p><strong>dv</strong> (<em>float</em>) – The distance between smaller and larger neighboring discrete values <span class="math notranslate nohighlight">\(dv\)</span>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The value of the penalty potential.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="eDPM.optimization.penalty.penalty_structure_gauss">
+<span class="sig-name descname"><span class="pre">penalty_structure_gauss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dv</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eDPM.optimization.penalty.penalty_structure_gauss" title="Link to this definition">#</a></dt>
+<dd><p>Define the gaussian structure of the penalty potential between two allowed discrete values described by equation</p>
+<div class="math notranslate nohighlight">
+\[U_1(v) = e^{-\frac{v^2}{2\sigma^2}} + e^{-\frac{(v-dv)^2}{2\sigma^2}}\]</div>
+<p>where <span class="math notranslate nohighlight">\(v\)</span> is the distance between the optimized value and the smaller neighboring discrete value, <span class="math notranslate nohighlight">\(dv\)</span> is the distance between smaller and larger neighboring discrete values
+and the variance is <span class="math notranslate nohighlight">\(\sigma = 0.1dv\)</span>.    
+The function is used as an argument in function <a class="reference internal" href="#eDPM.optimization.penalty.discrete_penalty_individual_template" title="eDPM.optimization.penalty.discrete_penalty_individual_template"><code class="xref py py-meth docutils literal notranslate"><span class="pre">discrete_penalty_individual_template()</span></code></a> and dtermines the shape of it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>v</strong> (<em>float</em>) – The distance between the optimized value and the smaller neighboring discrete value <span class="math notranslate nohighlight">\(v\)</span>.</p></li>
+<li><p><strong>dv</strong> (<em>float</em>) – The distance between smaller and larger neighboring discrete values <span class="math notranslate nohighlight">\(dv\)</span>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The value of the penalty potential.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="eDPM.optimization.penalty.penalty_structure_zigzag">
+<span class="sig-name descname"><span class="pre">penalty_structure_zigzag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dv</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eDPM.optimization.penalty.penalty_structure_zigzag" title="Link to this definition">#</a></dt>
+<dd><p>Define the zigzag structure of the penalty potential between two allowed discrete values described by equation</p>
+<div class="math notranslate nohighlight">
+\[U_1(v) = \bigg|1 - \frac{2 v}{dv}\bigg|,\]</div>
+<p>where <span class="math notranslate nohighlight">\(v\)</span> is the distance between the optimized value and the smaller neighboring discrete value and <span class="math notranslate nohighlight">\(dv\)</span> is the distance between smaller and larger neighboring discrete values.    
+The function is used as an argument in function <a class="reference internal" href="#eDPM.optimization.penalty.discrete_penalty_individual_template" title="eDPM.optimization.penalty.discrete_penalty_individual_template"><code class="xref py py-meth docutils literal notranslate"><span class="pre">discrete_penalty_individual_template()</span></code></a> and dtermines the shape of it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>v</strong> (<em>float</em>) – The distance between the optimized value and the smaller neighboring discrete value <span class="math notranslate nohighlight">\(v\)</span>.</p></li>
+<li><p><strong>dv</strong> (<em>float</em>) – The distance between smaller and larger neighboring discrete values <span class="math notranslate nohighlight">\(dv\)</span>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The value of the penalty potential.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<span class="target" id="module-eDPM.optimization.scipy_global_optim"></span></section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  <!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="solving.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Solving</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="database.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Database</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#eDPM.optimization.caller.find_optimal"><code class="docutils literal notranslate"><span class="pre">find_optimal()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#eDPM.optimization.display.display_optimization_end"><code class="docutils literal notranslate"><span class="pre">display_optimization_end()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#eDPM.optimization.display.display_optimization_start"><code class="docutils literal notranslate"><span class="pre">display_optimization_start()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#eDPM.optimization.penalty.PenaltyConfig"><code class="docutils literal notranslate"><span class="pre">PenaltyConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#eDPM.optimization.penalty.PenaltyConfig.arbitrary_types_allowed"><code class="docutils literal notranslate"><span class="pre">PenaltyConfig.arbitrary_types_allowed</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#eDPM.optimization.penalty.PenaltyInformation"><code class="docutils literal notranslate"><span class="pre">PenaltyInformation</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#eDPM.optimization.penalty.PenaltyInformation.penalty"><code class="docutils literal notranslate"><span class="pre">PenaltyInformation.penalty</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#eDPM.optimization.penalty.PenaltyInformation.penalty_inputs"><code class="docutils literal notranslate"><span class="pre">PenaltyInformation.penalty_inputs</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#eDPM.optimization.penalty.PenaltyInformation.penalty_ode_t0"><code class="docutils literal notranslate"><span class="pre">PenaltyInformation.penalty_ode_t0</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#eDPM.optimization.penalty.PenaltyInformation.penalty_summary"><code class="docutils literal notranslate"><span class="pre">PenaltyInformation.penalty_summary</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#eDPM.optimization.penalty.PenaltyInformation.penalty_times"><code class="docutils literal notranslate"><span class="pre">PenaltyInformation.penalty_times</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#eDPM.optimization.penalty.discrete_penalty_calculator_default"><code class="docutils literal notranslate"><span class="pre">discrete_penalty_calculator_default()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#eDPM.optimization.penalty.discrete_penalty_individual_template"><code class="docutils literal notranslate"><span class="pre">discrete_penalty_individual_template()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#eDPM.optimization.penalty.penalty_structure_cos"><code class="docutils literal notranslate"><span class="pre">penalty_structure_cos()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#eDPM.optimization.penalty.penalty_structure_gauss"><code class="docutils literal notranslate"><span class="pre">penalty_structure_gauss()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#eDPM.optimization.penalty.penalty_structure_zigzag"><code class="docutils literal notranslate"><span class="pre">penalty_structure_zigzag()</span></code></a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div class="tocsection sourcelink">
+    <a href="../_sources/documentation/optimization.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright 2022, Jonas Pleyer, Polina Gaindrik.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
